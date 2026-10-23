@@ -166,9 +166,52 @@ function recalcVenueDimensions() {
     showToast(`📐 Dimensiones actualizadas a ${w}m x ${l}m.`);
 }
 
+function saveFloorPlanState() {
+    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    try {
+        localStorage.setItem(`wedding_floor_plan_${wId}`, JSON.stringify({
+            elements: floorPlanState.elements,
+            waiters: floorPlanState.waiters,
+            venueWidth: floorPlanState.venueWidth,
+            venueLength: floorPlanState.venueLength
+        }));
+    } catch(e) {}
+}
+
+function loadFloorPlanState() {
+    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    try {
+        const raw = localStorage.getItem(`wedding_floor_plan_${wId}`);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.elements) && parsed.elements.length > 0) {
+                parsed.elements.forEach(savedEl => {
+                    const match = floorPlanState.elements.find(e => e.id === savedEl.id);
+                    if (match) {
+                        match.x = savedEl.x;
+                        match.y = savedEl.y;
+                        if (savedEl.w) match.w = savedEl.w;
+                        if (savedEl.h) match.h = savedEl.h;
+                        if (savedEl.shape) match.shape = savedEl.shape;
+                    } else if (savedEl.type === 'decor') {
+                        floorPlanState.elements.push(savedEl);
+                    }
+                });
+            }
+            if (parsed && Array.isArray(parsed.waiters) && parsed.waiters.length > 0) {
+                floorPlanState.waiters = parsed.waiters;
+            }
+            if (parsed && parsed.venueWidth) floorPlanState.venueWidth = parsed.venueWidth;
+            if (parsed && parsed.venueLength) floorPlanState.venueLength = parsed.venueLength;
+        }
+    } catch(e) {}
+}
+
 function render2DFloorPlan() {
     const canvas = document.getElementById('floorCanvasViewport');
     if (!canvas) return;
+
+    loadFloorPlanState();
 
     const canvasW = floorPlanState.venueWidth * floorPlanState.scale;
     const canvasH = floorPlanState.venueLength * floorPlanState.scale;
@@ -245,7 +288,14 @@ function render2DFloorPlan() {
                 <div class="table-2d-waiter-tag" style="background:${tagBg};">${tagText}</div>
             `;
 
-            tableEl.addEventListener('click', () => inspectTableElement(el, tableData, seated, waiter));
+            tableEl.addEventListener('click', (e) => {
+                if (tableEl.__justDragged) {
+                    tableEl.__justDragged = false;
+                    return;
+                }
+                inspectTableElement(el, tableData, seated, waiter);
+            });
+
             makeElementDraggable(tableEl, el);
             canvas.appendChild(tableEl);
 
@@ -272,12 +322,18 @@ function render2DFloorPlan() {
             }
 
             rectEl.innerHTML = `
-                <span style="font-size:1.1rem;">${el.icon || '✨'}</span>
-                <span style="font-size:0.65rem; font-weight:700; color:#1e293b; margin-top:2px; text-align:center; padding:0 3px; line-height:1.1;">${el.name}</span>
-                ${el.capacity ? `<span style="font-size:0.6rem; font-weight:800; background:${el.color || '#0f172a'}; color:#ffffff; padding:1px 5px; border-radius:10px; margin-top:2px;">${el.capacity} pax/serv</span>` : ''}
+                <span style="font-size:1.1rem; pointer-events:none;">${el.icon || '✨'}</span>
+                <span style="font-size:0.65rem; font-weight:700; color:#1e293b; margin-top:2px; text-align:center; padding:0 3px; line-height:1.1; pointer-events:none;">${el.name}</span>
+                ${el.capacity ? `<span style="font-size:0.6rem; font-weight:800; background:${el.color || '#0f172a'}; color:#ffffff; padding:1px 5px; border-radius:10px; margin-top:2px; pointer-events:none;">${el.capacity} pax/serv</span>` : ''}
             `;
 
-            rectEl.addEventListener('click', () => inspectDecorElement(el));
+            rectEl.addEventListener('click', (e) => {
+                if (rectEl.__justDragged) {
+                    rectEl.__justDragged = false;
+                    return;
+                }
+                inspectDecorElement(el);
+            });
 
             makeElementDraggable(rectEl, el);
             canvas.appendChild(rectEl);
@@ -287,33 +343,111 @@ function render2DFloorPlan() {
 
 function makeElementDraggable(domEl, stateObj) {
     let startX, startY, initLeft, initTop;
+    let hasMoved = false;
 
-    domEl.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        startX = e.clientX;
-        startY = e.clientY;
-        initLeft = stateObj.x;
-        initTop = stateObj.y;
+    // Enforce touch-action none directly on DOM element for mobile browsers
+    domEl.style.touchAction = 'none';
+
+    function startDrag(clientX, clientY) {
+        startX = clientX;
+        startY = clientY;
+        initLeft = stateObj.x || 0;
+        initTop = stateObj.y || 0;
+        hasMoved = false;
         domEl.classList.add('dragging-2d');
+    }
 
-        function onMouseMove(moveEv) {
-            const dx = moveEv.clientX - startX;
-            const dy = moveEv.clientY - startY;
-            stateObj.x = Math.max(5, initLeft + dx);
-            stateObj.y = Math.max(5, initTop + dy);
-            domEl.style.left = `${stateObj.x}px`;
-            domEl.style.top = `${stateObj.y}px`;
+    function moveDrag(clientX, clientY) {
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            hasMoved = true;
+            domEl.__justDragged = true;
         }
 
-        function onMouseUp() {
-            domEl.classList.remove('dragging-2d');
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('mouseup', onMouseUp);
+        const canvas = document.getElementById('floorCanvasViewport');
+        const maxW = canvas ? Math.max(100, canvas.clientWidth - (domEl.offsetWidth || 60)) : 1200;
+        const maxH = canvas ? Math.max(100, canvas.clientHeight - (domEl.offsetHeight || 50)) : 1200;
+
+        stateObj.x = Math.max(5, Math.min(maxW, initLeft + dx));
+        stateObj.y = Math.max(5, Math.min(maxH, initTop + dy));
+
+        domEl.style.left = `${stateObj.x}px`;
+        domEl.style.top = `${stateObj.y}px`;
+    }
+
+    function endDrag() {
+        domEl.classList.remove('dragging-2d');
+        if (hasMoved) {
+            saveFloorPlanState();
+            setTimeout(() => {
+                domEl.__justDragged = false;
+            }, 250);
+        } else {
+            domEl.__justDragged = false;
+        }
+    }
+
+    // 1. Unified Pointer Events (Modern Mobile iOS 13+, Android Chrome & Desktop)
+    domEl.addEventListener('pointerdown', (e) => {
+        if (e.button && e.button !== 0) return;
+        e.stopPropagation();
+        try {
+            domEl.setPointerCapture(e.pointerId);
+        } catch(err) {}
+
+        startDrag(e.clientX, e.clientY);
+
+        function onPointerMove(moveEv) {
+            if (moveEv.pointerId !== e.pointerId) return;
+            moveEv.preventDefault();
+            moveEv.stopPropagation();
+            moveDrag(moveEv.clientX, moveEv.clientY);
         }
 
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        function onPointerUp(upEv) {
+            if (upEv.pointerId !== e.pointerId) return;
+            try {
+                domEl.releasePointerCapture(e.pointerId);
+            } catch(err) {}
+            domEl.removeEventListener('pointermove', onPointerMove);
+            domEl.removeEventListener('pointerup', onPointerUp);
+            domEl.removeEventListener('pointercancel', onPointerUp);
+            endDrag();
+        }
+
+        domEl.addEventListener('pointermove', onPointerMove);
+        domEl.addEventListener('pointerup', onPointerUp);
+        domEl.addEventListener('pointercancel', onPointerUp);
     });
+
+    // 2. Touch Events Fallback (Prevents page scroll during mobile drag on older WebViews)
+    domEl.addEventListener('touchstart', (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        e.stopPropagation();
+        const touch = e.touches[0];
+        startDrag(touch.clientX, touch.clientY);
+
+        function onTouchMove(moveEv) {
+            if (!moveEv.touches || moveEv.touches.length !== 1) return;
+            moveEv.preventDefault(); // Prevents page scrolling while moving elements
+            moveEv.stopPropagation();
+            const t = moveEv.touches[0];
+            moveDrag(t.clientX, t.clientY);
+        }
+
+        function onTouchEnd() {
+            window.removeEventListener('touchmove', onTouchMove);
+            window.removeEventListener('touchend', onTouchEnd);
+            window.removeEventListener('touchcancel', onTouchEnd);
+            endDrag();
+        }
+
+        window.addEventListener('touchmove', onTouchMove, { passive: false });
+        window.addEventListener('touchend', onTouchEnd);
+        window.addEventListener('touchcancel', onTouchEnd);
+    }, { passive: true });
 }
 
 function inspectTableElement(el, tableData, seated, waiter) {
