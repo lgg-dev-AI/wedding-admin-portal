@@ -95,6 +95,13 @@
                     <button class="role-pill" id="btnRoleDeveloper" onclick="setRole('developer')" style="display:none; color:#d97706; font-weight:700;">💎 Master Dev</button>
                 </div>
             </div>
+
+            <!-- MODO DÍA D (SÁBADO DE EVENTO - EJECUCIÓN EN VIVO) -->
+            <button type="button" class="btn-dia-d-pill planner-only" id="btnTriggerDayD" onclick="openDayDModal()" title="Modo Día D: Minuta en vivo, Hostess Express y Directorio SOS de Proveedores">
+                <span class="dia-d-pulse">⚡</span>
+                <span class="dia-d-label">Modo Día D</span>
+            </button>
+
             <a id="btnLivePreview" href="https://aura-wedding-experience.vercel.app" target="_blank" class="btn-live-site" title="Abrir Invitación Web en vivo">
                 <span>🌐 Ver Web</span> ↗
             </a>
@@ -126,46 +133,71 @@
             </div>
 
             <nav class="sidebar-menu">
+                <!-- TORRE DE CONTROL -->
                 <button class="menu-item active" onclick="showTab('dashboard')">
                     <span class="menu-icon">📊</span>
-                    <span class="menu-text">Dashboard General</span>
+                    <span class="menu-text">Torre de Control (Dash)</span>
+                </button>
+
+                <!-- FASE 1: CONVOCATORIA & MESAS -->
+                <div class="menu-section-header" data-section="phase1">
+                    <span class="section-label">1. Convocatoria &amp; Mesas</span>
+                </div>
+                <button class="menu-item" onclick="showTab('guests')">
+                    <span class="menu-icon">👥</span>
+                    <span class="menu-text">Lista de Invitados &amp; Menú</span>
                 </button>
                 <button class="menu-item" onclick="showTab('dispatch')">
                     <span class="menu-icon">📲</span>
-                    <span class="menu-text">Envíos de Invitaciones (WhatsApp)</span>
+                    <span class="menu-text">Envíos WhatsApp</span>
                     <span class="menu-badge badge-warning" id="statDispatchPendingBadge">27 por mandar</span>
                 </button>
                 <button class="menu-item" onclick="showTab('seating')">
                     <span class="menu-icon">🪑</span>
-                    <span class="menu-text">Distribución de Mesas (Plano 2D)</span>
+                    <span class="menu-text">Distribución de Mesas 2D</span>
                     <span class="menu-badge" id="badgeSeatingPending">8 pendientes</span>
                 </button>
-                <button class="menu-item planner-only" onclick="showTab('dayof')">
-                    <span class="menu-icon">⏱️</span>
-                    <span class="menu-text">Cronograma Minuto a Minuto</span>
+
+                <!-- FASE 2: PRESUPUESTO & PROVEEDORES -->
+                <div class="menu-section-header planner-only" data-section="phase2">
+                    <span class="section-label">2. Presupuesto &amp; Contratos</span>
+                </div>
+                <button class="menu-item planner-only" onclick="showTab('vendors')">
+                    <span class="menu-icon">🏢</span>
+                    <span class="menu-text">Proveedores &amp; Anticipos</span>
                 </button>
-                <button class="menu-item planner-only" onclick="showTab('hostess')" style="background: rgba(16, 185, 129, 0.12); border-left: 3px solid #10b981;">
-                    <span class="menu-icon">📱</span>
-                    <span class="menu-text" style="font-weight:700; color:#059669;">Control de Acceso en Puerta (Hostess)</span>
-                    <span class="menu-badge" style="background:#10b981; color:#fff;">Live Hostess</span>
+                <button class="menu-item" onclick="showTab('finance')">
+                    <span class="menu-icon">💳</span>
+                    <span class="menu-text">Comprobantes &amp; SPEI</span>
+                    <span class="menu-badge badge-warning" id="badgePendingVouchers">2 por validar</span>
                 </button>
                 <button class="menu-item planner-only" onclick="showTab('barcalc')">
                     <span class="menu-icon">🍾</span>
                     <span class="menu-text">Cálculo de Barra &amp; Vinos</span>
                 </button>
-                <button class="menu-item planner-only" onclick="showTab('vendors')">
-                    <span class="menu-icon">🏢</span>
-                    <span class="menu-text">Proveedores &amp; Pagos</span>
+
+                <!-- FASE 3: OPERACIÓN DÍA D -->
+                <div class="menu-section-header planner-only" data-section="phase3">
+                    <span class="section-label">3. Operación Día D (Sábado)</span>
+                </div>
+                <button class="menu-item planner-only" onclick="showTab('dayof')">
+                    <span class="menu-icon">⏱️</span>
+                    <span class="menu-text">Cronograma Minuto a Minuto</span>
                 </button>
-                <button class="menu-item" onclick="showTab('guests')">
-                    <span class="menu-icon">👥</span>
-                    <span class="menu-text">Lista Maestra de Invitados &amp; Menú</span>
+                <button class="menu-item planner-only" onclick="showTab('hostess')" style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981;">
+                    <span class="menu-icon">📱</span>
+                    <span class="menu-text" style="font-weight:700; color:#059669;">Control Acceso (Hostess)</span>
+                    <span class="menu-badge" style="background:#10b981; color:#fff;">Live Hostess</span>
                 </button>
-                <button class="menu-item" onclick="showTab('finance')">
-                    <span class="menu-icon">💳</span>
-                    <span class="menu-text">Comprobantes &amp; Regalos</span>
-                    <span class="menu-badge badge-warning" id="badgePendingVouchers">2 por validar</span>
+                <button class="menu-item planner-only" onclick="showTab('travel')">
+                    <span class="menu-icon">✈️</span>
+                    <span class="menu-text">Logística, Hoteles &amp; Shuttles</span>
                 </button>
+
+                <!-- FASE 4: EXPERIENCIA & RECUERDOS -->
+                <div class="menu-section-header" data-section="phase4">
+                    <span class="section-label">4. Experiencia &amp; Recuerdos</span>
+                </div>
                 <button class="menu-item" onclick="showTab('album')">
                     <span class="menu-icon">📸</span>
                     <span class="menu-text">Álbum Colaborativo (QR)</span>
@@ -174,25 +206,31 @@
                     <span class="menu-icon">🎵</span>
                     <span class="menu-text">Playlist para el DJ</span>
                 </button>
-                <button class="menu-item planner-only" onclick="showTab('travel')">
-                    <span class="menu-icon">✈️</span>
-                    <span class="menu-text">Logística, Hoteles &amp; Shuttles</span>
-                </button>
-                <button class="menu-item planner-only" onclick="showTab('settings')" style="border-top:1px solid rgba(255,255,255,0.1); margin-top:8px;">
+
+                <!-- CONFIGURACIÓN PLANNER -->
+                <div class="menu-section-header planner-only" data-section="settings" style="margin-top:10px; border-top:1px solid rgba(226,232,240,0.5); padding-top:10px;">
+                    <span class="section-label">Configuración</span>
+                </div>
+                <button class="menu-item planner-only" onclick="showTab('settings')">
                     <span class="menu-icon">⚙️</span>
-                    <span class="menu-text">Configuración de Planes</span>
+                    <span class="menu-text">Configuración &amp; Planes</span>
                 </button>
-                <button class="menu-item dev-only" id="menuItemDevPanel" onclick="showTab('dev-clients')" style="display:none; background: rgba(217, 119, 6, 0.15); border: 1px solid rgba(217, 119, 6, 0.35); margin-top:8px;">
+
+                <!-- MASTER DEVELOPER -->
+                <div class="menu-section-header dev-only" id="secHeaderMasterDev" style="display:none; margin-top:10px; border-top:1px solid rgba(217,119,6,0.3); padding-top:10px;">
+                    <span class="section-label" style="color:#d97706;">Master Developer</span>
+                </div>
+                <button class="menu-item dev-only" id="menuItemDevPanel" onclick="showTab('dev-clients')" style="display:none; background: rgba(217, 119, 6, 0.15); border: 1px solid rgba(217, 119, 6, 0.35);">
                     <span class="menu-icon">💎</span>
                     <span class="menu-text" style="color:#fbbf24; font-weight:700;">Planners, Cobranza &amp; Stripe</span>
                     <span class="menu-badge" style="background:#d97706; color:#fff;">Master</span>
                 </button>
-                <button class="menu-item dev-only" id="menuItemDevAnalytics" onclick="showTab('dev-analytics')" style="display:none; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); margin-top:4px;">
+                <button class="menu-item dev-only" id="menuItemDevAnalytics" onclick="showTab('dev-analytics')" style="display:none; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35);">
                     <span class="menu-icon">📈</span>
-                    <span class="menu-text" style="color:#a5b4fc; font-weight:700;">Métricas &amp; Crecimiento SaaS</span>
+                    <span class="menu-text" style="color:#a5b4fc; font-weight:700;">Métricas SaaS</span>
                     <span class="menu-badge" style="background:#4f46e5; color:#fff;">KPIs</span>
                 </button>
-                <button class="menu-item dev-only" id="menuItemDevBackups" onclick="showTab('backups')" style="display:none; background: rgba(255, 255, 255, 0.05); margin-top:4px;">
+                <button class="menu-item dev-only" id="menuItemDevBackups" onclick="showTab('backups')" style="display:none; background: rgba(255, 255, 255, 0.05);">
                     <span class="menu-icon">💾</span>
                     <span class="menu-text" style="color:#cbd5e1;">Respaldos de Base de Datos</span>
                     <span class="menu-badge" style="background:#334155; color:#fff;">JSON</span>
@@ -234,6 +272,7 @@
                         <p class="tab-subtitle">Monitoreo consolidado en tiempo real: Asistencia, Finanzas, Proveedores, Mesas y Alertas Operativas.</p>
                     </div>
                     <div class="tab-actions">
+                        <button type="button" class="btn-action secondary" onclick="copyCoupleWhatsAppSummary()" style="border-color:#22c55e; color:#15803d; font-weight:700;" title="Copiar resumen ejecutivo formateado para enviar por WhatsApp a los novios">📲 Resumen WhatsApp</button>
                         <button class="btn-action secondary" onclick="openEditActiveWeddingModal()">✏️ Editar Boda</button>
                         <button class="btn-action secondary" onclick="generateAndPreviewPDF()">📄 Reporte PDF</button>
                         <button class="btn-action primary" onclick="showQuickAddModal()">+ Nuevo Invitado</button>
@@ -2014,6 +2053,7 @@
                         <p class="tab-subtitle">Control de confirmación de asistencia, acompañantes, platillos y pases VIP con QR.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn-action secondary" onclick="openImportGuestsModal()" style="border-color:#3b82f6; color:#1d4ed8; font-weight:700;">📥 Importar Excel / CSV</button>
                         <button class="btn-action secondary" onclick="printGuestsMasterReport()">🖨️ Imprimir Lista Maestra (PDF)</button>
                         <button class="btn-action primary" onclick="showQuickAddModal()">+ Agregar Invitado</button>
                     </div>
@@ -2544,6 +2584,168 @@
             </div>
             <div class="pdf-document-paper" id="pdfDocumentPaper">
                 <!-- Dynamically generated luxury PDF content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: MODO DÍA D (OPERACIÓN EN VIVO / SÁBADO DE EVENTO) -->
+    <!-- ========================================================================= -->
+    <div id="modalDayD" class="admin-modal modal-day-d-overlay">
+        <div class="day-d-container">
+            <!-- HEADER DE COMANDO -->
+            <div class="day-d-header">
+                <div class="d-flex align-center gap-3">
+                    <span class="day-d-badge-pulse">⚡ EN VIVO</span>
+                    <div>
+                        <h2 class="day-d-title" id="dayDHeaderCouple">Sofía &amp; Alejandro · Modo Día D</h2>
+                        <p class="day-d-subtitle" id="dayDHeaderDate">Torre de Operación en Terreno · Mallorca 2027</p>
+                    </div>
+                </div>
+                <div class="d-flex align-center gap-3">
+                    <div class="day-d-clock" id="dayDLiveClock">00:00:00</div>
+                    <button type="button" class="btn-day-d-exit" onclick="closeDayDModal()" title="Cerrar Modo Día D">✕ Salir Día D</button>
+                </div>
+            </div>
+
+            <!-- TABS DE NAVEGACIÓN DÍA D -->
+            <div class="day-d-nav">
+                <button type="button" class="day-d-tab-btn active" id="btnDayDTabTimeline" onclick="switchDayDTab('timeline')">
+                    ⏱️ Cronograma Minuta
+                </button>
+                <button type="button" class="day-d-tab-btn" id="btnDayDTabHostess" onclick="switchDayDTab('hostess')">
+                    🔍 Buscador Express de Mesas
+                </button>
+                <button type="button" class="day-d-tab-btn" id="btnDayDTabSOS" onclick="switchDayDTab('sos')">
+                    🚨 Directorio SOS Proveedores
+                </button>
+            </div>
+
+            <!-- VISTA 1: CRONOGRAMA MINUTA EN VIVO -->
+            <div id="dayDViewTimeline" class="day-d-content-pane active">
+                <div class="day-d-subbar">
+                    <div class="d-flex align-center gap-2">
+                        <span style="font-size:0.8rem; font-weight:700; color:#64748b;">Día:</span>
+                        <div class="day-pills-mini">
+                            <button type="button" class="btn-day-pill" id="btnDayDPill1" onclick="selectDayDDay('day1')">Viernes (Cóctel)</button>
+                            <button type="button" class="btn-day-pill active" id="btnDayDPill2" onclick="selectDayDDay('day2')">Sábado (Día D)</button>
+                            <button type="button" class="btn-day-pill" id="btnDayDPill3" onclick="selectDayDDay('day3')">Domingo (Brunch)</button>
+                        </div>
+                    </div>
+                    <div id="dayDTimelineProgressPill" class="day-d-progress-tag">Cargando cronograma...</div>
+                </div>
+                <div class="day-d-timeline-list" id="dayDTimelineList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- VISTA 2: BUSCADOR EXPRESS DE MESAS (HOSTESS EN PUERTA) -->
+            <div id="dayDViewHostess" class="day-d-content-pane">
+                <div class="day-d-search-box">
+                    <input type="text" id="dayDHostessSearch" class="day-d-search-input" placeholder="🔍 Escribe nombre o apellido del invitado para ver su mesa..." oninput="onDayDSearchInput(this.value)">
+                    <button type="button" class="btn-clear-search" onclick="clearDayDSearch()">Limpiar</button>
+                </div>
+                <div class="day-d-search-summary" id="dayDSearchSummary">
+                    Escribe para buscar mesa asignada al instante.
+                </div>
+                <div class="day-d-guest-results" id="dayDGuestResults">
+                    <!-- Results cards -->
+                </div>
+            </div>
+
+            <!-- VISTA 3: DIRECTORIO SOS PROVEEDORES -->
+            <div id="dayDViewSOS" class="day-d-content-pane">
+                <div class="day-d-sos-intro">
+                    <p style="margin:0; font-size:0.85rem; color:#475569;">
+                        🚨 <strong>Línea Directa de Emergencia:</strong> Enlaces directos de llamada y WhatsApp a proveedores clave de la boda sin salir de la app.
+                    </p>
+                </div>
+                <div class="day-d-sos-grid" id="dayDSOSGrid">
+                    <!-- Vendor emergency cards -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL: IMPORTAR INVITADOS DESDE EXCEL / CSV -->
+    <!-- ========================================================================= -->
+    <div id="modalImportGuests" class="admin-modal">
+        <div class="app-modal-card" style="max-width: 680px; width: 95%;">
+            <div class="modal-header">
+                <div class="d-flex align-center gap-2">
+                    <span class="modal-icon">📥</span>
+                    <div>
+                        <h3 class="modal-title" style="color:#ffffff !important; font-weight:800;">Importar Invitados (Excel / CSV)</h3>
+                        <p class="modal-sub" style="color:#cbd5e1 !important;">Carga decenas de invitados en 1 solo clic desde tu hoja de cálculo.</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeModal('modalImportGuests')">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 20px 24px;">
+                <!-- TEMPLATE DOWNLOAD BANNER -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <strong style="font-size:0.86rem; color:#0f172a;">¿No tienes el formato exacto?</strong>
+                        <p style="margin:2px 0 0; font-size:0.75rem; color:#64748b;">Descarga la plantilla oficial con encabezados compatibles.</p>
+                    </div>
+                    <button type="button" class="btn-action secondary" onclick="downloadGuestCsvTemplate()" style="font-size:0.76rem; padding:6px 14px;">
+                        📄 Descargar Plantilla CSV
+                    </button>
+                </div>
+
+                <!-- SELECTOR DE ARCHIVO O PEGAR TEXTO -->
+                <div class="form-group mb-3">
+                    <label class="form-label">1. Sube tu archivo CSV o Excel exportado:</label>
+                    <input type="file" id="csvFileInput" accept=".csv, .txt" class="form-input" style="padding:10px;" onchange="handleCsvFileSelected(event)">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">O pega las filas directamente aquí (desde Excel o Google Sheets):</label>
+                    <textarea id="csvPasteText" class="form-textarea" rows="4" placeholder="Nombre, Teléfono, Pases, Acompañante, Menú, Alergias, Mesa&#10;Lic. Roberto Cantú, 8115203344, 2, Sra. Marcela de Cantú, Filete, Ninguna, Mesa 1" oninput="handleCsvPasteInput(this.value)" style="font-size:0.8rem; font-family:monospace;"></textarea>
+                </div>
+
+                <!-- OPCIÓN DE IMPORTACIÓN -->
+                <div class="form-group mb-3" style="background:#f1f5f9; padding:10px 14px; border-radius:8px;">
+                    <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; color:#1e293b; cursor:pointer;">
+                        <input type="radio" name="importMode" value="append" checked id="importModeAppend">
+                        <span><strong>Agregar a la lista existente</strong> (omite automáticamente teléfonos repetidos)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; font-size:0.82rem; color:#1e293b; cursor:pointer; margin-top:6px;">
+                        <input type="radio" name="importMode" value="replace" id="importModeReplace">
+                        <span><strong style="color:#b91c1c;">Reemplazar lista completa</strong> (sobrescribe todos los invitados)</span>
+                    </label>
+                </div>
+
+                <!-- PREVIEW BOX -->
+                <div id="importCsvPreviewBox" style="display:none; margin-top:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span id="importCsvCountBadge" style="font-size:0.8rem; font-weight:800; color:#15803d; background:#dcfce7; padding:4px 10px; border-radius:99px;">0 invitados detectados</span>
+                        <span style="font-size:0.75rem; color:#64748b;">Previsualización de los primeros registros</span>
+                    </div>
+                    <div style="max-height:160px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px;">
+                        <table style="width:100%; border-collapse:collapse; font-size:0.75rem;">
+                            <thead style="background:#0f172a; color:#ffffff; position:sticky; top:0;">
+                                <tr>
+                                    <th style="padding:6px 10px; text-align:left;">Nombre</th>
+                                    <th style="padding:6px 10px; text-align:left;">Teléfono</th>
+                                    <th style="padding:6px 10px; text-align:center;">Pases</th>
+                                    <th style="padding:6px 10px; text-align:left;">Acompañante</th>
+                                    <th style="padding:6px 10px; text-align:left;">Menú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importCsvPreviewTbody" style="background:#ffffff;">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 14px 24px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+                <button type="button" class="btn-action secondary" onclick="closeModal('modalImportGuests')">Cancelar</button>
+                <button type="button" class="btn-action primary" id="btnConfirmImportCsv" onclick="executeGuestImport()" disabled style="background:#10b981;">
+                    🚀 Confirmar e Importar
+                </button>
             </div>
         </div>
     </div>

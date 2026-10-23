@@ -6560,6 +6560,465 @@ html, body.admin-body {
     }
 }
 
+/* ==========================================================================
+   4-PHASE PROGRESSIVE SIDEBAR NAVIGATION
+   ========================================================================== */
+.menu-section-header {
+    padding: 14px 10px 4px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+.menu-section-header .section-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.menu-section-header.planner-only .section-label {
+    color: #64748b;
+}
 
+/* ==========================================================================
+   MODO DÍA D (SÁBADO DE EVENTO - TOP HEADER PILL)
+   ========================================================================== */
+.btn-dia-d-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    transition: all 0.25s ease;
+}
+.btn-dia-d-pill:hover {
+    background: #0f172a;
+    border-color: #f59e0b;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+    transform: translateY(-1px);
+}
+.dia-d-pulse {
+    display: inline-block;
+    animation: diaDPulseAnim 1.8s infinite ease-in-out;
+}
+@keyframes diaDPulseAnim {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #f59e0b); }
+    50% { transform: scale(1.25); filter: drop-shadow(0 0 6px #f59e0b); }
+}
 
+/* ==========================================================================
+   MODAL MODO DÍA D (COMMAND CENTER OVERLAY)
+   ========================================================================== */
+.modal-day-d-overlay {
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    padding: 16px;
+    z-index: 99999 !important;
+}
+.day-d-container {
+    background: #ffffff;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 980px;
+    max-height: 94vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.day-d-header {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #d4af37;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.day-d-badge-pulse {
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.06em;
+    animation: pulseBadge 1.5s infinite;
+}
+@keyframes pulseBadge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+.day-d-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0;
+    color: #ffffff;
+}
+.day-d-subtitle {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin: 2px 0 0;
+}
+.day-d-clock {
+    font-family: monospace;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fbbf24;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 4px 12px;
+    border-radius: 8px;
+    letter-spacing: 0.06em;
+}
+.btn-day-d-exit {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-day-d-exit:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
 
+/* TABS BAR */
+.day-d-nav {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 16px;
+    overflow-x: auto;
+}
+.day-d-tab-btn {
+    padding: 12px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.day-d-tab-btn:hover {
+    color: #0f172a;
+}
+.day-d-tab-btn.active {
+    color: #0f172a;
+    border-bottom-color: #d4af37;
+    background: #ffffff;
+}
+
+/* CONTENT PANES */
+.day-d-content-pane {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    background: #fafaf9;
+}
+.day-d-content-pane.active {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.day-d-subbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+.day-pills-mini {
+    display: flex;
+    gap: 6px;
+}
+.btn-day-pill {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn-day-pill.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+.day-d-progress-tag {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #15803d;
+    background: #dcfce7;
+    padding: 4px 10px;
+    border-radius: 99px;
+}
+
+/* TIMELINE CARDS */
+.day-d-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.day-d-milestone-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s;
+}
+.day-d-milestone-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.day-d-milestone-card.completed {
+    background: #f0fdf4;
+    border-color: #86efac;
+    opacity: 0.85;
+}
+.day-d-milestone-card.in_progress {
+    background: #fffbeb;
+    border-color: #fde047;
+    border-left: 5px solid #eab308;
+    box-shadow: 0 4px 14px rgba(234, 179, 8, 0.15);
+}
+.day-d-ms-time {
+    font-family: monospace;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0f172a;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+.day-d-ms-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+.day-d-ms-lead {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 2px 0 0;
+}
+.btn-toggle-milestone {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.btn-toggle-milestone.btn-pending {
+    background: #f1f5f9;
+    color: #475569;
+}
+.btn-toggle-milestone.btn-progress {
+    background: #fef08a;
+    color: #854d0e;
+}
+.btn-toggle-milestone.btn-completed {
+    background: #10b981;
+    color: #ffffff;
+}
+
+/* HOSTESS EXPRESS SEARCH */
+.day-d-search-box {
+    display: flex;
+    gap: 10px;
+}
+.day-d-search-input {
+    flex: 1;
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+.day-d-search-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+.btn-clear-search {
+    background: #e2e8f0;
+    border: none;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+}
+.day-d-search-summary {
+    font-size: 0.84rem;
+    color: #64748b;
+    font-weight: 600;
+}
+.day-d-guest-results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.day-d-guest-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+.day-d-guest-table-badge {
+    background: #fef3c7;
+    border: 1.5px solid #fde047;
+    color: #92400e;
+    font-size: 1.35rem;
+    font-weight: 900;
+    padding: 6px 16px;
+    border-radius: 10px;
+    letter-spacing: -0.02em;
+}
+.btn-checkin-guest {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+.btn-checkin-guest.checked {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+.btn-checkin-guest.not-checked {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+/* SOS VENDOR GRID */
+.day-d-sos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px;
+}
+.day-d-sos-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.day-d-sos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.day-d-sos-cat {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #b45309;
+    background: #fef3c7;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.day-d-sos-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+.btn-sos-call {
+    flex: 1;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-sos-wa {
+    flex: 1;
+    background: #25d366;
+    color: #ffffff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+@media (max-width: 768px) {
+    .day-d-header {
+        padding: 12px 16px;
+    }
+    .day-d-clock {
+        font-size: 1rem;
+        padding: 3px 8px;
+    }
+    .day-d-milestone-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .day-d-guest-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .day-d-guest-table-badge {
+        font-size: 1.15rem;
+        text-align: center;
+    }
+    .btn-checkin-guest {
+        width: 100%;
+    }
+}

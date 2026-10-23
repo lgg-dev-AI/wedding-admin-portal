@@ -270,6 +270,11 @@ function setRole(role) {
             btn.style.display = isAllowed ? 'flex' : 'none';
         });
 
+        // Ocultar fases de boda y mostrar sección Master Dev
+        document.querySelectorAll('.menu-section-header[data-section]').forEach(hdr => hdr.style.display = 'none');
+        const devSec = document.getElementById('secHeaderMasterDev');
+        if (devSec) devSec.style.display = 'flex';
+
         // Personalizar la tarjeta superior del Sidebar para Luis / Antigravity
         const heroTag = document.getElementById('sidebarThemeTag');
         const heroCouple = document.getElementById('sidebarCoupleNames');
@@ -295,6 +300,11 @@ function setRole(role) {
             btn.style.display = isDevOnly ? 'none' : 'flex';
         });
 
+        // Mostrar todas las 4 fases de boda y ajustes planner, ocultar dev
+        document.querySelectorAll('.menu-section-header[data-section]').forEach(hdr => hdr.style.display = 'flex');
+        const devSec = document.getElementById('secHeaderMasterDev');
+        if (devSec) devSec.style.display = 'none';
+
         // Si estaba en pestaña exclusiva de desarrollador, cambiar al dashboard general
         const currentActiveTab = document.querySelector('.tab-pane.active');
         if (currentActiveTab && (currentActiveTab.id === 'tab-dev-clients' || currentActiveTab.id === 'tab-dev-analytics' || currentActiveTab.id === 'tab-backups')) {
@@ -315,6 +325,13 @@ function setRole(role) {
             applyVisibilityToCoupleView();
         }
         document.querySelectorAll('.dev-only').forEach(el => el.style.display = 'none');
+
+        // Mostrar solo fases relevantes para la pareja
+        document.querySelectorAll('.menu-section-header').forEach(hdr => {
+            const isPlannerOnly = hdr.classList.contains('planner-only');
+            const isDevOnly = hdr.classList.contains('dev-only');
+            hdr.style.display = (isPlannerOnly || isDevOnly) ? 'none' : 'flex';
+        });
 
         const currentActiveTab = document.querySelector('.tab-pane.active');
         if (currentActiveTab && (currentActiveTab.id === 'tab-dev-clients' || currentActiveTab.id === 'tab-settings' || currentActiveTab.id === 'tab-backups')) {
@@ -1691,4 +1708,700 @@ function deleteFlightRow(btn) {
         if (tr) tr.remove();
         showToast('🗑️ Registro de vuelo eliminado.');
     }
+}
+
+// =============================================================================
+// FEATURE 1: 📲 1-CLICK RESUMEN PARA NOVIOS (WHATSAPP FORMATTED REPORT)
+// =============================================================================
+function copyCoupleWhatsAppSummary() {
+    const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
+    if (!data) {
+        showToast('⚠️ No hay datos disponibles para la boda activa.');
+        return;
+    }
+
+    const couple = data.coupleNames || 'Novios';
+    const date = data.date || 'Fecha por definir';
+    const loc = data.location || 'Lugar por definir';
+    const guests = data.guests || [];
+
+    let totalPasses = 0;
+    let confPasses = 0;
+    let pendPasses = 0;
+    let declPasses = 0;
+
+    let menuRes = 0;
+    let menuFish = 0;
+    let menuVeg = 0;
+    let menuKid = 0;
+    const allergiesList = [];
+    let seatedCount = 0;
+
+    guests.forEach(g => {
+        const p = parseInt(g.passes) || 1;
+        totalPasses += p;
+
+        if (g.status === 'confirmed') {
+            confPasses += p;
+            if (g.tableId) seatedCount += p;
+
+            // Menús
+            const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+            if (m1.includes('pesc') || m1.includes('salm')) menuFish++;
+            else if (m1.includes('veg') || m1.includes('plant')) menuVeg++;
+            else if (m1.includes('inf') || m1.includes('nin')) menuKid++;
+            else menuRes++;
+
+            if (p > 1) {
+                const m2 = (g.companionMenu || 'salmon').toLowerCase();
+                if (m2.includes('pesc') || m2.includes('salm')) menuFish++;
+                else if (m2.includes('veg') || m2.includes('plant')) menuVeg++;
+                else if (m2.includes('inf') || m2.includes('nin')) menuKid++;
+                else menuRes++;
+            }
+
+            // Alergias
+            const a1 = g.guest1Allergies || g.allergies;
+            if (a1 && a1.toLowerCase() !== 'ninguna' && a1.trim() !== '') {
+                allergiesList.push(`${g.name}: ${a1}`);
+            }
+            const a2 = g.companionAllergies;
+            if (a2 && a2.toLowerCase() !== 'ninguna' && a2.trim() !== '') {
+                allergiesList.push(`${g.companion || 'Acompañante de ' + g.name}: ${a2}`);
+            }
+        } else if (g.status === 'declined') {
+            declPasses += p;
+        } else {
+            pendPasses += p;
+        }
+    });
+
+    const confPct = totalPasses > 0 ? Math.round((confPasses / totalPasses) * 100) : 0;
+    const seatedPct = confPasses > 0 ? Math.round((seatedCount / confPasses) * 100) : 0;
+
+    let msg = `✨ *RESUMEN EJECUTIVO DE BODA* ✨\n`;
+    msg += `💍 *${couple.toUpperCase()}*\n`;
+    msg += `📅 ${date} · 📍 ${loc}\n\n`;
+
+    msg += `📊 *ESTADO DE INVITADOS & ASISTENCIA:*\n`;
+    msg += `• Total Convocados: *${totalPasses} pases* (${guests.length} familias)\n`;
+    msg += `• ✅ *Confirmados:* *${confPasses} pases* (${confPct}%)\n`;
+    msg += `• ⏳ *Pendientes:* *${pendPasses} pases*\n`;
+    msg += `• ❌ *Declinados:* *${declPasses} pases*\n\n`;
+
+    msg += `🍽️ *SELECCIÓN DE PLATILLOS (CONFIRMADOS):*\n`;
+    msg += `• 🥩 Res / Filete: *${menuRes}*\n`;
+    msg += `• 🐟 Salmón / Pescado: *${menuFish}*\n`;
+    msg += `• 🥗 Vegano / Vegetariano: *${menuVeg}*\n`;
+    if (menuKid > 0) msg += `• 👶 Menú Infantil: *${menuKid}*\n`;
+    msg += `\n`;
+
+    if (allergiesList.length > 0) {
+        msg += `⚠️ *RESTRICCIONES ALIMENTARIAS REPORTADAS (${allergiesList.length}):*\n`;
+        allergiesList.slice(0, 6).forEach(a => {
+            msg += `  - ${a}\n`;
+        });
+        if (allergiesList.length > 6) {
+            msg += `  - ... y ${allergiesList.length - 6} más en el portal\n`;
+        }
+        msg += `\n`;
+    }
+
+    msg += `🪑 *DISTRIBUCIÓN DE MESAS:*\n`;
+    msg += `• Asignados a mesa: *${seatedCount} de ${confPasses} confirmados* (${seatedPct}%)\n\n`;
+
+    msg += `📲 _Generado en tiempo real desde Wedding Planner OS_`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+            showToast('📋 ¡Copiado al portapapeles! Listo para pegar en WhatsApp a los novios.');
+        }).catch(() => {
+            fallbackCopyText(msg);
+        });
+    } else {
+        fallbackCopyText(msg);
+    }
+}
+
+function fallbackCopyText(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+        showToast('📋 ¡Copiado al portapapeles! Listo para pegar en WhatsApp.');
+    } catch(e) {
+        prompt('Copia el siguiente resumen para enviarlo a los novios:', text);
+    }
+    document.body.removeChild(ta);
+}
+
+// =============================================================================
+// FEATURE 2: ⚡ MODO DÍA D (OPERACIÓN EN VIVO / SÁBADO DE EVENTO)
+// =============================================================================
+let dayDClockTimer = null;
+let activeDayDSubtab = 'timeline';
+let activeDayDDayKey = 'day2';
+
+function openDayDModal() {
+    const modal = document.getElementById('modalDayD');
+    if (!modal) return;
+
+    modal.classList.add('show');
+    modal.classList.add('active');
+
+    // Update Header Info
+    const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
+    const coupleEl = document.getElementById('dayDHeaderCouple');
+    const dateEl = document.getElementById('dayDHeaderDate');
+    if (data) {
+        if (coupleEl) coupleEl.innerText = `${data.coupleNames || 'Boda Activa'} · Modo Día D`;
+        if (dateEl) dateEl.innerText = `Torre de Operación en Terreno · ${data.location || 'Evento'} · ${data.date || ''}`;
+    }
+
+    // Start Live Clock
+    updateDayDClock();
+    if (dayDClockTimer) clearInterval(dayDClockTimer);
+    dayDClockTimer = setInterval(updateDayDClock, 1000);
+
+    // Render current active tab
+    renderDayDModal();
+}
+
+function closeDayDModal() {
+    const modal = document.getElementById('modalDayD');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.classList.remove('active');
+    }
+    if (dayDClockTimer) {
+        clearInterval(dayDClockTimer);
+        dayDClockTimer = null;
+    }
+}
+
+function updateDayDClock() {
+    const clockEl = document.getElementById('dayDLiveClock');
+    if (!clockEl) return;
+    const now = new Date();
+    clockEl.innerText = now.toTimeString().split(' ')[0];
+}
+
+function switchDayDTab(tabName) {
+    activeDayDSubtab = tabName;
+    document.querySelectorAll('.day-d-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.day-d-content-pane').forEach(pane => pane.classList.remove('active'));
+
+    if (tabName === 'timeline') {
+        const btn = document.getElementById('btnDayDTabTimeline');
+        const pane = document.getElementById('dayDViewTimeline');
+        if (btn) btn.classList.add('active');
+        if (pane) pane.classList.add('active');
+        renderDayDTimeline();
+    } else if (tabName === 'hostess') {
+        const btn = document.getElementById('btnDayDTabHostess');
+        const pane = document.getElementById('dayDViewHostess');
+        if (btn) btn.classList.add('active');
+        if (pane) pane.classList.add('active');
+        const searchInput = document.getElementById('dayDHostessSearch');
+        if (searchInput) {
+            searchInput.focus();
+            onDayDSearchInput(searchInput.value);
+        }
+    } else if (tabName === 'sos') {
+        const btn = document.getElementById('btnDayDTabSOS');
+        const pane = document.getElementById('dayDViewSOS');
+        if (btn) btn.classList.add('active');
+        if (pane) pane.classList.add('active');
+        renderDayDSOSVendors();
+    }
+}
+
+function selectDayDDay(dayKey) {
+    activeDayDDayKey = dayKey;
+    document.querySelectorAll('.btn-day-pill').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btnDayDPill${dayKey.replace('day', '')}`);
+    if (btn) btn.classList.add('active');
+    renderDayDTimeline();
+}
+
+function renderDayDModal() {
+    switchDayDTab(activeDayDSubtab);
+}
+
+function renderDayDTimeline() {
+    const list = document.getElementById('dayDTimelineList');
+    const progressPill = document.getElementById('dayDTimelineProgressPill');
+    if (!list) return;
+
+    const timelineData = (typeof getActiveTimelineData === 'function') ? getActiveTimelineData() : (typeof timelineDaysData !== 'undefined' ? timelineDaysData : {});
+    const dayObj = timelineData[activeDayDDayKey] || { milestones: [] };
+    const milestones = dayObj.milestones || [];
+
+    const completedCount = milestones.filter(m => m.status === 'completed').length;
+    if (progressPill) {
+        progressPill.innerText = `${completedCount} de ${milestones.length} hitos completados (${milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0}%)`;
+    }
+
+    if (milestones.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b;">No hay hitos programados para este día.</div>`;
+        return;
+    }
+
+    list.innerHTML = milestones.map(m => {
+        const isCompleted = m.status === 'completed';
+        const isInProgress = m.status === 'in_progress';
+        const cardClass = isCompleted ? 'completed' : (isInProgress ? 'in_progress' : '');
+        const btnClass = isCompleted ? 'btn-completed' : (isInProgress ? 'btn-progress' : 'btn-pending');
+        const statusLabel = isCompleted ? '✓ Completado' : (isInProgress ? '⚡ En curso' : '⏳ Pendiente');
+
+        return `
+            <div class="day-d-milestone-card ${cardClass}">
+                <div style="display:flex; align-items:center; gap:14px; flex:1;">
+                    <span class="day-d-ms-time">${m.time || '00:00'}</span>
+                    <div>
+                        <h4 class="day-d-ms-title">${m.title}</h4>
+                        <p class="day-d-ms-lead">👤 Responsable: <strong>${m.lead || 'Coordinador'}</strong>${m.notes ? ` · <span style="color:#0f172a;">${m.notes}</span>` : ''}</p>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn-toggle-milestone ${btnClass}" onclick="toggleDayDMilestone('${activeDayDDayKey}', '${m.id}')" title="Clic para alternar estado del hito">
+                        ${statusLabel}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleDayDMilestone(dayKey, milestoneId) {
+    const timelineData = (typeof getActiveTimelineData === 'function') ? getActiveTimelineData() : (typeof timelineDaysData !== 'undefined' ? timelineDaysData : {});
+    const dayObj = timelineData[dayKey];
+    if (!dayObj || !dayObj.milestones) return;
+
+    const m = dayObj.milestones.find(item => item.id === milestoneId);
+    if (!m) return;
+
+    if (m.status === 'pending') m.status = 'in_progress';
+    else if (m.status === 'in_progress') m.status = 'completed';
+    else m.status = 'pending';
+
+    if (typeof saveActiveTimelineData === 'function') {
+        saveActiveTimelineData(timelineData);
+    }
+    renderDayDTimeline();
+    if (typeof renderDayOfTab === 'function') renderDayOfTab();
+    showToast(`⏱️ Hito actualizado: ${m.title} (${m.status})`);
+}
+
+function onDayDSearchInput(query) {
+    const container = document.getElementById('dayDGuestResults');
+    const summary = document.getElementById('dayDSearchSummary');
+    if (!container) return;
+
+    const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
+    const guests = (data && data.guests) ? data.guests : [];
+    const tables = (data && data.tables) ? data.tables : [];
+
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:36px 16px; background:#ffffff; border:1px dashed #cbd5e1; border-radius:12px; color:#64748b;">
+                <div style="font-size:2.5rem; margin-bottom:8px;">🔎</div>
+                <strong>Buscador de Asignación en Puerta</strong>
+                <p style="margin:4px 0 0; font-size:0.8rem;">Escribe el apellido o nombre de la familia para desplegar su mesa en tamaño gigante.</p>
+            </div>
+        `;
+        if (summary) summary.innerText = `Total de invitados registrados: ${guests.length}`;
+        return;
+    }
+
+    const matches = guests.filter(g => {
+        const nameMatch = (g.name || '').toLowerCase().includes(q);
+        const compMatch = (g.companion || '').toLowerCase().includes(q);
+        const phoneMatch = (g.phone || '').includes(q);
+        return nameMatch || compMatch || phoneMatch;
+    });
+
+    if (summary) {
+        summary.innerHTML = `Resultados para <strong>"${query}"</strong>: <strong>${matches.length}</strong> invitado(s) encontrado(s).`;
+    }
+
+    if (matches.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:30px; background:#ffffff; border:1px dashed #fca5a5; border-radius:12px; color:#991b1b;">
+                ⚠️ No se encontró ningún invitado con ese nombre o apellido.
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = matches.map(g => {
+        const table = tables.find(t => t.id === g.tableId);
+        const tableName = table ? table.name.toUpperCase() : 'SIN ASIGNAR';
+        const hasAllergy = (g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '') ||
+                           (g.companionAllergies && g.companionAllergies.toLowerCase() !== 'ninguna');
+        const isChecked = !!g.hostessCheckin;
+
+        return `
+            <div class="day-d-guest-card" style="${isChecked ? 'background:#f0fdf4; border-color:#86efac;' : ''}">
+                <div>
+                    <h3 style="font-size:1.25rem; font-weight:800; color:#0f172a; margin:0 0 4px;">${g.name}</h3>
+                    <div style="font-size:0.85rem; color:#475569; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="font-weight:700;">🎫 ${g.passes} pase(s)</span>
+                        ${g.companion ? `<span>· Acompañante: <strong>${g.companion}</strong></span>` : ''}
+                        <span>· Tel: ${g.phone}</span>
+                    </div>
+                    ${hasAllergy ? `<div style="margin-top:6px;"><span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:4px; font-weight:800; font-size:0.75rem;">⚠️ Alergia: ${g.allergies || g.companionAllergies}</span></div>` : ''}
+                </div>
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div class="day-d-guest-table-badge">
+                        ${tableName}
+                    </div>
+                    <button type="button" class="btn-checkin-guest ${isChecked ? 'checked' : 'not-checked'}" onclick="quickCheckinDayDGuest('${g.id}')">
+                        ${isChecked ? '✓ Ingresó' : 'Marcar Llegada'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function clearDayDSearch() {
+    const input = document.getElementById('dayDHostessSearch');
+    if (input) {
+        input.value = '';
+        onDayDSearchInput('');
+        input.focus();
+    }
+}
+
+function quickCheckinDayDGuest(guestId) {
+    const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
+    if (!data || !data.guests) return;
+
+    const g = data.guests.find(item => item.id === guestId);
+    if (!g) return;
+
+    g.hostessCheckin = !g.hostessCheckin;
+    g.checkinTime = g.hostessCheckin ? new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : null;
+
+    saveWeddingState(currentWeddingId, data);
+
+    const input = document.getElementById('dayDHostessSearch');
+    onDayDSearchInput(input ? input.value : '');
+
+    if (typeof renderHostessDashboard === 'function') renderHostessDashboard();
+    showToast(g.hostessCheckin ? `✅ Acceso confirmado para "${g.name}".` : `↩️ Acceso cancelado para "${g.name}".`);
+}
+
+function renderDayDSOSVendors() {
+    const container = document.getElementById('dayDSOSGrid');
+    if (!container) return;
+
+    const vendors = (typeof getActiveVendorsList === 'function') ? getActiveVendorsList() : [];
+    if (vendors.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px; grid-column:1/-1; color:#64748b;">No hay proveedores registrados aún.</div>`;
+        return;
+    }
+
+    container.innerHTML = vendors.map(v => {
+        const rawPhone = (v.phone || '').replace(/\D/g, '');
+        const cleanPhone = rawPhone.startsWith('52') ? rawPhone : (rawPhone.length === 10 ? `52${rawPhone}` : rawPhone);
+        const contactName = v.contactName || 'Responsable';
+        const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=Hola%20${encodeURIComponent(contactName)},%20te%20contacto%20desde%20la%20coordinación%20Día%20D%20de%20la%20boda.` : '#';
+
+        return `
+            <div class="day-d-sos-card">
+                <div class="day-d-sos-header">
+                    <span class="day-d-sos-cat">${v.category || 'Proveedor'}</span>
+                    <span style="font-size:0.75rem; color:#64748b;">${v.setupTime ? `🕒 ${v.setupTime}` : ''}</span>
+                </div>
+                <div>
+                    <h4 style="margin:0 0 2px; font-size:0.95rem; font-weight:800; color:#0f172a;">${v.name}</h4>
+                    <p style="margin:0; font-size:0.78rem; color:#64748b;">Contacto: <strong>${contactName}</strong></p>
+                    ${v.powerReq ? `<div style="margin-top:4px; font-size:0.72rem; color:#b45309;">⚡ ${v.powerReq}</div>` : ''}
+                </div>
+                <div class="day-d-sos-actions">
+                    <a href="tel:${cleanPhone}" class="btn-sos-call">
+                        📞 Llamar
+                    </a>
+                    <a href="${waUrl}" target="_blank" class="btn-sos-wa">
+                        💬 WhatsApp
+                    </a>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// =============================================================================
+// FEATURE 3: 📥 IMPORTADOR EXCEL / CSV DE INVITADOS
+// =============================================================================
+let parsedCsvGuestsBuffer = [];
+
+function openImportGuestsModal() {
+    parsedCsvGuestsBuffer = [];
+    const fileInput = document.getElementById('csvFileInput');
+    const pasteInput = document.getElementById('csvPasteText');
+    const previewBox = document.getElementById('importCsvPreviewBox');
+    const confirmBtn = document.getElementById('btnConfirmImportCsv');
+
+    if (fileInput) fileInput.value = '';
+    if (pasteInput) pasteInput.value = '';
+    if (previewBox) previewBox.style.display = 'none';
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = '🚀 Confirmar e Importar';
+    }
+
+    const modal = document.getElementById('modalImportGuests');
+    if (modal) modal.classList.add('show');
+}
+
+function closeImportGuestsModal() {
+    closeModal('modalImportGuests');
+}
+
+function downloadGuestCsvTemplate() {
+    const csvContent = 
+`Nombre Completo,Telefono WhatsApp,Pases,Acompañante,Menu,Alergias,Mesa Opcional
+Lic. Roberto Cantú,8115203344,2,Sra. Marcela de Cantú,Filete de Res,Ninguna,Mesa 1
+Dr. Fernando Villalobos,5512345678,1,,Salmón Glaseado,Gluten,Mesa 2
+Arq. Lucía Garza,8187654321,2,Ing. Pablo Garza,Vegetariano,Nueces,Mesa 1
+Ing. Sofía Mendoza,8123456789,1,,Filete de Res,Mariscos,Mesa 3`;
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla_invitados_wedding_os.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('📥 Plantilla CSV descargada con éxito.');
+}
+
+function handleCsvFileSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const text = e.target.result;
+        processRawCsvText(text);
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+function handleCsvPasteInput(text) {
+    if (!text || !text.trim()) {
+        const previewBox = document.getElementById('importCsvPreviewBox');
+        const confirmBtn = document.getElementById('btnConfirmImportCsv');
+        if (previewBox) previewBox.style.display = 'none';
+        if (confirmBtn) confirmBtn.disabled = true;
+        parsedCsvGuestsBuffer = [];
+        return;
+    }
+    processRawCsvText(text);
+}
+
+function processRawCsvText(rawText) {
+    parsedCsvGuestsBuffer = parseGuestCsv(rawText);
+    renderCsvImportPreview();
+}
+
+function parseGuestCsv(rawText) {
+    if (!rawText || !rawText.trim()) return [];
+    
+    const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length === 0) return [];
+
+    // Detect delimiter: tab (\t), semicolon (;) or comma (,)
+    const firstLine = lines[0];
+    let delimiter = ',';
+    if (firstLine.includes('\t')) delimiter = '\t';
+    else if (firstLine.includes(';') && !firstLine.includes(',')) delimiter = ';';
+
+    const parseLine = (line) => {
+        const result = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"' || char === "'") {
+                inQuotes = !inQuotes;
+            } else if (char === delimiter && !inQuotes) {
+                result.push(cur.trim().replace(/^["']|["']$/g, ''));
+                cur = '';
+            } else {
+                cur += char;
+            }
+        }
+        result.push(cur.trim().replace(/^["']|["']$/g, ''));
+        return result;
+    };
+
+    const headerTokens = parseLine(lines[0]).map(h => h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+    const isHeaderRow = headerTokens.some(h => 
+        h.includes('nombre') || h.includes('name') || 
+        h.includes('telefono') || h.includes('phone') || h.includes('celular') ||
+        h.includes('pase') || h.includes('invitado')
+    );
+
+    let colMap = { name: 0, phone: 1, passes: 2, companion: 3, menu: 4, allergies: 5, table: 6 };
+
+    let startIndex = 0;
+    if (isHeaderRow) {
+        startIndex = 1;
+        headerTokens.forEach((col, idx) => {
+            if (col.includes('nom') || col.includes('invitado') || col.includes('name')) colMap.name = idx;
+            else if (col.includes('tel') || col.includes('cel') || col.includes('phone') || col.includes('movil')) colMap.phone = idx;
+            else if (col.includes('pas') || col.includes('lug') || col.includes('cant') || col.includes('ticket')) colMap.passes = idx;
+            else if (col.includes('acomp') || col.includes('pareja') || col.includes('guest2')) colMap.companion = idx;
+            else if (col.includes('men') || col.includes('plat') || col.includes('comid')) colMap.menu = idx;
+            else if (col.includes('aler') || col.includes('restri') || col.includes('dieta')) colMap.allergies = idx;
+            else if (col.includes('mes') || col.includes('tabl')) colMap.table = idx;
+        });
+    }
+
+    const parsedGuests = [];
+    for (let i = startIndex; i < lines.length; i++) {
+        const row = parseLine(lines[i]);
+        if (row.length === 0 || !row[colMap.name]) continue;
+
+        const name = (row[colMap.name] || '').trim();
+        if (name.length < 2) continue;
+
+        const rawPhone = (row[colMap.phone] || '').replace(/[^\d+]/g, '');
+        const passesRaw = parseInt(row[colMap.passes]);
+        const passes = (!isNaN(passesRaw) && passesRaw >= 1) ? Math.min(passesRaw, 10) : 1;
+        const companion = (row[colMap.companion] || '').trim();
+        const rawMenu = (row[colMap.menu] || '').toLowerCase();
+        let menu = 'filete';
+        if (rawMenu.includes('pesc') || rawMenu.includes('salm')) menu = 'salmon';
+        else if (rawMenu.includes('veg') || rawMenu.includes('plant')) menu = 'vegano';
+        else if (rawMenu.includes('inf') || rawMenu.includes('nin')) menu = 'infantil';
+
+        const allergies = (row[colMap.allergies] || '').trim();
+        const table = (row[colMap.table] || '').trim();
+
+        parsedGuests.push({
+            name,
+            phone: rawPhone || '8100000000',
+            passes,
+            companion: passes > 1 ? (companion || 'Acompañante') : '',
+            menu,
+            allergies: allergies || 'Ninguna',
+            table
+        });
+    }
+
+    return parsedGuests;
+}
+
+function renderCsvImportPreview() {
+    const previewBox = document.getElementById('importCsvPreviewBox');
+    const countBadge = document.getElementById('importCsvCountBadge');
+    const tbody = document.getElementById('importCsvPreviewTbody');
+    const confirmBtn = document.getElementById('btnConfirmImportCsv');
+
+    if (!previewBox || !tbody || !confirmBtn) return;
+
+    if (parsedCsvGuestsBuffer.length === 0) {
+        previewBox.style.display = 'none';
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = '🚀 Confirmar e Importar';
+        return;
+    }
+
+    previewBox.style.display = 'block';
+    if (countBadge) countBadge.innerText = `✓ ${parsedCsvGuestsBuffer.length} invitados detectados listos para importar`;
+    confirmBtn.disabled = false;
+    confirmBtn.innerText = `🚀 Importar ${parsedCsvGuestsBuffer.length} Invitados`;
+
+    // Render first 8 rows preview
+    const previewRows = parsedCsvGuestsBuffer.slice(0, 8);
+    tbody.innerHTML = previewRows.map(g => `
+        <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:6px 10px; font-weight:700;">${g.name}</td>
+            <td style="padding:6px 10px; color:#475569;">${g.phone}</td>
+            <td style="padding:6px 10px; text-align:center;">${g.passes}</td>
+            <td style="padding:6px 10px; color:#64748b;">${g.companion || '—'}</td>
+            <td style="padding:6px 10px;">${g.menu}</td>
+        </tr>
+    `).join('');
+}
+
+function executeGuestImport() {
+    if (parsedCsvGuestsBuffer.length === 0) return;
+
+    const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
+    if (!data) return;
+
+    const modeRadio = document.querySelector('input[name="importMode"]:checked');
+    const isAppend = modeRadio ? modeRadio.value === 'append' : true;
+
+    if (!Array.isArray(data.guests)) {
+        data.guests = [];
+    }
+
+    let addedCount = 0;
+    let skippedCount = 0;
+
+    if (!isAppend) {
+        data.guests = [];
+    }
+
+    parsedCsvGuestsBuffer.forEach((g, idx) => {
+        const normalizedPhone = (typeof normalizeMexicanPhone === 'function') ? normalizeMexicanPhone(g.phone) : g.phone;
+        
+        // Prevent duplicate phone numbers in append mode
+        if (isAppend && data.guests.some(existing => existing.phone && existing.phone.replace(/\D/g, '') === g.phone.replace(/\D/g, ''))) {
+            skippedCount++;
+            return;
+        }
+
+        let assignedTableId = null;
+        if (g.table && Array.isArray(data.tables)) {
+            const tableMatch = data.tables.find(t => t.name.toLowerCase() === g.table.toLowerCase());
+            if (tableMatch) assignedTableId = tableMatch.id;
+        }
+
+        const newGuest = {
+            id: 'g_' + (Date.now() + idx),
+            name: g.name,
+            phone: normalizedPhone,
+            email: '',
+            passes: g.passes,
+            companion: g.companion,
+            menu: g.menu,
+            allergies: g.allergies,
+            guest1Menu: g.menu,
+            guest1Allergies: g.allergies,
+            companionMenu: g.companion ? (g.menu === 'salmon' ? 'filete' : 'salmon') : null,
+            companionAllergies: 'Ninguna',
+            status: 'confirmed',
+            tableId: assignedTableId,
+            dispatchStatus: 'pending'
+        };
+
+        data.guests.push(newGuest);
+        addedCount++;
+    });
+
+    saveWeddingState(currentWeddingId, data);
+    closeImportGuestsModal();
+
+    // Refresh all related views
+    if (typeof renderGuestTable === 'function') renderGuestTable();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof renderDispatchTab === 'function') renderDispatchTab();
+    if (typeof renderSeatingChart === 'function') renderSeatingChart();
+
+    showToast(`🎉 ¡Importación completada! ${addedCount} invitados agregados.${skippedCount > 0 ? ` (${skippedCount} omitidos por teléfono duplicado).` : ''}`);
 }
