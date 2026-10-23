@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📸 Álbum Colaborativo en Vivo • Wedding OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #faf8f5;
+            --card-bg: #ffffff;
+            --ink-dark: #0f172a;
+            --ink-muted: #64748b;
+            --gold-primary: #d97706;
+            --gold-dark: #b45309;
+            --gold-soft: #fef3c7;
+            --border-light: #e2e8f0;
+            --emerald: #059669;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-cream);
+            color: var(--ink-dark);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        /* HERO HEADER */
+        .guest-hero {
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 28px 20px 34px;
+            text-align: center;
+            border-bottom: 3px solid var(--gold-primary);
+            position: relative;
+        }
+
+        .guest-badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(217, 119, 6, 0.22);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            color: #fde68a;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);
+            animation: pulseLive 1.8s infinite;
+        }
+
+        @keyframes pulseLive {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.7; }
+        }
+
+        .couple-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .table-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--gold-soft);
+            color: #92400e;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 999px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-sub {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            max-width: 440px;
+            margin: 12px auto 0;
+            line-height: 1.45;
+        }
+
+        /* CONTAINER */
+        .guest-container {
+            max-width: 540px;
+            margin: -18px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* UPLOAD CARD */
+        .upload-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 22px 18px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border-light);
+            margin-bottom: 24px;
+        }
+
+        .upload-card-title {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--ink-dark);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-card-sub {
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+            margin-bottom: 16px;
+        }
+
+        .camera-btns-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn-camera-pick {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 16px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.84rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .btn-camera-pick.primary {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(217, 119, 6, 0.28);
+        }
+
+        .btn-camera-pick.secondary {
+            background: #f8fafc;
+            color: var(--ink-dark);
+            border-color: #cbd5e1;
+        }
+
+        .btn-camera-pick:active {
+            transform: scale(0.98);
+        }
+
+        .btn-camera-pick .icon {
+            font-size: 1.5rem;
+        }
+
+        /* PREVIEW BOX (MULTI-PHOTO UP TO 5) */
+        .preview-box {
+            display: none;
+            margin-bottom: 16px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .preview-box.active {
+            display: block;
+        }
+
+        .preview-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--ink-dark);
+        }
+
+        .btn-clear-preview {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .preview-thumbs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+            gap: 8px;
+        }
+
+        .preview-thumb-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .preview-thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .btn-remove-thumb {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.82);
+            color: #ffffff;
+            border: none;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-thumb-index {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(217, 119, 6, 0.92);
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 99px;
+        }
+
+        .preview-meta-tag {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.72rem;
+            color: var(--emerald);
+            font-weight: 700;
+            background: #ecfdf5;
+            padding: 4px 10px;
+            border-radius: 99px;
+        }
+
+        .limit-warning-note {
+            display: none;
+            margin-top: 8px;
+            font-size: 0.73rem;
+            color: #92400e;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        /* FORM INPUTS */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+            background: #ffffff;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+        .btn-submit-photo {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit-photo:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* SUCCESS BANNER */
+        .upload-toast {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* LIVE FEED SECTION */
+        .feed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .feed-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--ink-dark);
+        }
+
+        .btn-refresh-feed {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: #334155;
+        }
+
+        .guest-photo-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .guest-photo-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        }
+
+        .guest-photo-card img {
+            width: 100%;
+            max-height: 360px;
+            object-fit: cover;
+            display: block;
+            background: #f1f5f9;
+        }
+
+        .guest-photo-body {
+            padding: 14px 16px;
+        }
+
+        .guest-photo-caption {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink-dark);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .guest-photo-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--ink-muted);
+        }
+
+        .guest-table-badge {
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        @media (min-width: 480px) {
+            .guest-photo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="guest-hero">
+        <div class="guest-badge-live">
+            <span class="pulse-dot"></span>
+            <span>Álbum Colaborativo en Vivo</span>
+        </div>
+        <h1 class="couple-title" id="guestCoupleTitle">Sofía &amp; Alejandro</h1>
+        <div class="table-pill" id="guestTableBadge">📍 Mesa 1 - Mesa de Honor</div>
+        <p class="hero-sub">Toma una foto con tu celular o selecciona <strong>hasta 5 fotos</strong> de tu galería. ¡Aparecerán al instante en el álbum en vivo de los novios!</p>
+    </header>
+
+    <main class="guest-container">
+        <!-- CAMERA & PHOTO UPLOAD CARD -->
+        <section class="upload-card">
+            <div class="upload-card-title">📸 Subir Fotos desde tu Mesa</div>
+            <p class="upload-card-sub">Puedes tomar una foto o elegir <strong>hasta 5 fotos a la vez</strong> de tu galería:</p>
+
+            <!-- Hidden file inputs for Camera and Gallery (multiple enabled on Gallery) -->
+            <input type="file" id="inputCameraCapture" accept="image/*" capture="environment" style="display:none;" onchange="handleGuestFileSelected(this)">
+            <input type="file" id="inputGalleryPick" accept="image/*" multiple style="display:none;" onchange="handleGuestFileSelected(this)">
+
+            <div class="camera-btns-grid">
+                <label for="inputCameraCapture" class="btn-camera-pick primary">
+                    <span class="icon">📸</span>
+                    <span>Abrir Cámara</span>
+                    <small style="font-size:0.68rem; font-weight:600; opacity:0.9;">Tomar al instante</small>
+                </label>
+                <label for="inputGalleryPick" class="btn-camera-pick secondary">
+                    <span class="icon">🖼️</span>
+                    <span>Elegir de Galería</span>
+                    <small style="font-size:0.68rem; font-weight:600; color:#64748b;">Hasta 5 fotos juntas</small>
+                </label>
+            </div>
+
+            <!-- Live Compressed Multi-Photo Preview (1 to 5 photos) -->
+            <div id="guestPreviewBox" class="preview-box">
+                <div class="preview-header-bar">
+                    <span id="guestPreviewCountLabel">📸 1 / 5 fotos seleccionadas</span>
+                    <button type="button" class="btn-clear-preview" onclick="clearSelectedGuestPhotos()">🗑️ Vaciar todo</button>
+                </div>
+                <div id="guestPreviewThumbsGrid" class="preview-thumbs-grid">
+                    <!-- Populated dynamically with 1 to 5 thumbnails -->
+                </div>
+                <div id="guestLimitWarningNote" class="limit-warning-note">
+                    ⚠️ Puedes subir máximo 5 fotos por envío. Se seleccionaron las primeras 5.
+                </div>
+                <div style="text-align:center;">
+                    <span class="preview-meta-tag" id="guestCompressionInfo">✓ Fotos optimizadas listas para subir</span>
+                </div>
+            </div>
+
+            <form id="guestUploadForm" onsubmit="submitGuestPhoto(event)">
+                <div class="form-group">
+                    <label class="form-label">Tu Nombre o Familia *</label>
+                    <input type="text" id="guestAuthorInput" class="form-input" placeholder="Ej. Familia Garza / Luis" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dedicatoria o Mensaje para los Novios</label>
+                    <input type="text" id="guestCaptionInput" class="form-input" placeholder="Ej. ¡Que vivan los novios! El mejor brindis 🥂">
+                </div>
+                <button type="submit" id="btnSubmitGuestPhoto" class="btn-submit-photo" disabled>
+                    <span id="btnSubmitGuestPhotoText">✨ Publicar en el Álbum en Vivo</span>
+                </button>
+            </form>
+
+            <div id="guestUploadSuccessToast" class="upload-toast">
+                🎉 ¡Tus fotos se publicaron con éxito en el Álbum en Vivo de la boda!
+            </div>
+        </section>
+
+        <!-- LIVE GALLERY WALL -->
+        <section>
+            <div class="feed-header">
+                <div class="feed-title">🖼️ Fotos Subidas en Vivo (<span id="guestPhotoCount">0</span>)</div>
+                <button type="button" class="btn-refresh-feed" onclick="loadLiveAlbumFeed()">🔄 Actualizar</button>
+            </div>
+            <div id="guestLivePhotoGrid" class="guest-photo-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const MAX_PHOTOS_PER_BATCH = 5;
+        const params = new URLSearchParams(window.location.search);
+        const weddingId = params.get('wedding') || 'aura';
+        const tableId = params.get('table') || 't1';
+        const tableNameParam = params.get('tableName') || formatTableCode(tableId);
+        const coupleParam = params.get('couple') || 'Sofía & Alejandro';
+
+        const LOCAL_STORAGE_ALBUM_KEY = `wedding_album_photos_${weddingId}`;
+        const broadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('wedding_live_album_sync') : null;
+
+        // Array of { dataUrl, width, height, kb } up to MAX_PHOTOS_PER_BATCH (5)
+        let selectedPhotosQueue = [];
+
+        function formatTableCode(code) {
+            if (!code) return 'Mesa del Banquete';
+            if (code.toLowerCase().startsWith('mesa')) return code;
+            const num = code.replace(/\D/g, '');
+            return num ? `Mesa ${num}` : code;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('guestCoupleTitle').innerText = coupleParam;
+            document.getElementById('guestTableBadge').innerText = `📍 ${tableNameParam}`;
+
+            const savedName = localStorage.getItem('guest_last_author_name');
+            if (savedName) {
+                document.getElementById('guestAuthorInput').value = savedName;
+            }
+
+            loadLiveAlbumFeed();
+        });
+
+        function compressFileToDataUrl(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const MAX_DIM = 900;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height && width > MAX_DIM) {
+                            height = Math.round((height * MAX_DIM) / width);
+                            width = MAX_DIM;
+                        } else if (height > MAX_DIM) {
+                            width = Math.round((width * MAX_DIM) / height);
+                            height = MAX_DIM;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+                        const kb = Math.round((dataUrl.length * 3) / 4 / 1024);
+                        resolve({ dataUrl, width, height, kb });
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = evt.target.result;
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleGuestFileSelected(inputEl) {
+            const rawFiles = Array.from((inputEl && inputEl.files) || []);
+            if (rawFiles.length === 0) return;
+
+            const remainingSlots = MAX_PHOTOS_PER_BATCH - selectedPhotosQueue.length;
+            const warningEl = document.getElementById('guestLimitWarningNote');
+
+            if (remainingSlots <= 0) {
+                if (warningEl) {
+                    warningEl.innerText = '⚠️ Ya tienes el máximo de 5 fotos listas. Publica estas primero o elimina alguna con la ✕.';
+                    warningEl.style.display = 'block';
+                }
+                inputEl.value = '';
+                return;
+            }
+
+            let filesToProcess = rawFiles;
+            if (rawFiles.length > remainingSlots) {
+                filesToProcess = rawFiles.slice(0, remainingSlots);
+                if (warningEl) {
+                    warningEl.innerText = '⚠️ Puedes elegir máximo 5 fotos por envío. Se agregaron las primeras hasta completar 5.';
+                    warningEl.style.display = 'block';
+                }
+            } else if (warningEl) {
+                warningEl.style.display = 'none';
+            }
+
+            for (const f of filesToProcess) {
+                const compressed = await compressFileToDataUrl(f);
+                if (compressed && selectedPhotosQueue.length < MAX_PHOTOS_PER_BATCH) {
+                    selectedPhotosQueue.push(compressed);
+                }
+            }
+
+            inputEl.value = '';
+            renderSelectedPhotosPreview();
+        }
+
+        function removeSelectedGuestPhoto(idx) {
+            selectedPhotosQueue.splice(idx, 1);
+            const warningEl = document.getElementById('guestLimitWarningNote');
+            if (warningEl) warningEl.style.display = 'none';
+            renderSelectedPhotosPreview();
+        }
+
+        function clearSelectedGuestPhotos() {
+            selectedPhotosQueue = [];
+            const warningEl = document.getElementById('guestLimitWarningNote');
+            if (warningEl) warningEl.style.display = 'none';
+            renderSelectedPhotosPreview();
+        }
+
+        function renderSelectedPhotosPreview() {
+            const previewBox = document.getElementById('guestPreviewBox');
+            const gridEl = document.getElementById('guestPreviewThumbsGrid');
+            const countLabel = document.getElementById('guestPreviewCountLabel');
+            const infoEl = document.getElementById('guestCompressionInfo');
+            const submitBtn = document.getElementById('btnSubmitGuestPhoto');
+            const submitText = document.getElementById('btnSubmitGuestPhotoText');
+
+            if (selectedPhotosQueue.length === 0) {
+                previewBox.classList.remove('active');
+                submitBtn.disabled = true;
+                submitText.innerText = '✨ Publicar en el Álbum en Vivo';
+                return;
+            }
+
+            previewBox.classList.add('active');
+            countLabel.innerText = `📸 ${selectedPhotosQueue.length} de ${MAX_PHOTOS_PER_BATCH} foto(s) seleccionada(s)`;
+
+            const totalKb = selectedPhotosQueue.reduce((sum, item) => sum + (item.kb || 70), 0);
+            infoEl.innerText = `✓ ${selectedPhotosQueue.length} foto(s) optimizada(s) (~${totalKb} KB en total)`;
+
+            gridEl.innerHTML = selectedPhotosQueue.map((item, idx) => `
+                <div class="preview-thumb-item">
+                    <img src="${item.dataUrl}" alt="Foto ${idx + 1}">
+                    <span class="preview-thumb-index">#${idx + 1}</span>
+                    <button type="button" class="btn-remove-thumb" onclick="removeSelectedGuestPhoto(${idx})" title="Quitar esta foto">✕</button>
+                </div>
+            `).join('');
+
+            submitBtn.disabled = false;
+            submitText.innerText = selectedPhotosQueue.length === 1
+                ? '✨ Publicar 1 Foto en el Álbum en Vivo'
+                : `✨ Publicar ${selectedPhotosQueue.length} Fotos en el Álbum en Vivo`;
+        }
+
+        function checkTimeWindowIsOpen() {
+            const raw = localStorage.getItem(`wedding_album_window_${weddingId}`);
+            if (!raw) return { isOpen: true };
+            try {
+                const cfg = JSON.parse(raw);
+                if (cfg.mode === 'closed' || cfg.isClosed) {
+                    return { isOpen: false, reason: 'La recepción de fotos ha sido cerrada por los organizadores del evento.' };
+                }
+                if (cfg.mode === 'unlimited' || !cfg.durationHours) {
+                    return { isOpen: true };
+                }
+                const elapsedMs = Date.now() - (cfg.startTime || Date.now());
+                const totalMs = cfg.durationHours * 3600 * 1000;
+                if (elapsedMs >= totalMs) {
+                    return { isOpen: false, reason: `La ventana de recepción activa (${cfg.durationHours} hrs) ha concluido. ¡Gracias por compartir tus recuerdos!` };
+                }
+                return { isOpen: true };
+            } catch (e) {
+                return { isOpen: true };
+            }
+        }
+
+        async function submitGuestPhoto(e) {
+            e.preventDefault();
+            if (selectedPhotosQueue.length === 0) return;
+
+            const check = checkTimeWindowIsOpen();
+            if (!check.isOpen) {
+                alert(`⚠️ ${check.reason}`);
+                return;
+            }
+
+            const submitBtn = document.getElementById('btnSubmitGuestPhoto');
+            const submitText = document.getElementById('btnSubmitGuestPhotoText');
+            const author = document.getElementById('guestAuthorInput').value.trim() || 'Invitado';
+            const caption = document.getElementById('guestCaptionInput').value.trim() || '¡Compartiendo este gran momento! 📸✨';
+            const totalUploading = selectedPhotosQueue.length;
+
+            localStorage.setItem('guest_last_author_name', author);
+            submitBtn.disabled = true;
+            submitText.innerText = `⏳ Subiendo ${totalUploading} foto(s) al Álbum en Vivo...`;
+
+            const timeLabel = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) + ' hrs (QR en Vivo)';
+
+            for (let i = 0; i < selectedPhotosQueue.length; i++) {
+                const item = selectedPhotosQueue[i];
+                const newPhotoObj = {
+                    id: 'qr_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 6),
+                    personName: author,
+                    author: `${author} (${tableNameParam})`,
+                    table: tableNameParam,
+                    time: timeLabel,
+                    url: item.dataUrl,
+                    caption: totalUploading > 1 ? `${caption} (${i + 1}/${totalUploading})` : caption,
+                    uploadedViaQr: true,
+                    createdAt: Date.now() + i
+                };
+
+                // 1. Save in localStorage & broadcast for instant same-browser sync
+                savePhotoToLocalStore(newPhotoObj);
+                if (broadcastChannel) {
+                    broadcastChannel.postMessage({ type: 'NEW_ALBUM_PHOTO', weddingId, photo: newPhotoObj });
+                }
+
+                // 2. Send to Serverless Relay (/api/album)
+                try {
+                    await fetch(`/api/album?wedding=${encodeURIComponent(weddingId)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            weddingId,
+                            id: newPhotoObj.id,
+                            personName: author,
+                            author: newPhotoObj.author,
+                            table: tableNameParam,
+                            caption: newPhotoObj.caption,
+                            url: newPhotoObj.url
+                        })
+                    });
+                } catch (err) {
+                    console.warn('Guardado en modo local:', err);
+                }
+            }
+
+            // Reset UI & show confirmation
+            selectedPhotosQueue = [];
+            renderSelectedPhotosPreview();
+            document.getElementById('guestCaptionInput').value = '';
+
+            const toast = document.getElementById('guestUploadSuccessToast');
+            toast.innerText = totalUploading === 1
+                ? '🎉 ¡Tu foto se publicó con éxito en el Álbum en Vivo de la boda!'
+                : `🎉 ¡Tus ${totalUploading} fotos se publicaron con éxito en el Álbum en Vivo de la boda!`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 5500);
+
+            await loadLiveAlbumFeed();
+        }
+
+        function getLocalPhotos() {
+            try {
+                const raw = localStorage.getItem(LOCAL_STORAGE_ALBUM_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function savePhotoToLocalStore(photo) {
+            try {
+                const list = getLocalPhotos();
+                if (!list.some(p => p.id === photo.id)) {
+                    list.unshift(photo);
+                    if (list.length > 35) list.pop();
+                    localStorage.setItem(LOCAL_STORAGE_ALBUM_KEY, JSON.stringify(list));
+                }
+            } catch (e) {
+                console.warn('Storage quota warning:', e);
+            }
+        }
+
+        async function loadLiveAlbumFeed() {
+            let serverPhotos = [];
+            try {
+                const res = await fetch(`/api/album?wedding=${encodeURIComponent(weddingId)}&t=${Date.now()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.photos)) {
+                        serverPhotos = data.photos;
+                    }
+                }
+            } catch (e) {}
+
+            const localPhotos = getLocalPhotos();
+            const mergedMap = new Map();
+
+            [...localPhotos, ...serverPhotos].forEach(p => {
+                if (p && p.id && !mergedMap.has(p.id)) {
+                    mergedMap.set(p.id, p);
+                }
+            });
+
+            const allPhotos = Array.from(mergedMap.values());
+            document.getElementById('guestPhotoCount').innerText = allPhotos.length;
+
+            const grid = document.getElementById('guestLivePhotoGrid');
+            grid.innerHTML = allPhotos.map(p => `
+                <article class="guest-photo-card">
+                    <img src="${p.url}" alt="${escapeHtml(p.caption)}" loading="lazy">
+                    <div class="guest-photo-body">
+                        <p class="guest-photo-caption">"${escapeHtml(p.caption)}"</p>
+                        <div class="guest-photo-meta">
+                            <span>👤 <strong>${escapeHtml(p.author)}</strong></span>
+                            <span class="guest-table-badge">${escapeHtml(p.time || 'En vivo')}</span>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>

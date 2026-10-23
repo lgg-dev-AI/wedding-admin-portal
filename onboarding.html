@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Briefing & Levantamiento de Invitación • Wedding Planner OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/admin.css">
+    <style>
+        :root {
+            --primary-luxury: #0f172a;
+            --gold-accent: #d97706;
+            --gold-glow: #f59e0b;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --border-light: #e2e8f0;
+        }
+
+        body.onboarding-body {
+            background: var(--bg-page);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .onboarding-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 40px 20px 60px;
+            text-align: center;
+            position: relative;
+            border-bottom: 3px solid var(--gold-accent);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(217, 119, 6, 0.2);
+            color: #fde68a;
+            border: 1px solid rgba(217, 119, 6, 0.4);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            margin: 0 0 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-sub {
+            color: #94a3b8;
+            font-size: 1.05rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: -30px auto 60px;
+            padding: 0 20px;
+        }
+
+        .form-section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .section-icon {
+            font-size: 1.6rem;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .section-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 2px 0 0;
+        }
+
+        /* THEME SELECTOR GRID */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+
+        .theme-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .theme-card:hover {
+            border-color: var(--gold-accent);
+            transform: translateY(-2px);
+        }
+
+        .theme-card.active {
+            border-color: var(--gold-accent);
+            background: #fffdfa;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+        .theme-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .theme-card.active .theme-badge {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        .theme-name {
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            color: #0f172a;
+        }
+
+        .theme-palette {
+            display: flex;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .palette-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .theme-desc {
+            font-size: 0.78rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* ASSET MATRIX (15 PHOTOS) */
+        .photos-table-wrap {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .photos-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .photos-table th {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .photos-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .photos-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .photo-num-pill {
+            background: #0f172a;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        /* FORM INPUTS */
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .field-label span.req {
+            color: #ef4444;
+        }
+
+        .field-input, .field-select, .field-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .field-input:focus, .field-select:focus, .field-textarea:focus {
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+        .field-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* CALLOUT BANNER */
+        .callout-info {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--gold-accent);
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            color: #92400e;
+            margin-bottom: 20px;
+        }
+
+        /* ACTIONS FOOTER */
+        .form-actions-bar {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            position: sticky;
+            bottom: 20px;
+            z-index: 100;
+        }
+
+        .btn-submit-main {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #ffffff;
+            border: 2px solid var(--gold-accent);
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit-main:hover {
+            background: var(--gold-accent);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+        }
+
+        .btn-action-outline {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action-outline:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 1.8rem; }
+            .form-actions-bar { flex-direction: column; align-items: stretch; }
+            .btn-submit-main { justify-content: center; }
+        }
+    </style>
+</head>
+<body class="onboarding-body">
+
+    <!-- HERO HEADER -->
+    <header class="onboarding-hero">
+        <span class="hero-badge">💍 Onboarding de Producción Nupcial</span>
+        <h1 class="hero-title">Briefing & Levantamiento de Invitación Web</h1>
+        <p class="hero-sub">Completa este formulario con los detalles, fotografías y logística del evento para que nuestro equipo técnico maquete la invitación y configure su Dashboard Operativo.</p>
+    </header>
+
+    <!-- FORM WRAPPER -->
+    <main class="form-container">
+        <form id="weddingBriefingForm" onsubmit="handleBriefingSubmit(event)">
+
+            <!-- 1. PAREJA & WEDDING PLANNER -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">👥</div>
+                    <div>
+                        <h2 class="section-title">1. Datos Generales de la Boda & Contacto</h2>
+                        <p class="section-desc">Información básica para titular el proyecto y la plataforma.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Nombre de la Pareja <span class="req">*</span></label>
+                        <input type="text" id="coupleNames" class="field-input" placeholder="Ej. Sofía Valenzuela & Alejandro Garza" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Fecha Oficial del Evento <span class="req">*</span></label>
+                        <input type="date" id="weddingDate" class="field-input" required>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Nombre de la Agencia / Wedding Planner <span class="req">*</span></label>
+                        <select id="plannerSelect" class="field-input" onchange="handlePlannerSelectChange(this.value)" style="margin-bottom:8px; font-weight:700; background:#f8fafc;">
+                            <option value="">-- Seleccionar Wedding Planner Registrada --</option>
+                            <!-- Populated dynamically from active planners database -->
+                            <option value="__other__">➕ Otra Agencia / Wedding Planner Nueva...</option>
+                        </select>
+                        <input type="text" id="plannerName" class="field-input" placeholder="Nombre oficial de la agencia o Wedding Planner" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">WhatsApp de Contacto (con Lada) <span class="req">*</span></label>
+                        <input type="tel" id="plannerPhone" class="field-input" placeholder="Ej. +52 55 1234 5678" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">📍 Ciudad &amp; Dirección del Recinto <span class="req">*</span></label>
+                    <input type="text" id="venueCity" class="field-input" placeholder="Ej. Finca Bell Recó, Mallorca / San Miguel de Allende, Gto." required>
+                </div>
+            </section>
+
+            <!-- 2. TEMÁTICA & ESTILO VISUAL -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">🎨</div>
+                    <div>
+                        <h2 class="section-title">2. Temática &amp; Estilo Visual de la Invitación</h2>
+                        <p class="section-desc">Selecciona la línea de diseño editorial que representará a la boda o describe una personalizada.</p>
+                    </div>
+                </div>
+
+                <div class="themes-grid" id="themesGrid">
+                    <!-- Theme 1 -->
+                    <div class="theme-card active" onclick="selectTheme(this, 'botanical')">
+                        <span class="theme-badge">Seleccionado</span>
+                        <div class="theme-name">🌿 Haute Editorial Botánico</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#2d4a3e;" title="Verde Olivo Profundo"></span>
+                            <span class="palette-dot" style="background:#f4f1ea;" title="Marfil Seda"></span>
+                            <span class="palette-dot" style="background:#c5a059;" title="Dorado Imperial"></span>
+                            <span class="palette-dot" style="background:#8a9a86;" title="Eucalipto Suave"></span>
+                        </div>
+                        <p class="theme-desc">Elegancia botánica estilo Vogue. Texturas orgánicas, tipografía serif refinada y acentos dorados.</p>
+                    </div>
+
+                    <!-- Theme 2 -->
+                    <div class="theme-card" onclick="selectTheme(this, 'blacktie')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">🎩 Minimal Luxury (Black Tie)</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#0f172a;" title="Negro Medianoche"></span>
+                            <span class="palette-dot" style="background:#ffffff;" title="Blanco Puro"></span>
+                            <span class="palette-dot" style="background:#e2e8f0;" title="Gris Platino"></span>
+                            <span class="palette-dot" style="background:#d97706;" title="Gold Touch"></span>
+                        </div>
+                        <p class="theme-desc">Lujo sobrio y contemporáneo. Tipografías modernas, líneas limpias y contraste monocromático de alta costura.</p>
+                    </div>
+
+                    <!-- Theme 3 -->
+                    <div class="theme-card" onclick="selectTheme(this, 'beach')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">🌊 Riviera &amp; Beach Sunset</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#0d9488;" title="Turquesa Marino"></span>
+                            <span class="palette-dot" style="background:#fef3c7;" title="Arena Cálida"></span>
+                            <span class="palette-dot" style="background:#f97316;" title="Terracota Sunset"></span>
+                            <span class="palette-dot" style="background:#ffffff;" title="Blanco Lino"></span>
+                        </div>
+                        <p class="theme-desc">Bodas de playa y destino (Cancún, Los Cabos, Riviera Maya). Estética fresca con tonos cálidos de atardecer.</p>
+                    </div>
+
+                    <!-- Theme 4 -->
+                    <div class="theme-card" onclick="selectTheme(this, 'hacienda')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">🏺 Hacienda Mexicana &amp; Rústico Chic</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#9a3412;" title="Barro Terracota"></span>
+                            <span class="palette-dot" style="background:#fef08a;" title="Cantera Dorada"></span>
+                            <span class="palette-dot" style="background:#166534;" title="Agave Silvestre"></span>
+                            <span class="palette-dot" style="background:#78350f;" title="Madera Nogal"></span>
+                        </div>
+                        <p class="theme-desc">San Miguel de Allende, Oaxaca y haciendas coloniales. Fusión de calidez mexicana artesanal y lujo rústico.</p>
+                    </div>
+
+                    <!-- Theme 5 -->
+                    <div class="theme-card" onclick="selectTheme(this, 'cathedral')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">⛪ Classic Cathedral &amp; Royal Romance</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#1e1b4b;" title="Azul Real"></span>
+                            <span class="palette-dot" style="background:#fafaf9;" title="Blanco Marfil"></span>
+                            <span class="palette-dot" style="background:#eab308;" title="Oro Antiguo"></span>
+                            <span class="palette-dot" style="background:#fbcfe8;" title="Rosa Empolvado"></span>
+                        </div>
+                        <p class="theme-desc">Bodas religiosas tradicionales de gran formato. Letras capitulares, filigranas doradas y aire principesco.</p>
+                    </div>
+
+                    <!-- Theme 6 -->
+                    <div class="theme-card" onclick="selectTheme(this, 'modernglow')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">✨ Vanguardista / Modern Glow (Dark)</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#020617;" title="Fondo Obsidiana"></span>
+                            <span class="palette-dot" style="background:#a855f7;" title="Púrpura Neón"></span>
+                            <span class="palette-dot" style="background:#06b6d4;" title="Cyan Glow"></span>
+                            <span class="palette-dot" style="background:#f8fafc;" title="Texto Nítido"></span>
+                        </div>
+                        <p class="theme-desc">Modo oscuro inmersivo con efectos de partículas y chispas frías para bodas de noche con fiesta espectacular.</p>
+                    </div>
+
+                    <!-- Theme 7 (Custom) -->
+                    <div class="theme-card" onclick="selectTheme(this, 'custom')">
+                        <span class="theme-badge">Opción</span>
+                        <div class="theme-name">🎨 Otra Temática / Estilo Personalizado</div>
+                        <div class="theme-palette">
+                            <span class="palette-dot" style="background:#ec4899;" title="Color 1"></span>
+                            <span class="palette-dot" style="background:#8b5cf6;" title="Color 2"></span>
+                            <span class="palette-dot" style="background:#06b6d4;" title="Color 3"></span>
+                            <span class="palette-dot" style="background:#e2e8f0;" title="Color 4"></span>
+                        </div>
+                        <p class="theme-desc">Diseño 100% a la medida según el concepto exclusivo que definas con la pareja.</p>
+                    </div>
+                </div>
+
+                <!-- Custom theme input notes -->
+                <div id="customThemeBox" style="display:none; margin-top:16px; background:#fffbeb; border:1px solid #fde68a; padding:16px; border-radius:12px;">
+                    <label class="field-label">Especificaciones de tu Temática Personalizada:</label>
+                    <input type="text" id="customThemeName" class="field-input mb-2" placeholder="Nombre de la temática (Ej. Disco Boho Chic / Glamour Art Déco 1920s)" style="margin-bottom:8px;">
+                    <textarea id="customThemeNotes" class="field-textarea" rows="2" placeholder="Describe los colores, tipografías deseadas, inspiración visual o elementos clave que te gustaría incluir."></textarea>
+                </div>
+                <input type="hidden" id="selectedThemeInput" value="botanical">
+            </section>
+
+            <!-- 3. BLUEPRINT DE 15 FOTOGRAFÍAS -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">📸</div>
+                    <div>
+                        <h2 class="section-title">3. Blueprint de Fotografías (Requerimiento de 15 Fotos)</h2>
+                        <p class="section-desc">Pega los enlaces directos (Google Drive / Dropbox / WeTransfer) para cada sección.</p>
+                    </div>
+                </div>
+
+                <div class="callout-info">
+                    💡 <strong>Enlace General:</strong> Si tienes todas las fotos en una sola carpeta de Google Drive o Dropbox, puedes pegar el enlace maestro aquí:
+                    <input type="url" id="masterDriveFolder" class="field-input" style="margin-top:8px;" placeholder="https://drive.google.com/drive/folders/ejemplo-boda-sofia-alejandro">
+                </div>
+
+                <div class="photos-table-wrap">
+                    <table class="photos-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th style="width: 220px;">Sección en la Web</th>
+                                <th>Descripción del Encuadre & Momento</th>
+                                <th style="width: 280px;">Enlace / Nombre de Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="photo-num-pill">01</span></td>
+                                <td><strong>Hero / Portada Principal</strong></td>
+                                <td>Foto estrella en vestido y traje formal (alta resolución, plano medio o entero).</td>
+                                <td><input type="text" class="field-input" id="photo_hero" placeholder="foto_01_portada.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">02</span></td>
+                                <td>Nuestra Historia #1</td>
+                                <td>Cómo nos conocimos / Primeros días juntos.</td>
+                                <td><input type="text" class="field-input" id="photo_story_1" placeholder="foto_02_conocimos.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">03</span></td>
+                                <td>Nuestra Historia #2</td>
+                                <td>Nuestro primer viaje juntos.</td>
+                                <td><input type="text" class="field-input" id="photo_story_2" placeholder="foto_03_viaje.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">04</span></td>
+                                <td>Nuestra Historia #3</td>
+                                <td>La propuesta de matrimonio / El anillo de compromiso.</td>
+                                <td><input type="text" class="field-input" id="photo_story_3" placeholder="foto_04_propuesta.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">05</span></td>
+                                <td>Nuestra Historia #4</td>
+                                <td>Sesión fotográfica prenupcial / Save the Date.</td>
+                                <td><input type="text" class="field-input" id="photo_story_4" placeholder="foto_05_sesion.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">06-11</span></td>
+                                <td><strong>Galería de Recuerdos (6 fotos)</strong></td>
+                                <td>Mix de 6 fotos verticales y horizontales de alta resolución para el carrusel de momentos.</td>
+                                <td><input type="text" class="field-input" id="photos_gallery" placeholder="Enlace o nombres: gal_1.jpg a gal_6.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">12-13</span></td>
+                                <td>Moodboard de Vestimenta</td>
+                                <td>2 fotos de referencia / inspiración para el dress code de damas y caballeros.</td>
+                                <td><input type="text" class="field-input" id="photos_dresscode" placeholder="dress_damas.jpg, dress_hombres.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">14</span></td>
+                                <td>Mesa de Regalos / Luna de Miel</td>
+                                <td>Foto del destino soñado (o imagen estilizada de sobre nupcial de felicitación).</td>
+                                <td><input type="text" class="field-input" id="photo_gift" placeholder="foto_lunademiel.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td><span class="photo-num-pill">15</span></td>
+                                <td>Foto de Despedida / Cierre</td>
+                                <td>Foto emotiva de los novios brindando o sonriendo con mensaje de agradecimiento.</td>
+                                <td><input type="text" class="field-input" id="photo_footer" placeholder="foto_despedida.jpg"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 4. ITINERARIO & CRONOGRAMA -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">⏱️</div>
+                    <div>
+                        <h2 class="section-title">4. Itinerario & Cronograma del Evento</h2>
+                        <p class="section-desc">Horarios de inicio y fin, nombres de recintos y enlaces de Google Maps/Waze.</p>
+                    </div>
+                </div>
+
+                <!-- Ceremonia -->
+                <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0;">
+                    <h3 style="font-size:1rem; font-weight:800; color:#0f172a; margin-bottom:12px;">⛪ Ceremonia Religiosa / Simbólica</h3>
+                    <div class="form-grid-3">
+                        <div class="field-group">
+                            <label class="field-label">Hora de Inicio</label>
+                            <input type="time" id="ceremonyStart" class="field-input" value="16:30">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Hora de Fin</label>
+                            <input type="time" id="ceremonyEnd" class="field-input" value="17:30">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Nombre del Templo / Jardín</label>
+                            <input type="text" id="ceremonyVenue" class="field-input" placeholder="Ej. Parroquia San José / Jardín Central">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Enlace de Google Maps / Waze</label>
+                        <input type="url" id="ceremonyMap" class="field-input" placeholder="https://maps.google.com/?q=...">
+                    </div>
+                </div>
+
+                <!-- Recepción & Banquete -->
+                <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0;">
+                    <h3 style="font-size:1rem; font-weight:800; color:#0f172a; margin-bottom:12px;">🍽️ Cóctel, Banquete & Fiesta</h3>
+                    <div class="form-grid-3">
+                        <div class="field-group">
+                            <label class="field-label">Hora Cóctel Bienvenida</label>
+                            <input type="time" id="cocktailStart" class="field-input" value="17:30">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Hora de Entrada & Banquete</label>
+                            <input type="time" id="dinnerStart" class="field-input" value="19:30">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Hora de Cierre / Fin de Fiesta</label>
+                            <input type="time" id="partyEnd" class="field-input" value="03:00">
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Recinto del Banquete</label>
+                            <input type="text" id="receptionVenue" class="field-input" placeholder="Ej. Finca Bell Recó - Salón Mayor">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Enlace de Google Maps</label>
+                            <input type="url" id="receptionMap" class="field-input" placeholder="https://maps.google.com/?q=...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eventos Multi-Día Opcionales -->
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">¿Habrá Cóctel Rompehielos (Día 1)?</label>
+                        <input type="text" id="icebreakerInfo" class="field-input" placeholder="Ej. Viernes 19:00 hrs en Terraza Hotel Sede">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">¿Habrá Tornaboda / Brunch (Día 3)?</label>
+                        <input type="text" id="tornabodaInfo" class="field-input" placeholder="Ej. Domingo 12:00 hrs en Jardín Alberca">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. CÓDIGO DE VESTIMENTA -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">👔</div>
+                    <div>
+                        <h2 class="section-title">5. Código de Vestimenta (Dress Code)</h2>
+                        <p class="section-desc">Recomendaciones protocolarias de etiqueta y calzado.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Tipo de Etiqueta <span class="req">*</span></label>
+                        <select id="dressCodeType" class="field-select">
+                            <option value="rigurosa">Formal Rigurosa / Black Tie (Esmoquin y Vestido Largo)</option>
+                            <option value="guayabera" selected>Formal Guayabera & Lino (Climas Cálidos / Playa / Hacienda)</option>
+                            <option value="traje">Traje Formal / Traje Sastre Completo</option>
+                            <option value="cocktail">Cocktail Elegante</option>
+                            <option value="boho">Boho Chic / Jardín de Día</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Colores Reservados (Prohibidos para Invitados)</label>
+                        <input type="text" id="reservedColors" class="field-input" value="Blanco, Marfil, Beige y Verde Olivo (Damas de Honor)">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Paleta de Colores Sugerida para Invitados</label>
+                        <input type="text" id="suggestedColors" class="field-input" placeholder="Ej. Tonos joya, terracota, azul marino, esmeralda o pasteles">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Nota de Calzado o Clima (Opcional)</label>
+                        <input type="text" id="shoeNote" class="field-input" value="Recomendamos tacón ancho o corrido debido al empedrado y césped natural.">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. MESA DE REGALOS & OPCIONES FINANCIERAS -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">🎁</div>
+                    <div>
+                        <h2 class="section-title">6. Mesa de Regalos & Opciones Financieras</h2>
+                        <p class="section-desc">Activa las opciones más prácticas y transparentes para los invitados.</p>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0;">
+                    <h3 style="font-size:0.95rem; font-weight:800; color:#0f172a; margin-bottom:12px;">💳 Transferencia Bancaria Directa (Fondo de Luna de Miel)</h3>
+                    <div class="form-grid-3">
+                        <div class="field-group">
+                            <label class="field-label">Banco</label>
+                            <input type="text" id="bankName" class="field-input" placeholder="Ej. BBVA / Banorte / Santander">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Beneficiario</label>
+                            <input type="text" id="bankOwner" class="field-input" placeholder="Ej. Sofía Valenzuela o Alejandro Garza">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">CLABE Interbancaria (18 dígitos)</label>
+                            <input type="text" id="bankClabe" class="field-input" placeholder="012180000000000000" maxlength="18">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Liverpool / Palacio de Hierro / Sears (No. Evento o Link)</label>
+                        <input type="text" id="storeRegistry" class="field-input" placeholder="Ej. Evento Liverpool #51249102 o Enlace directo">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Amazon Wedding Wishlist (Enlace Directo)</label>
+                        <input type="url" id="amazonRegistry" class="field-input" placeholder="https://www.amazon.com.mx/wedding/...">
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer;">
+                        <input type="checkbox" id="showEnvelopeOption" checked style="width:18px; height:18px; accent-color:var(--gold-accent);">
+                        ✉️ Habilitar tarjeta de "Lluvia de Sobres / Efectivo en Recepción" con sobre distinguido
+                    </label>
+                    <span class="field-hint">Muestra una tarjeta elegante en la web para quienes prefieran entregar su regalo en mano el día de la boda.</span>
+                </div>
+            </section>
+
+            <!-- 7. RSVP, PASES, MENÚ & ALERGIAS -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">🍽️</div>
+                    <div>
+                        <h2 class="section-title">7. RSVP, Canal de Confirmación, Menú & Alergias Clínicas</h2>
+                        <p class="section-desc">Control de comensales, platillos gourmet y canal de confirmación según el plan contratado.</p>
+                    </div>
+                </div>
+
+                <!-- BLOQUE ADAPTATIVO: CANAL DE CONFIRMACIÓN SEGÚN PLAN (BÁSICO VS PRO/ELITE) -->
+                <div id="rsvpChannelPlanCard" style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:12px; padding:16px 18px; margin-bottom:18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                        <strong style="font-size:0.92rem; color:#0f172a;" id="rsvpChannelHeading">📡 Canal Oficial de Confirmación de Invitados</strong>
+                        <span id="rsvpPlanTagBadge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:800; padding:3px 10px; border-radius:12px;">Plan Detectado</span>
+                    </div>
+
+                    <!-- CASO 1: PLAN BÁSICO (SOLO CORREO + LANDING) -->
+                    <div id="rsvpBasicEmailNotice" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:14px; color:#1e40af; font-size:0.84rem; line-height:1.5;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <span style="font-size:1.2rem;">🌐✉️</span>
+                            <strong style="color:#1e3a8a; font-size:0.92rem;">Modalidad: Web Landing Editorial + Correo Electrónico</strong>
+                        </div>
+                        <p style="margin:0 0 10px;">
+                            En el <strong>Plan Essential ($800)</strong>, todo el levantamiento de confirmaciones, pases y recordatorios opera mediante <strong>correo electrónico transaccional y landing web</strong>. Los invitados reciben sus acreditaciones en su bandeja de entrada sin requerir costos de consumo de la API de Meta.
+                        </p>
+                        <div class="form-grid-2">
+                            <div class="field-group" style="margin:0;">
+                                <label class="field-label" style="font-size:0.78rem;">Correo Remitente Oficial para Notificaciones:</label>
+                                <input type="email" id="rsvpBasicSenderEmail" class="field-input" placeholder="bodas@tudominio.com o novios@gmail.com" value="">
+                            </div>
+                            <div class="field-group" style="margin:0;">
+                                <label class="field-label" style="font-size:0.78rem;">Nombre a mostrar en el Remitente:</label>
+                                <input type="text" id="rsvpBasicSenderName" class="field-input" placeholder="ej. Boda Sofía & Alejandro" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CASO 2: PLAN SIGNATURE PRO / ELITE (WHATSAPP INTERACTIVO + LANDING) -->
+                    <div id="rsvpProWhatsAppNotice" style="display:none; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:14px; color:#065f46; font-size:0.84rem; line-height:1.5;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <span style="font-size:1.2rem;">📲💬</span>
+                            <strong style="color:#064e3b; font-size:0.92rem;">Modalidad: WhatsApp Interactivo (Meta Cloud API) + Web Landing</strong>
+                        </div>
+                        <p style="margin:0 0 10px;">
+                            En tu plan <strong>Signature Pro / Atelier Elite</strong> cuentas con el motor de envíos masivos interactivos por WhatsApp. Los invitados reciben su invitación con botones táctiles de confirmación en 1 toque, mapas satelitales (Waze/Google Maps) y generación de pases digitales dinámicos.
+                        </p>
+                        <div class="form-grid-2">
+                            <div class="field-group" style="margin:0;">
+                                <label class="field-label" style="font-size:0.78rem;">Número de WhatsApp Oficial para Respuestas / Concierge:</label>
+                                <input type="tel" id="rsvpProWhatsAppConcierge" class="field-input" placeholder="+52 81 0000 0000" value="">
+                            </div>
+                            <div class="field-group" style="margin:0;">
+                                <label class="field-label" style="font-size:0.78rem;">Nombre del Concierge / Contacto de Asistencia:</label>
+                                <input type="text" id="rsvpProConciergeName" class="field-input" placeholder="ej. Concierge Boda Sofía & Alex" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Fecha Límite de Confirmación (RSVP Deadline) <span class="req">*</span></label>
+                        <input type="date" id="rsvpDeadline" class="field-input" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Política de Niños</label>
+                        <select id="kidsPolicy" class="field-select">
+                            <option value="no_kids" selected>Boda Exclusiva de Adultos (No Niños - Protocolo Cortés)</option>
+                            <option value="kids_welcome">Boda Familiar (Niños Bienvenidos con Menú Infantil)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0;">
+                    <h3 style="font-size:0.95rem; font-weight:800; color:#0f172a; margin-bottom:10px;">🥩 Opciones de Plato Fuerte para Invitados</h3>
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Opción A (Carne / Res)</label>
+                            <input type="text" id="menuOptionA" class="field-input" value="Filete de Res en reducción de oporto con puré de papa trufado">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Opción B (Ave / Pescado)</label>
+                            <input type="text" id="menuOptionB" class="field-input" value="Salmón Noruego glaseado al balsámico sobre cama de espárragos">
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="field-group">
+                            <label class="field-label">Opción C (Vegetariano / Vegano)</label>
+                            <input type="text" id="menuOptionC" class="field-input" value="Risotto de Portobello y alcachofas confitadas">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Opción D (Menú Infantil - Si aplica)</label>
+                            <input type="text" id="menuOptionD" class="field-input" value="Pechuguitas crujientes con papitas y ensalada dulce">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout-info" style="margin-bottom:0;">
+                    🛡️ <strong>Catálogo Clínico de Alergias:</strong> En el formulario de confirmación de los invitados, el sistema desplegará tanto el menú desplegable (Nueces, Gluten/Celíacos, Lactosa, Mariscos, Pescado, Huevo, Soya, Frutas Ácidas, Sésamo o "Ninguna") como un cuadro de notas para reportar cualquier especificación directamente a la cocina del banquete.
+                </div>
+            </section>
+
+            <!-- 8. TRANSPORTE & HOTELES SEDE -->
+            <section class="form-section-card">
+                <div class="section-header">
+                    <div class="section-icon">🚐</div>
+                    <div>
+                        <h2 class="section-title">8. Logística de Transporte (Shuttles) & Hoteles Sede</h2>
+                        <p class="section-desc">Facilita el traslado y hospedaje de invitados foráneos.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">¿Habrá Shuttles / Vans de Traslado?</label>
+                        <select id="hasShuttle" class="field-select">
+                            <option value="yes" selected>Sí, habrá transporte privado para invitados</option>
+                            <option value="no">No, cada invitado llega por su cuenta</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Punto de Salida de los Shuttles</label>
+                        <input type="text" id="shuttlePickup" class="field-input" placeholder="Ej. Lobby Hotel Sede Fiesta Americana">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Horarios de Salida (Hacia el Venue)</label>
+                        <input type="text" id="shuttleDepartures" class="field-input" value="15:30 hrs y 16:00 hrs">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Horarios de Retorno (Hacia el Hotel)</label>
+                        <input type="text" id="shuttleReturns" class="field-input" value="00:30 hrs, 02:00 hrs y 03:30 hrs (Cierre)">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="field-group">
+                        <label class="field-label">Hotel Sede 1 & Código de Convenio</label>
+                        <input type="text" id="hotel1" class="field-input" placeholder="Ej. Hotel Gran Meliá / Código: BODA-SOFIA-ALE">
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Hotel Sede 2 / Alternativo</label>
+                        <input type="text" id="hotel2" class="field-input" placeholder="Ej. Hotel City Express / Tarifa con clave">
+                    </div>
+                </div>
+            </section>
+
+            <!-- STICKY ACTION BAR: BOTÓN ÚNICO Y CLARO -->
+            <div class="form-actions-bar" style="justify-content:center; text-align:center; padding:24px 20px;">
+                <div style="max-width: 650px; width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                    <button type="submit" id="btnSubmitBriefing" class="btn-submit-main" style="width:100%; max-width:540px; justify-content:center; padding:16px 28px; font-size:1.05rem; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border:2px solid #d97706; box-shadow:0 10px 25px rgba(217, 119, 6, 0.25); border-radius:12px; letter-spacing:0.02em;">
+                        <span style="font-size:1.3rem;">🚀</span>
+                        <span>Enviar Información a Antigravity para Crear la Invitación</span>
+                    </button>
+                    <p style="margin:0; font-size:0.8rem; color:#64748b; line-height:1.4;">
+                        Los datos se guardan y se transmiten directamente al equipo de <strong>Antigravity Web Studio</strong> para iniciar el desarrollo y montaje de la invitación web y su dashboard operativo.
+                    </p>
+                </div>
+            </div>
+
+        </form>
+    </main>
+
+    <script>
+        let currentLoadedWeddingId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            currentLoadedWeddingId = params.get('weddingId') || 'aura';
+
+            initPlannerCombobox();
+
+            if (params.get('couple')) document.getElementById('coupleNames').value = params.get('couple');
+            if (params.get('date')) {
+                const rawDate = params.get('date');
+                if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+                    document.getElementById('weddingDate').value = rawDate;
+                } else {
+                    try {
+                        const parsed = new Date(rawDate);
+                        if (!isNaN(parsed.getTime())) {
+                            document.getElementById('weddingDate').value = parsed.toISOString().split('T')[0];
+                        }
+                    } catch(e) {}
+                }
+            }
+            if (params.get('planner')) {
+                setPlannerFromValue(params.get('planner'));
+            }
+            if (params.get('phone')) document.getElementById('plannerPhone').value = params.get('phone');
+            if (params.get('venue')) document.getElementById('venueCity').value = params.get('venue');
+            
+            if (params.get('theme')) {
+                const themeKey = params.get('theme');
+                const targetCard = document.querySelector(`.theme-card[onclick*="'${themeKey}'"]`);
+                if (targetCard) {
+                    selectTheme(targetCard, themeKey);
+                }
+            }
+
+            // Gatekeeper estricto: Verificar plan contratado
+            const validTiers = ['basic', 'intermediate', 'elite'];
+            const planTierParam = params.get('plan');
+            const storedTier = localStorage.getItem('wedding_subscription_tier');
+            const effectivePlan = (planTierParam && validTiers.includes(planTierParam)) ? planTierParam : (validTiers.includes(storedTier) ? storedTier : null);
+
+            if (!effectivePlan) {
+                document.body.innerHTML = `
+                    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0f172a; padding:20px; font-family:'Plus Jakarta Sans', sans-serif;">
+                        <div style="background:#ffffff; max-width:540px; width:100%; border-radius:20px; padding:36px 32px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.4); border:2px solid #f59e0b;">
+                            <div style="width:72px; height:72px; background:#fef3c7; border:2px solid #fde047; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
+                                🔒
+                            </div>
+                            <h2 style="margin:0 0 10px; font-family:'Playfair Display', serif; font-size:1.6rem; color:#0f172a;">
+                                Acceso Exclusivo con Plan Activo
+                            </h2>
+                            <p style="margin:0 0 24px; font-size:0.9rem; color:#475569; line-height:1.5;">
+                                El <strong>Formulario para Invitación Web</strong> está reservado exclusivamente para la Wedding Planner y los Novios con un plan oficial contratado (<em>Essential, Signature Pro o Atelier Elite</em>).
+                            </p>
+                            <div style="display:flex; flex-direction:column; gap:10px;">
+                                <a href="index.html" style="display:block; text-decoration:none; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; padding:14px 20px; border-radius:10px; font-size:0.95rem; font-weight:800;">
+                                    ← Ir a Configuración de Planes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const planTier = effectivePlan;
+            const heroBadge = document.querySelector('.hero-badge');
+            if (heroBadge) {
+                if (planTier === 'basic') {
+                    heroBadge.innerHTML = '🥉 Plan Essential ($800) · Briefing Base (1-3 Bodas)';
+                } else if (planTier === 'elite') {
+                    heroBadge.innerHTML = '👑 Plan Atelier Elite ($2,800) · Briefing VIP & Marca Blanca';
+                } else {
+                    heroBadge.innerHTML = '🥈 Plan Signature Pro ($1,500) · Briefing Completo (1-10 Bodas)';
+                }
+            }
+
+            // Adapt Section 7 (RSVP Confirmation Channel) based on Plan Tier
+            const rsvpBasicBox = document.getElementById('rsvpBasicEmailNotice');
+            const rsvpProBox = document.getElementById('rsvpProWhatsAppNotice');
+            const rsvpBadge = document.getElementById('rsvpPlanTagBadge');
+
+            if (planTier === 'basic') {
+                if (rsvpBasicBox) rsvpBasicBox.style.display = 'block';
+                if (rsvpProBox) rsvpProBox.style.display = 'none';
+                if (rsvpBadge) {
+                    rsvpBadge.innerText = '🥉 Plan Essential (Solo Correo)';
+                    rsvpBadge.style.background = '#2563eb';
+                }
+            } else {
+                if (rsvpBasicBox) rsvpBasicBox.style.display = 'none';
+                if (rsvpProBox) rsvpProBox.style.display = 'block';
+                if (rsvpBadge) {
+                    rsvpBadge.innerText = planTier === 'elite' ? '👑 Plan Atelier Elite (WhatsApp Interactivo)' : '🥈 Plan Signature Pro (WhatsApp Interactivo)';
+                    rsvpBadge.style.background = '#059669';
+                }
+            }
+
+            // Lock sections according to plan
+            if (planTier === 'basic') {
+                const allSections = document.querySelectorAll('.form-section-card');
+                if (allSections.length >= 8) {
+                    const sec8 = allSections[7]; // Section 8: Transport & Hotels
+                    if (sec8) {
+                        const notice = document.createElement('div');
+                        notice.style.cssText = 'background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:12px 16px; border-radius:10px; font-size:0.82rem; font-weight:700; margin-bottom:16px;';
+                        notice.innerHTML = '🔒 <strong>Módulo Exclusivo:</strong> Los bloques de hotel y logística de shuttles están incluidos en los planes <em>Signature Pro ($1,500)</em> y <em>Atelier Elite ($2,800)</em>. En el Plan Essential la invitación web incluye datos del evento, itinerario y mesa de regalos.';
+                        sec8.insertBefore(notice, sec8.querySelector('.section-header').nextSibling);
+                        sec8.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+                        sec8.style.opacity = '0.7';
+                    }
+                }
+            }
+        });
+
+        const KNOWN_PLANNERS = [
+            { agency: "Aura Weddings & Design", planner: "Mariana Garza", phone: "+52 81 8990 1122" },
+            { agency: "Atelier Event Architecture", planner: "Valeria Sotomayor", phone: "+52 55 4433 2211" },
+            { agency: "Boutique Weddings México", planner: "Camila Rivas", phone: "+52 33 2211 4455" },
+            { agency: "Velasco Luxury Weddings", planner: "Mariana Garza", phone: "+52 81 8990 1122" }
+        ];
+
+        function initPlannerCombobox() {
+            const select = document.getElementById('plannerSelect');
+            if (!select) return;
+
+            // Load registered clients from localStorage if available
+            let clientList = [];
+            try {
+                const stored = localStorage.getItem('antigravity_clients_db');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) clientList = parsed;
+                }
+            } catch(e) {}
+
+            const merged = [...KNOWN_PLANNERS];
+            clientList.forEach(c => {
+                if (!merged.some(m => m.agency.toLowerCase() === (c.agencyName || '').toLowerCase())) {
+                    merged.push({
+                        agency: c.agencyName || c.plannerName || 'Agencia Registrada',
+                        planner: c.plannerName || '',
+                        phone: c.phone || ''
+                    });
+                }
+            });
+
+            // Populate combobox
+            select.innerHTML = '<option value="">-- Seleccionar Wedding Planner Registrada --</option>';
+            merged.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.agency;
+                opt.text = `👑 ${p.agency} (${p.planner || 'Coordinación'})`;
+                opt.dataset.planner = p.planner || p.agency;
+                opt.dataset.phone = p.phone || '';
+                select.appendChild(opt);
+            });
+
+            const otherOpt = document.createElement('option');
+            otherOpt.value = '__other__';
+            otherOpt.text = '➕ Otra Agencia / Wedding Planner Nueva...';
+            select.appendChild(otherOpt);
+        }
+
+        function handlePlannerSelectChange(val) {
+            const nameInput = document.getElementById('plannerName');
+            const phoneInput = document.getElementById('plannerPhone');
+            const select = document.getElementById('plannerSelect');
+            if (!val) {
+                if (nameInput) nameInput.value = '';
+                return;
+            }
+            if (val === '__other__') {
+                if (nameInput) {
+                    nameInput.value = '';
+                    nameInput.focus();
+                    nameInput.placeholder = 'Escribe el nombre de tu agencia o wedding planner';
+                }
+                return;
+            }
+            const selectedOpt = select.options[select.selectedIndex];
+            if (selectedOpt) {
+                if (nameInput) nameInput.value = `${val} · ${selectedOpt.dataset.planner || ''}`.trim().replace(/\s*·\s*$/, '');
+                if (phoneInput && selectedOpt.dataset.phone && !phoneInput.value.trim()) {
+                    phoneInput.value = selectedOpt.dataset.phone;
+                }
+            }
+        }
+
+        function setPlannerFromValue(val) {
+            const select = document.getElementById('plannerSelect');
+            const nameInput = document.getElementById('plannerName');
+            if (nameInput) nameInput.value = val;
+            if (!select) return;
+
+            let found = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value.toLowerCase() === val.toLowerCase() || 
+                    select.options[i].text.toLowerCase().includes(val.toLowerCase())) {
+                    select.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                select.value = '__other__';
+            }
+        }
+
+        function selectTheme(cardElement, themeKey) {
+            document.querySelectorAll('.theme-card').forEach(c => {
+                c.classList.remove('active');
+                c.querySelector('.theme-badge').innerText = 'Opción';
+            });
+            cardElement.classList.add('active');
+            cardElement.querySelector('.theme-badge').innerText = 'Seleccionado';
+            document.getElementById('selectedThemeInput').value = themeKey;
+
+            const customBox = document.getElementById('customThemeBox');
+            if (customBox) {
+                customBox.style.display = themeKey === 'custom' ? 'block' : 'none';
+            }
+        }
+
+        function collectBriefingData() {
+            const selectedTheme = document.getElementById('selectedThemeInput').value;
+            return {
+                couple: document.getElementById('coupleNames').value,
+                date: document.getElementById('weddingDate').value,
+                planner: document.getElementById('plannerName').value,
+                phone: document.getElementById('plannerPhone').value,
+                cityVenue: document.getElementById('venueCity').value,
+                theme: selectedTheme,
+                customThemeDetails: selectedTheme === 'custom' ? {
+                    name: document.getElementById('customThemeName').value,
+                    notes: document.getElementById('customThemeNotes').value
+                } : null,
+                masterDrive: document.getElementById('masterDriveFolder').value,
+                photos: {
+                    hero: document.getElementById('photo_hero').value,
+                    story: [
+                        document.getElementById('photo_story_1').value,
+                        document.getElementById('photo_story_2').value,
+                        document.getElementById('photo_story_3').value,
+                        document.getElementById('photo_story_4').value
+                    ],
+                    gallery: document.getElementById('photos_gallery').value,
+                    dresscode: document.getElementById('photos_dresscode').value,
+                    gift: document.getElementById('photo_gift').value,
+                    footer: document.getElementById('photo_footer').value
+                },
+                itinerary: {
+                    ceremony: {
+                        start: document.getElementById('ceremonyStart').value,
+                        end: document.getElementById('ceremonyEnd').value,
+                        venue: document.getElementById('ceremonyVenue').value,
+                        map: document.getElementById('ceremonyMap').value
+                    },
+                    reception: {
+                        cocktail: document.getElementById('cocktailStart').value,
+                        dinner: document.getElementById('dinnerStart').value,
+                        partyEnd: document.getElementById('partyEnd').value,
+                        venue: document.getElementById('receptionVenue').value,
+                        map: document.getElementById('receptionMap').value
+                    },
+                    multiDay: {
+                        icebreaker: document.getElementById('icebreakerInfo').value,
+                        tornaboda: document.getElementById('tornabodaInfo').value
+                    }
+                },
+                dressCode: {
+                    type: document.getElementById('dressCodeType').value,
+                    reserved: document.getElementById('reservedColors').value,
+                    suggested: document.getElementById('suggestedColors').value,
+                    shoeNote: document.getElementById('shoeNote').value
+                },
+                giftRegistry: {
+                    bank: document.getElementById('bankName').value,
+                    owner: document.getElementById('bankOwner').value,
+                    clabe: document.getElementById('bankClabe').value,
+                    store: document.getElementById('storeRegistry').value,
+                    amazon: document.getElementById('amazonRegistry').value,
+                    envelope: document.getElementById('showEnvelopeOption').checked
+                },
+                rsvp: {
+                    deadline: document.getElementById('rsvpDeadline').value,
+                    kidsPolicy: document.getElementById('kidsPolicy').value,
+                    menuOptions: {
+                        a: document.getElementById('menuOptionA').value,
+                        b: document.getElementById('menuOptionB').value,
+                        c: document.getElementById('menuOptionC').value,
+                        d: document.getElementById('menuOptionD').value
+                    }
+                },
+                transport: {
+                    hasShuttle: document.getElementById('hasShuttle').value,
+                    pickup: document.getElementById('shuttlePickup').value,
+                    departures: document.getElementById('shuttleDepartures').value,
+                    returns: document.getElementById('shuttleReturns').value,
+                    hotel1: document.getElementById('hotel1').value,
+                    hotel2: document.getElementById('hotel2').value
+                }
+            };
+        }
+
+        function unlockModulesInERP() {
+            if (currentLoadedWeddingId) {
+                localStorage.setItem(`briefing_done_${currentLoadedWeddingId}`, 'true');
+            }
+            localStorage.setItem('briefing_done_aura', 'true');
+        }
+
+        function copyPromptForAI() {
+            const data = collectBriefingData();
+            const prompt = `Hola Antigravity Devs, aquí está el Briefing Completo de la Boda para maquetar la Invitación Web y configurar el Dashboard:
+
+💍 DATOS GENERALES:
+- Pareja: ${data.couple}
+- Fecha Oficial: ${data.date}
+- Wedding Planner: ${data.planner} (${data.phone})
+- Ciudad & Dirección: ${data.cityVenue}
+
+🎨 TEMÁTICA & ESTILO VISUAL:
+- Estilo: ${data.theme === 'custom' && data.customThemeDetails ? data.customThemeDetails.name : data.theme}
+${data.customThemeDetails ? '- Notas: ' + data.customThemeDetails.notes : ''}
+
+📸 BLUEPRINT DE 15 FOTOGRAFÍAS:
+- Carpeta Drive / Repositorio: ${data.masterDrive || 'Por enviar'}
+- 01 Portada Hero: ${data.photos.hero || 'foto_01_portada.jpg'}
+- 02-05 Nuestra Historia: ${data.photos.story.filter(Boolean).join(', ') || 'foto_02 a 05'}
+- 06-11 Galería Recuerdos: ${data.photos.gallery || 'gal_1 a 6'}
+- 12-13 Moodboard Vestimenta: ${data.photos.dresscode || 'dress_1, dress_2'}
+- 14 Mesa de Regalos / Sobre: ${data.photos.gift || 'regalos.jpg'}
+- 15 Cierre y Despedida: ${data.photos.footer || 'despedida.jpg'}
+
+⏱️ ITINERARIO:
+- Ceremonia: ${data.itinerary.ceremony.start} - ${data.itinerary.ceremony.end} en ${data.itinerary.ceremony.venue} (${data.itinerary.ceremony.map})
+- Cóctel / Banquete / Fiesta: ${data.itinerary.reception.cocktail} Cóctel, ${data.itinerary.reception.dinner} Banquete, ${data.itinerary.reception.partyEnd} Cierre en ${data.itinerary.reception.venue} (${data.itinerary.reception.map})
+
+👔 CÓDIGO DE VESTIMENTA:
+- Etiqueta: ${data.dressCode.type}
+- Colores Reservados: ${data.dressCode.reserved}
+- Paleta Sugerida: ${data.dressCode.suggested}
+- Calzado: ${data.dressCode.shoeNote}
+
+🎁 MESA DE REGALOS:
+- Banco / CLABE: ${data.giftRegistry.bank} (${data.giftRegistry.clabe}) Beneficiario: ${data.giftRegistry.owner}
+- Tiendas: ${data.giftRegistry.store || 'N/A'} | Amazon: ${data.giftRegistry.amazon || 'N/A'}
+- Lluvia de Sobres: ${data.giftRegistry.envelope ? 'Activada' : 'Desactivada'}
+
+🍽️ MENÚ & ALERGIAS:
+- Res: ${data.rsvp.menuOptions.a}
+- Ave/Pescado: ${data.rsvp.menuOptions.b}
+- Vegano: ${data.rsvp.menuOptions.c}
+- RSVP Límite: ${data.rsvp.deadline} | Política Niños: ${data.rsvp.kidsPolicy}
+
+🚐 TRANSPORTE & SHUTTLES:
+- Shuttles: ${data.transport.hasShuttle} | Salida: ${data.transport.pickup} | Horarios Ida: ${data.transport.departures} | Retorno: ${data.transport.returns}
+- Hoteles: ${data.transport.hotel1} / ${data.transport.hotel2}
+
+Por favor maquetar la estructura y colocar los marcadores de las 15 fotos correspondientes.`;
+
+            navigator.clipboard.writeText(prompt).then(() => {
+                alert('✓ ¡Prompt para Asistente AI copiado al portapapeles! Puedes pegarlo directamente en el chat para iniciar la construcción de la invitación.');
+            }).catch(() => {
+                prompt('Copia este prompt para tu asistente:', prompt);
+            });
+        }
+
+        function exportBriefingJson() {
+            const data = collectBriefingData();
+            const str = JSON.stringify(data, null, 2);
+            navigator.clipboard.writeText(str).then(() => {
+                alert('✓ JSON de configuración copiado al portapapeles con éxito.');
+            }).catch(() => {
+                prompt('Copia este código JSON:', str);
+            });
+        }
+
+        function sendViaWhatsApp() {
+            const data = collectBriefingData();
+            unlockModulesInERP();
+
+            const summary = `*BRIEFING DE BODA - ANTIGRAVITY DEV* 💍\n\n` +
+                `👰🤵 *Pareja:* ${data.couple}\n` +
+                `📅 *Fecha:* ${data.date}\n` +
+                `✨ *Planner:* ${data.planner} (${data.phone})\n` +
+                `🏰 *Venue / Dirección:* ${data.cityVenue}\n` +
+                `🎨 *Temática:* ${data.theme === 'custom' && data.customThemeDetails ? data.customThemeDetails.name : data.theme}\n` +
+                `📸 *Drive Fotos:* ${data.masterDrive || 'Por enviar'}\n` +
+                `👔 *Dress Code:* ${data.dressCode.type}\n` +
+                `⏳ *RSVP Límite:* ${data.rsvp.deadline}\n\n` +
+                `_Configuración enviada a antigravitywebstudio@hotmail.com._`;
+
+            const encoded = encodeURIComponent(summary);
+            window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
+        }
+
+        function handleBriefingSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitBriefing');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span>⏳ Transmitiendo datos a Antigravity...</span>';
+            }
+
+            const data = collectBriefingData();
+            unlockModulesInERP();
+
+            // Guardar persistentemente en localStorage para sincronización inmediata con Wedding OS
+            const weddingKey = currentLoadedWeddingId || 'aura';
+            localStorage.setItem(`briefing_data_${weddingKey}`, JSON.stringify(data));
+            localStorage.setItem(`briefing_done_${weddingKey}`, 'true');
+
+            // Actualizar estado general de la boda en el sistema
+            try {
+                const storedState = localStorage.getItem(`wedding_state_${weddingKey}`);
+                let stateObj = storedState ? JSON.parse(storedState) : {};
+                if (data.couple) stateObj.couple = data.couple;
+                if (data.date) stateObj.date = data.date;
+                if (data.cityVenue) stateObj.venue = data.cityVenue;
+                if (data.theme) stateObj.themeTag = data.theme;
+                localStorage.setItem(`wedding_state_${weddingKey}`, JSON.stringify(stateObj));
+            } catch(err) {
+                console.warn('Error al actualizar wedding_state:', err);
+            }
+
+            // Crear resumen estructurado para Antigravity
+            const summary = `*BRIEFING DE BODA - ANTIGRAVITY DEV* 💍\n\n` +
+                `👰🤵 *Pareja:* ${data.couple}\n` +
+                `📅 *Fecha Oficial:* ${data.date}\n` +
+                `✨ *Planner:* ${data.planner} (${data.phone})\n` +
+                `🏰 *Recinto / Venue:* ${data.cityVenue}\n` +
+                `🎨 *Temática:* ${data.theme === 'custom' && data.customThemeDetails ? data.customThemeDetails.name : data.theme}\n` +
+                `📸 *Drive / Fotos:* ${data.masterDrive || 'Pendiente por subir'}\n` +
+                `👔 *Dress Code:* ${data.dressCode.type}\n` +
+                `⏳ *RSVP Límite:* ${data.rsvp.deadline}\n\n` +
+                `_Información enviada a Antigravity Web Studio para iniciar el montaje de la invitación._`;
+
+            // Copiar al portapapeles automáticamente como respaldo instantáneo
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(summary).catch(() => {});
+            }
+
+            // Mostrar modal de confirmación de éxito in situ
+            setTimeout(() => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span style="font-size:1.3rem;">✅</span><span>¡Información Enviada Exitosamente a Antigravity!</span>';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    btn.style.borderColor = '#34d399';
+                }
+
+                showSuccessModal(data, summary);
+            }, 600);
+        }
+
+        function showSuccessModal(data, summary) {
+            let existing = document.getElementById('modalBriefingSuccess');
+            if (existing) existing.remove();
+
+            const modalHtml = `
+                <div id="modalBriefingSuccess" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:99999; padding:20px;">
+                    <div style="background:#ffffff; border-radius:20px; max-width:540px; width:100%; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); border:2px solid #10b981; text-align:center; animation:fadeIn 0.3s ease;">
+                        <div style="width:68px; height:68px; background:#dcfce7; border:2px solid #86efac; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 16px;">
+                            🚀
+                        </div>
+                        <h2 style="margin:0 0 8px; font-family:'Playfair Display', serif; font-size:1.6rem; color:#0f172a;">
+                            ¡Información Recibida por Antigravity!
+                        </h2>
+                        <p style="margin:0 0 20px; font-size:0.9rem; color:#475569; line-height:1.5;">
+                            Los datos de la boda de <strong>${data.couple}</strong> han sido registrados y enviados con éxito. Nuestro equipo técnico iniciará la maquetación de la invitación web y la configuración de su Dashboard.
+                        </p>
+
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; text-align:left; font-size:0.8rem; color:#334155; margin-bottom:24px;">
+                            <div>💍 <strong>Boda:</strong> ${data.couple}</div>
+                            <div>📅 <strong>Fecha:</strong> ${data.date}</div>
+                            <div>📍 <strong>Venue:</strong> ${data.cityVenue}</div>
+                            <div>🎨 <strong>Estilo:</strong> ${data.theme}</div>
+                            <div>🛡️ <strong>Estado en Wedding OS:</strong> Módulos Desbloqueados</div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <button onclick="window.close(); if(!window.closed) window.location.href='index.html';" style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border:none; padding:14px 20px; border-radius:10px; font-size:0.95rem; font-weight:800; cursor:pointer;">
+                                ← Regresar al Dashboard Operativo
+                            </button>
+                            <button onclick="sendDirectNotification('${encodeURIComponent(summary)}')" style="background:#f0fdf4; border:1.5px solid #86efac; color:#15803d; padding:12px 20px; border-radius:10px; font-size:0.85rem; font-weight:700; cursor:pointer;">
+                                📲 Abrir Notificación Directa por WhatsApp (Opcional)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function sendDirectNotification(encodedSummary) {
+            window.open(`https://api.whatsapp.com/send?text=${encodedSummary}`, '_blank');
+        }
+    </script>
+</body>
+</html>
