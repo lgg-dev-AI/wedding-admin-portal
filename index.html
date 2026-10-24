@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261023_screen_lock_v3">
+    <link rel="stylesheet" href="styles/admin.css?v=20261024_resize_v5">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -1608,11 +1608,6 @@
                     <div>
                         <h1 class="tab-title">🪑 Distribución de Mesas (Plano 2D)</h1>
                         <p class="tab-subtitle">Organización de invitados, plano métrico escalado para wedding planners y distribución de cuadrantes para capitán de meseros.</p>
-                        <div class="d-flex align-center gap-2 mt-1">
-                            <span class="badge-accent" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-size:0.75rem; padding:3px 8px;">
-                                📱 <strong>Dispositivo Óptimo:</strong> Diseñado para iPad, Mac/PC o smartphones desde <strong>iPhone 11 Pro en adelante</strong> (pantallas 375px+ para máxima precisión táctil).
-                            </span>
-                        </div>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                         <button class="btn-action primary" onclick="openNewTableModal()">+ Nueva Mesa</button>
@@ -1653,121 +1648,79 @@
 
                                 <!-- SUBVIEW 2: 2D FLOOR PLAN & WAITERS STAFFING -->
                 <div id="seatingSubviewFloor" style="display:none;">
-                    <!-- Floor Plan Control Bar with Screen Lock Toggle -->
-                    <div class="floor-toolbar-box">
-                        <div class="floor-toolbar-left">
-                            <span class="floor-tool-label"><i class="fas fa-ruler-combined"></i> <strong>Dimensiones del Salón:</strong></span>
+                    <!-- Barra de Herramientas Compacta & Desplegables Elegantes (Cero Saturación) -->
+                    <div class="floor-compact-toolbar mb-3">
+                        <div class="quick-tools-pills-row">
+                            <button type="button" class="btn-quick-pill" id="btnToggleFloor_elements" onclick="toggleFloorDrawer('elements')">
+                                <span>✨ + Agregar Mobiliario</span> <span class="pill-chevron">▾</span>
+                            </button>
+                            <button type="button" class="btn-quick-pill" id="btnToggleFloor_templates" onclick="toggleFloorDrawer('templates')">
+                                <span>📐 Plantillas Salón</span> <span class="pill-chevron">▾</span>
+                            </button>
+                            <button type="button" class="btn-quick-pill" id="btnToggleFloor_layers" onclick="toggleFloorDrawer('layers')">
+                                <span>🎨 Capas de Vista</span> <span class="pill-chevron">▾</span>
+                            </button>
+                            <button type="button" class="btn-quick-pill" id="btnToggleFloor_dimensions" onclick="toggleFloorDrawer('dimensions')">
+                                <span>⚙️ Medidas Salón</span> <span class="pill-chevron">▾</span>
+                            </button>
+                        </div>
+
+                        <!-- Panel Desplegable 1: Elementos Arquitectónicos & Mobiliario -->
+                        <div id="drawerFloor_elements" class="floor-drawer-card" style="display:none;">
+                            <div class="drawer-header-row">
+                                <span class="drawer-title">✨ Agregar Elementos al Salón:</span>
+                                <button type="button" class="btn-drawer-close" onclick="closeAllFloorDrawers()">✕</button>
+                            </div>
+                            <div class="drawer-chips-wrap">
+                                <button class="btn-decor-chip" onclick="addDecorElement('candies')" title="Agregar barra de cócteles"><span>🍹</span> Barra Cóctel</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('coffee')" title="Agregar barra de café"><span>☕</span> Barra Café</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('dessert')" title="Agregar mesa de postres o pastel"><span>🍰</span> Mesa Postres</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('lounge')" title="Agregar sala lounge VIP"><span>🛋️</span> Sala Lounge</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('light')" title="Agregar luz cálida"><span>💡</span> Luz Uplight</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('arch')" title="Agregar arco floral"><span>🌸</span> Arco Floral</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('photobooth')" title="Agregar photobooth 360"><span>📸</span> Photobooth 360</button>
+                                <button class="btn-decor-chip" onclick="addDecorElement('dj')" title="Agregar tarima DJ"><span>🎵</span> Tarima DJ</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel Desplegable 2: Plantillas de Distribución Rápida -->
+                        <div id="drawerFloor_templates" class="floor-drawer-card" style="display:none;">
+                            <div class="drawer-header-row">
+                                <span class="drawer-title">📐 Plantillas de Distribución Rápida:</span>
+                                <button type="button" class="btn-drawer-close" onclick="closeAllFloorDrawers()">✕</button>
+                            </div>
+                            <div class="drawer-chips-wrap">
+                                <button class="btn-template-pill active" data-tpl="classic" onclick="applyFloorTemplate('classic')">🏛️ Banquete Clásico</button>
+                                <button class="btn-template-pill" data-tpl="imperial" onclick="applyFloorTemplate('imperial')">👑 Imperial Editorial</button>
+                                <button class="btn-template-pill" data-tpl="cocktail" onclick="applyFloorTemplate('cocktail')">🍸 Lounge & Cóctel</button>
+                                <button class="btn-template-pill" data-tpl="semicircle" onclick="applyFloorTemplate('semicircle')">✨ Herradura</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel Desplegable 3: Capas de Vista -->
+                        <div id="drawerFloor_layers" class="floor-drawer-card" style="display:none;">
+                            <div class="drawer-header-row">
+                                <span class="drawer-title">🎨 Capa de Vista en Mesas:</span>
+                                <button type="button" class="btn-drawer-close" onclick="closeAllFloorDrawers()">✕</button>
+                            </div>
+                            <div class="layer-segmented-control">
+                                <button class="filter-layer-btn active" onclick="setFloorDisplayFilter('waiters')">👨‍🍳 Meseros</button>
+                                <button class="filter-layer-btn" onclick="setFloorDisplayFilter('menu')">🍽️ Platillos</button>
+                                <button class="filter-layer-btn" onclick="setFloorDisplayFilter('allergies')">⚠️ Alergias</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel Desplegable 4: Dimensiones del Salón -->
+                        <div id="drawerFloor_dimensions" class="floor-drawer-card" style="display:none;">
+                            <div class="drawer-header-row">
+                                <span class="drawer-title">⚙️ Dimensiones y Escala del Salón:</span>
+                                <button type="button" class="btn-drawer-close" onclick="closeAllFloorDrawers()">✕</button>
+                            </div>
                             <div class="dimension-inputs-row">
                                 <label>Ancho (m): <input type="number" id="venueWidthInput" value="40" min="10" max="200" class="input-dim-metric"></label>
                                 <label>Largo (m): <input type="number" id="venueLengthInput" value="60" min="10" max="200" class="input-dim-metric"></label>
                                 <button class="btn-dim-apply" onclick="recalcVenueDimensions()">Recalibrar</button>
-                            </div>
-                        </div>
-
-                        <!-- EXCLUSIVO: CHECK DE BLOQUEO DE PANTALLA PARA EDITAR SIN DESPLAZAR -->
-                        <div class="floor-toolbar-center">
-                            <div class="screen-lock-control-wrap" id="screenLockControlWrap">
-                                <label class="switch-lock-label" for="checkLockScreenFloor">
-                                    <input type="checkbox" id="checkLockScreenFloor" onchange="toggleFloorScreenLock(this.checked)">
-                                    <span class="switch-lock-slider"></span>
-                                    <span class="switch-lock-text" id="lockScreenFloorText">
-                                        <span class="lock-icon-state">🔒</span> <strong>Bloquear Pantalla</strong> <small>(Modo Edición Táctil)</small>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="floor-toolbar-right">
-                            <button class="btn-captain-print" onclick="openCaptainPrintModal()">
-                                🖨️ Imprimir Hoja para Capitán
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Enriched Toolset: Templates, Decor Palette & Layer Filters (Luxury Editorial Design) -->
-                    <div class="floor-enrich-bar mb-4">
-                        <!-- Group 1: Plantillas Rápidas -->
-                        <div class="enrich-card-panel">
-                            <div class="enrich-header">
-                                <span class="enrich-tag-badge gold">📐 PLANTILLAS</span>
-                                <span class="enrich-title">Distribución Rápida</span>
-                            </div>
-                            <div class="enrich-chips-wrapper">
-                                <button class="btn-template-pill active" data-tpl="classic" onclick="applyFloorTemplate('classic')">
-                                    <span class="pill-icon">🏛️</span>
-                                    <span class="pill-text">Banquete Clásico</span>
-                                </button>
-                                <button class="btn-template-pill" data-tpl="imperial" onclick="applyFloorTemplate('imperial')">
-                                    <span class="pill-icon">👑</span>
-                                    <span class="pill-text">Imperial Editorial</span>
-                                </button>
-                                <button class="btn-template-pill" data-tpl="cocktail" onclick="applyFloorTemplate('cocktail')">
-                                    <span class="pill-icon">🍸</span>
-                                    <span class="pill-text">Lounge & Cóctel</span>
-                                </button>
-                                <button class="btn-template-pill" data-tpl="semicircle" onclick="applyFloorTemplate('semicircle')">
-                                    <span class="pill-icon">✨</span>
-                                    <span class="pill-text">Herradura</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Group 2: Agregar Elementos Arquitectónicos & Decoración -->
-                        <div class="enrich-card-panel">
-                            <div class="enrich-header">
-                                <span class="enrich-tag-badge emerald">✨ ELEMENTOS</span>
-                                <span class="enrich-title">Montaje & Mobiliario</span>
-                            </div>
-                            <div class="enrich-chips-wrapper">
-                                <button class="btn-decor-chip" onclick="addDecorElement('candies')" title="Agregar barra de coctelería o bebidas">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">🍹</span> Barra Coctelería
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('coffee')" title="Agregar barra de café o carajillos">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">☕</span> Barra Café
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('dessert')" title="Agregar mesa de postres o pastel">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">🍰</span> Mesa Postres
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('lounge')" title="Agregar sala lounge VIP">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">🛋️</span> Sala Lounge
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('light')" title="Agregar línea de iluminación cálida">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">💡</span> Luz Uplight
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('arch')" title="Agregar arco ceremonial floral">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">🌸</span> Arco Floral
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('photobooth')" title="Agregar espacio para Photobooth o 360">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">📸</span> Photobooth
-                                </button>
-                                <button class="btn-decor-chip" onclick="addDecorElement('dj')" title="Agregar tarima para DJ o sonido">
-                                    <span class="chip-add">+</span> <span class="chip-emoji">🎵</span> Tarima DJ
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Group 3: Capas de Visualización Operativa -->
-                        <div class="enrich-card-panel enrich-card-layers">
-                            <div class="enrich-header">
-                                <span class="enrich-tag-badge purple">🎨 CAPA DE VISTA</span>
-                                <span class="enrich-title">Filtro Operativo</span>
-                            </div>
-                            <div class="layer-segmented-control">
-                                <button class="filter-layer-btn active" onclick="setFloorDisplayFilter('waiters')">
-                                    <span class="layer-icon">👨‍🍳</span>
-                                    <span class="layer-label">Meseros</span>
-                                    <span class="layer-dot"></span>
-                                </button>
-                                <button class="filter-layer-btn" onclick="setFloorDisplayFilter('menu')">
-                                    <span class="layer-icon">🍽️</span>
-                                    <span class="layer-label">Platillos</span>
-                                    <span class="layer-dot"></span>
-                                </button>
-                                <button class="filter-layer-btn" onclick="setFloorDisplayFilter('allergies')">
-                                    <span class="layer-icon">⚠️</span>
-                                    <span class="layer-label">Alergias</span>
-                                    <span class="layer-dot alert-dot"></span>
-                                </button>
+                                <button class="btn-captain-print" onclick="openCaptainPrintModal()">🖨️ Hoja Capitán</button>
                             </div>
                         </div>
                     </div>
@@ -1778,16 +1731,7 @@
                         <div class="floor-canvas-container">
                             <div class="canvas-header-bar">
                                 <span id="canvasScaleLabel">📍 Salón Principal: 40m x 60m (Escala 1m = 10px)</span>
-                                <small style="color:#64748b;">💡 Arrastra mesas o decoración libremente con el dedo o usa el control de flechas</small>
-                            </div>
-
-                            <!-- BADGE FLOTANTE DE PANTALLA FIJA / MODO EDICIÓN -->
-                            <div id="floorCanvasNoticeBadge" class="floor-canvas-notice-badge" style="display:none;">
-                                <div class="notice-badge-content">
-                                    <span class="notice-dot-pulse">🔒</span>
-                                    <span><strong>Modo Edición Salón Activo:</strong> Pantalla fijada sin desplazamientos. Mueve mesas, pista o decoración libremente.</span>
-                                </div>
-                                <button type="button" class="btn-unlock-quick" onclick="toggleFloorScreenLock(false)">🔓 Desbloquear Pantalla</button>
+                                <small style="color:#64748b;">💡 Arrastra mesas o decoración libremente con el dedo. Toca un objeto para cambiar su tamaño.</small>
                             </div>
 
                             <div class="canvas-scroll-box" id="canvasScrollBox">
@@ -1796,23 +1740,55 @@
                                 </div>
                             </div>
 
-                            <!-- CONTROLADOR D-PAD / BOTONES DE FLECHAS FLOTANTES PARA CELULAR -->
+                            <!-- CONTROLADOR TÁCTIL: REDIMENSIONAR (AMPLIAR/ACHICAR) & MOVER (FLECHAS) -->
                             <div id="floorElementDpadBar" class="floor-dpad-bar" style="display:none;">
                                 <div class="dpad-header">
-                                    <span class="dpad-item-title" id="dpadItemTitle">🍽️ Elemento Seleccionado</span>
+                                    <div class="dpad-title-wrap">
+                                        <span class="dpad-item-title" id="dpadItemTitle">🍽️ Elemento Seleccionado</span>
+                                        <span class="dpad-item-size-badge" id="dpadItemSizeBadge">10m x 8m</span>
+                                    </div>
                                     <button type="button" class="btn-dpad-close" onclick="deselectFloorElement()" title="Cerrar control">✕</button>
                                 </div>
-                                <div class="dpad-controls-row">
-                                    <div class="dpad-arrows-grid">
-                                        <button type="button" class="btn-dpad-arrow up" onclick="nudgeSelectedElement(0, -10)" title="Mover Arriba">⬆️</button>
-                                        <button type="button" class="btn-dpad-arrow left" onclick="nudgeSelectedElement(-10, 0)" title="Mover Izquierda">⬅️</button>
-                                        <span class="dpad-center-indicator">🎯</span>
-                                        <button type="button" class="btn-dpad-arrow right" onclick="nudgeSelectedElement(10, 0)" title="Mover Derecha">➡️</button>
-                                        <button type="button" class="btn-dpad-arrow down" onclick="nudgeSelectedElement(0, 10)" title="Mover Abajo">⬇️</button>
+
+                                <div class="dpad-main-body">
+                                    <!-- 1. REDIMENSIONAR / ESCALA (AGRANDAR & ACHICAR) -->
+                                    <div class="dpad-section-resize">
+                                        <span class="dpad-sub-label">📐 TAMAÑO (AMPLIAR / ACHICAR):</span>
+                                        <div class="dpad-resize-btn-group">
+                                            <button type="button" class="btn-resize-pill primary" onclick="resizeSelectedElement(10)" title="Ampliar tamaño general">
+                                                ➕ Agrandar
+                                            </button>
+                                            <button type="button" class="btn-resize-pill primary" onclick="resizeSelectedElement(-10)" title="Reducir tamaño general">
+                                                ➖ Reducir
+                                            </button>
+                                            <button type="button" class="btn-resize-pill" onclick="resizeSelectedElement(10, 'w')" title="Aumentar ancho">
+                                                ↔️ Ancho +
+                                            </button>
+                                            <button type="button" class="btn-resize-pill" onclick="resizeSelectedElement(-10, 'w')" title="Disminuir ancho">
+                                                ↔️ Ancho -
+                                            </button>
+                                            <button type="button" class="btn-resize-pill" onclick="resizeSelectedElement(10, 'h')" title="Aumentar largo">
+                                                ↕️ Largo +
+                                            </button>
+                                            <button type="button" class="btn-resize-pill" onclick="resizeSelectedElement(-10, 'h')" title="Disminuir largo">
+                                                ↕️ Largo -
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="dpad-actions-col">
-                                        <button type="button" class="btn-dpad-action" onclick="rotateOrShapeSelectedElement()">🔄 Girar / Forma</button>
-                                        <button type="button" class="btn-dpad-action danger" onclick="deleteSelectedDecorElement()">🗑️ Quitar</button>
+
+                                    <!-- 2. DESPLAZAMIENTO (FLECHAS D-PAD) Y ACCIONES -->
+                                    <div class="dpad-move-and-actions">
+                                        <div class="dpad-arrows-grid">
+                                            <button type="button" class="btn-dpad-arrow up" onclick="nudgeSelectedElement(0, -10)" title="Mover Arriba">⬆️</button>
+                                            <button type="button" class="btn-dpad-arrow left" onclick="nudgeSelectedElement(-10, 0)" title="Mover Izquierda">⬅️</button>
+                                            <span class="dpad-center-indicator">🎯</span>
+                                            <button type="button" class="btn-dpad-arrow right" onclick="nudgeSelectedElement(10, 0)" title="Mover Derecha">➡️</button>
+                                            <button type="button" class="btn-dpad-arrow down" onclick="nudgeSelectedElement(0, 10)" title="Mover Abajo">⬇️</button>
+                                        </div>
+                                        <div class="dpad-actions-col">
+                                            <button type="button" class="btn-dpad-action" onclick="rotateOrShapeSelectedElement()" title="Rotar 90° o cambiar forma">🔄 Girar / Forma</button>
+                                            <button type="button" class="btn-dpad-action danger" onclick="deleteSelectedDecorElement()" title="Eliminar decoración">🗑️ Quitar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -3210,7 +3186,7 @@
     <script src="scripts/admin-dispatch.js?v=20261017_approved_templates_v2"></script>
     <script src="scripts/admin-settings.js"></script>
     <script src="scripts/admin-album-playlist.js?v=20261012_album_zip_filters_v10"></script>
-    <script src="scripts/admin-seating.js?v=20261023_screen_lock_v3"></script>
+    <script src="scripts/admin-seating.js?v=20261024_resize_v5"></script>
     <script src="scripts/admin-dayof.js"></script>
     <script src="scripts/admin-barcalc.js"></script>
     <script src="scripts/admin-vendors.js"></script>

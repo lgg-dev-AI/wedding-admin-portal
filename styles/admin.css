@@ -7287,7 +7287,110 @@ body.floor-screen-locked .screen-lock-control-wrap {
     z-index: 999 !important;
 }
 
-/* Floating Mobile D-Pad Bar */
+/* Compact Floor Toolbar & Collapsible Quick Drawers */
+.floor-compact-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.quick-tools-pills-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px;
+    scrollbar-width: none;
+}
+.quick-tools-pills-row::-webkit-scrollbar {
+    display: none;
+}
+.btn-quick-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    padding: 8px 14px;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.btn-quick-pill:hover,
+.btn-quick-pill.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
+}
+.btn-quick-pill:active {
+    transform: scale(0.96);
+}
+.pill-chevron {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+.floor-drawer-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    animation: drawerSlideDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 2px;
+}
+@keyframes drawerSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.drawer-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 6px;
+}
+.drawer-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.btn-drawer-close {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-drawer-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.drawer-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Floating Mobile D-Pad Bar & Resizing Controls */
 .floor-dpad-bar {
     position: sticky;
     bottom: 10px;
@@ -7309,12 +7412,28 @@ body.floor-screen-locked .screen-lock-control-wrap {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
+}
+.dpad-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 .dpad-item-title {
-    font-size: 0.86rem;
+    font-size: 0.88rem;
     font-weight: 800;
     color: #0f172a;
+}
+.dpad-item-size-badge {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    border-radius: 9999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
 }
 .btn-dpad-close {
     background: #f1f5f9;
@@ -7330,7 +7449,64 @@ body.floor-screen-locked .screen-lock-control-wrap {
     align-items: center;
     justify-content: center;
 }
-.dpad-controls-row {
+.btn-dpad-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.dpad-main-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.dpad-section-resize {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+}
+.dpad-sub-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.04em;
+}
+.dpad-resize-btn-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+    gap: 6px;
+}
+.btn-resize-pill {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 6px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: #1e293b;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.btn-resize-pill:active {
+    transform: scale(0.95);
+    background: #f1f5f9;
+}
+.btn-resize-pill.primary {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #3730a3;
+    font-weight: 800;
+}
+.btn-resize-pill.primary:active {
+    background: #e0e7ff;
+}
+.dpad-move-and-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -7348,13 +7524,13 @@ body.floor-screen-locked .screen-lock-control-wrap {
     justify-items: center;
 }
 .btn-dpad-arrow {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     background: #0f172a;
     color: #ffffff;
     border: none;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -7403,6 +7579,9 @@ body.floor-screen-locked .screen-lock-control-wrap {
 .btn-dpad-action:hover {
     background: #f1f5f9;
     border-color: #94a3b8;
+}
+.btn-dpad-action:active {
+    transform: scale(0.96);
 }
 .btn-dpad-action.danger {
     background: #fff5f5;

@@ -194,6 +194,7 @@ function loadFloorPlanState() {
                         match.y = savedEl.y;
                         if (savedEl.w) match.w = savedEl.w;
                         if (savedEl.h) match.h = savedEl.h;
+                        if (savedEl.size) match.size = savedEl.size;
                         if (savedEl.shape) match.shape = savedEl.shape;
                     } else if (savedEl.type === 'decor') {
                         floorPlanState.elements.push(savedEl);
@@ -535,6 +536,34 @@ function makeElementDraggable(domEl, stateObj) {
 // ==========================================================================
 // 🕹️ SELECCIÓN DE ELEMENTOS Y CONTROLADOR D-PAD (FLECHAS MÓVILES)
 // ==========================================================================
+// 🕹️ SELECCIÓN DE ELEMENTOS, REDIMENSIONAR (AMPLIAR/ACHICAR) & D-PAD
+// ==========================================================================
+
+function toggleFloorDrawer(drawerName) {
+    const drawers = ['elements', 'templates', 'layers', 'dimensions'];
+    drawers.forEach(d => {
+        const panel = document.getElementById(`drawerFloor_${d}`);
+        const btn = document.getElementById(`btnToggleFloor_${d}`);
+        if (d === drawerName) {
+            const isCurrentlyOpen = panel && panel.style.display !== 'none';
+            if (panel) panel.style.display = isCurrentlyOpen ? 'none' : 'block';
+            if (btn) btn.classList.toggle('active', !isCurrentlyOpen);
+        } else {
+            if (panel) panel.style.display = 'none';
+            if (btn) btn.classList.remove('active');
+        }
+    });
+}
+
+function closeAllFloorDrawers() {
+    const drawers = ['elements', 'templates', 'layers', 'dimensions'];
+    drawers.forEach(d => {
+        const panel = document.getElementById(`drawerFloor_${d}`);
+        const btn = document.getElementById(`btnToggleFloor_${d}`);
+        if (panel) panel.style.display = 'none';
+        if (btn) btn.classList.remove('active');
+    });
+}
 
 function selectFloorElement(stateObj) {
     if (!stateObj) return;
@@ -549,14 +578,33 @@ function selectFloorElement(stateObj) {
         targetNode.classList.add('selected-floor-element');
     }
 
-    // Mostrar panel D-Pad de flechas
+    // Mostrar panel D-Pad de flechas y redimensión
     const dpadBar = document.getElementById('floorElementDpadBar');
     const titleEl = document.getElementById('dpadItemTitle');
+    const sizeBadgeEl = document.getElementById('dpadItemSizeBadge');
+
     if (dpadBar && titleEl) {
         dpadBar.style.display = 'flex';
         const icon = stateObj.icon || (stateObj.type === 'table' ? '🍽️' : '✨');
         const name = stateObj.name || (stateObj.tableNumber ? `Mesa #${stateObj.tableNumber}` : 'Elemento');
-        titleEl.innerHTML = `${icon} <strong>${name}</strong> <small>(${stateObj.x}px, ${stateObj.y}px)</small>`;
+        titleEl.innerHTML = `${icon} <strong>${name}</strong>`;
+
+        if (sizeBadgeEl) {
+            if (stateObj.type === 'table') {
+                if (stateObj.shape === 'rect' || stateObj.shape === 'imperial') {
+                    const w = stateObj.w || 100;
+                    const h = stateObj.h || 50;
+                    sizeBadgeEl.textContent = `${(w / 10).toFixed(1)}m × ${(h / 10).toFixed(1)}m (${w}×${h}px)`;
+                } else {
+                    const sz = stateObj.size || stateObj.w || 65;
+                    sizeBadgeEl.textContent = `Ø ${(sz / 10).toFixed(1)}m (${sz}px)`;
+                }
+            } else {
+                const w = stateObj.w || 60;
+                const h = stateObj.h || 45;
+                sizeBadgeEl.textContent = `${(w / 10).toFixed(1)}m × ${(h / 10).toFixed(1)}m (${w}×${h}px)`;
+            }
+        }
     }
 }
 
@@ -567,6 +615,77 @@ function deselectFloorElement() {
     });
     const dpadBar = document.getElementById('floorElementDpadBar');
     if (dpadBar) dpadBar.style.display = 'none';
+}
+
+function resizeSelectedElement(delta, dimension) {
+    if (!selectedFloorElementId) {
+        showToast('💡 Selecciona primero un objeto para cambiar su tamaño.');
+        return;
+    }
+    const el = floorPlanState.elements.find(e => e.id === selectedFloorElementId);
+    if (!el) return;
+
+    const domEl = document.getElementById(el.id);
+    const canvas = document.getElementById('floorCanvasViewport');
+    if (!domEl || !canvas) return;
+
+    if (el.type === 'table') {
+        if (el.shape === 'rect' || el.shape === 'imperial') {
+            if (dimension === 'w') {
+                el.w = Math.max(50, Math.min(260, (el.w || 100) + delta));
+            } else if (dimension === 'h') {
+                el.h = Math.max(30, Math.min(180, (el.h || 50) + delta));
+            } else {
+                el.w = Math.max(50, Math.min(260, (el.w || 100) + delta));
+                el.h = Math.max(30, Math.min(180, (el.h || 50) + Math.round(delta * 0.5)));
+            }
+            domEl.style.width = `${el.w}px`;
+            domEl.style.height = `${el.h}px`;
+            showToast(`📐 Mesa Imperial: ${el.w}x${el.h}px (${(el.w / 10).toFixed(1)}m × ${(el.h / 10).toFixed(1)}m)`);
+        } else {
+            // Mesa redonda o cuadrada
+            const currentSize = el.size || el.w || 65;
+            const newSize = Math.max(45, Math.min(160, currentSize + delta));
+            el.size = newSize;
+            el.w = newSize;
+            el.h = newSize;
+            domEl.style.width = `${newSize}px`;
+            domEl.style.height = `${newSize}px`;
+            showToast(`📐 Mesa redimensionada: ${newSize}px (Ø ${(newSize / 10).toFixed(1)}m)`);
+        }
+    } else {
+        // Decoración o elemento arquitectónico (Pista de baile, Mesa de Honor, Photobooth, etc.)
+        if (dimension === 'w') {
+            el.w = Math.max(30, Math.min(350, (el.w || 60) + delta));
+            domEl.style.width = `${el.w}px`;
+            showToast(`↔️ Ancho de "${el.name}": ${el.w}px (${(el.w / 10).toFixed(1)}m)`);
+        } else if (dimension === 'h') {
+            el.h = Math.max(20, Math.min(300, (el.h || 45) + delta));
+            domEl.style.height = `${el.h}px`;
+            showToast(`↕️ Largo de "${el.name}": ${el.h}px (${(el.h / 10).toFixed(1)}m)`);
+        } else {
+            // Redimensión proporcional
+            const currentW = el.w || 60;
+            const currentH = el.h || 45;
+            const ratio = currentH / currentW;
+            el.w = Math.max(30, Math.min(350, currentW + delta));
+            el.h = Math.max(20, Math.min(300, Math.round(el.w * ratio)));
+            domEl.style.width = `${el.w}px`;
+            domEl.style.height = `${el.h}px`;
+            showToast(`📐 "${el.name}" redimensionado: ${el.w}×${el.h}px (${(el.w / 10).toFixed(1)}m × ${(el.h / 10).toFixed(1)}m)`);
+        }
+    }
+
+    // Mantener dentro del salón
+    const maxW = canvas.clientWidth - (domEl.offsetWidth || 50);
+    const maxH = canvas.clientHeight - (domEl.offsetHeight || 50);
+    el.x = Math.max(5, Math.min(maxW, el.x || 0));
+    el.y = Math.max(5, Math.min(maxH, el.y || 0));
+    domEl.style.left = `${el.x}px`;
+    domEl.style.top = `${el.y}px`;
+
+    saveFloorPlanState();
+    selectFloorElement(el);
 }
 
 function nudgeSelectedElement(dx, dy) {
@@ -590,15 +709,8 @@ function nudgeSelectedElement(dx, dy) {
     domEl.style.left = `${el.x}px`;
     domEl.style.top = `${el.y}px`;
 
-    // Actualizar indicador
-    const titleEl = document.getElementById('dpadItemTitle');
-    if (titleEl) {
-        const icon = el.icon || (el.type === 'table' ? '🍽️' : '✨');
-        const name = el.name || (el.tableNumber ? `Mesa #${el.tableNumber}` : 'Elemento');
-        titleEl.innerHTML = `${icon} <strong>${name}</strong> <small>(${el.x}px, ${el.y}px)</small>`;
-    }
-
     saveFloorPlanState();
+    selectFloorElement(el);
 }
 
 function rotateOrShapeSelectedElement() {
