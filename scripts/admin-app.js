@@ -250,6 +250,12 @@ function setRole(role) {
         el.style.display = (role === 'planner') ? 'flex' : 'none';
     });
 
+    // El botón Modo Día D del header está disponible tanto para Wedding Planner como para Master Developer
+    const triggerDayD = document.getElementById('btnTriggerDayD');
+    if (triggerDayD) {
+        triggerDayD.style.display = (role === 'planner' || role === 'developer') ? 'inline-flex' : 'none';
+    }
+
     const devPanelBtn = document.getElementById('menuItemDevPanel');
     const devBackupsBtn = document.getElementById('menuItemDevBackups');
 
