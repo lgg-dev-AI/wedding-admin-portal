@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261023_mobile_seating_v1">
+    <link rel="stylesheet" href="styles/admin.css?v=20261023_screen_lock_v3">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -1653,19 +1653,33 @@
 
                                 <!-- SUBVIEW 2: 2D FLOOR PLAN & WAITERS STAFFING -->
                 <div id="seatingSubviewFloor" style="display:none;">
-                    <!-- Floor Plan Control Bar -->
+                    <!-- Floor Plan Control Bar with Screen Lock Toggle -->
                     <div class="floor-toolbar-box">
                         <div class="floor-toolbar-left">
-                            <span class="floor-tool-label"><i class="fas fa-ruler-combined"></i> <strong>Dimensiones del Venue:</strong></span>
+                            <span class="floor-tool-label"><i class="fas fa-ruler-combined"></i> <strong>Dimensiones del Salón:</strong></span>
                             <div class="dimension-inputs-row">
                                 <label>Ancho (m): <input type="number" id="venueWidthInput" value="40" min="10" max="200" class="input-dim-metric"></label>
                                 <label>Largo (m): <input type="number" id="venueLengthInput" value="60" min="10" max="200" class="input-dim-metric"></label>
-                                <button class="btn-dim-apply" onclick="recalcVenueDimensions()">Recalibrar Escala</button>
+                                <button class="btn-dim-apply" onclick="recalcVenueDimensions()">Recalibrar</button>
                             </div>
                         </div>
+
+                        <!-- EXCLUSIVO: CHECK DE BLOQUEO DE PANTALLA PARA EDITAR SIN DESPLAZAR -->
+                        <div class="floor-toolbar-center">
+                            <div class="screen-lock-control-wrap" id="screenLockControlWrap">
+                                <label class="switch-lock-label" for="checkLockScreenFloor">
+                                    <input type="checkbox" id="checkLockScreenFloor" onchange="toggleFloorScreenLock(this.checked)">
+                                    <span class="switch-lock-slider"></span>
+                                    <span class="switch-lock-text" id="lockScreenFloorText">
+                                        <span class="lock-icon-state">🔒</span> <strong>Bloquear Pantalla</strong> <small>(Modo Edición Táctil)</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
                         <div class="floor-toolbar-right">
                             <button class="btn-captain-print" onclick="openCaptainPrintModal()">
-                                🖨️ Imprimir Hoja para Capitán de Meseros
+                                🖨️ Imprimir Hoja para Capitán
                             </button>
                         </div>
                     </div>
@@ -1764,11 +1778,42 @@
                         <div class="floor-canvas-container">
                             <div class="canvas-header-bar">
                                 <span id="canvasScaleLabel">📍 Salón Principal: 40m x 60m (Escala 1m = 10px)</span>
-                                <small style="color:#64748b;">💡 Arrastra cualquier mesa, luz o decoración para acomodarlo en el plano</small>
+                                <small style="color:#64748b;">💡 Arrastra mesas o decoración libremente con el dedo o usa el control de flechas</small>
                             </div>
-                            <div class="canvas-scroll-box">
+
+                            <!-- BADGE FLOTANTE DE PANTALLA FIJA / MODO EDICIÓN -->
+                            <div id="floorCanvasNoticeBadge" class="floor-canvas-notice-badge" style="display:none;">
+                                <div class="notice-badge-content">
+                                    <span class="notice-dot-pulse">🔒</span>
+                                    <span><strong>Modo Edición Salón Activo:</strong> Pantalla fijada sin desplazamientos. Mueve mesas, pista o decoración libremente.</span>
+                                </div>
+                                <button type="button" class="btn-unlock-quick" onclick="toggleFloorScreenLock(false)">🔓 Desbloquear Pantalla</button>
+                            </div>
+
+                            <div class="canvas-scroll-box" id="canvasScrollBox">
                                 <div id="floorCanvasViewport" class="floor-canvas-viewport">
                                     <!-- Dynamic 2D floor elements -->
+                                </div>
+                            </div>
+
+                            <!-- CONTROLADOR D-PAD / BOTONES DE FLECHAS FLOTANTES PARA CELULAR -->
+                            <div id="floorElementDpadBar" class="floor-dpad-bar" style="display:none;">
+                                <div class="dpad-header">
+                                    <span class="dpad-item-title" id="dpadItemTitle">🍽️ Elemento Seleccionado</span>
+                                    <button type="button" class="btn-dpad-close" onclick="deselectFloorElement()" title="Cerrar control">✕</button>
+                                </div>
+                                <div class="dpad-controls-row">
+                                    <div class="dpad-arrows-grid">
+                                        <button type="button" class="btn-dpad-arrow up" onclick="nudgeSelectedElement(0, -10)" title="Mover Arriba">⬆️</button>
+                                        <button type="button" class="btn-dpad-arrow left" onclick="nudgeSelectedElement(-10, 0)" title="Mover Izquierda">⬅️</button>
+                                        <span class="dpad-center-indicator">🎯</span>
+                                        <button type="button" class="btn-dpad-arrow right" onclick="nudgeSelectedElement(10, 0)" title="Mover Derecha">➡️</button>
+                                        <button type="button" class="btn-dpad-arrow down" onclick="nudgeSelectedElement(0, 10)" title="Mover Abajo">⬇️</button>
+                                    </div>
+                                    <div class="dpad-actions-col">
+                                        <button type="button" class="btn-dpad-action" onclick="rotateOrShapeSelectedElement()">🔄 Girar / Forma</button>
+                                        <button type="button" class="btn-dpad-action danger" onclick="deleteSelectedDecorElement()">🗑️ Quitar</button>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Legend -->
@@ -3165,7 +3210,7 @@
     <script src="scripts/admin-dispatch.js?v=20261017_approved_templates_v2"></script>
     <script src="scripts/admin-settings.js"></script>
     <script src="scripts/admin-album-playlist.js?v=20261012_album_zip_filters_v10"></script>
-    <script src="scripts/admin-seating.js?v=20261023_touch_drag_v2"></script>
+    <script src="scripts/admin-seating.js?v=20261023_screen_lock_v3"></script>
     <script src="scripts/admin-dayof.js"></script>
     <script src="scripts/admin-barcalc.js"></script>
     <script src="scripts/admin-vendors.js"></script>

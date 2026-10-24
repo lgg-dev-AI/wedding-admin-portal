@@ -4,6 +4,8 @@
 
 let activeSeatingSubTab = 'guests';
 let activeFloorFilter = 'waiters'; // 'waiters', 'menu', 'allergies'
+let isFloorScreenLocked = false;
+let selectedFloorElementId = null;
 
 const floorPlanState = {
     venueWidth: 40,
@@ -293,6 +295,7 @@ function render2DFloorPlan() {
                     tableEl.__justDragged = false;
                     return;
                 }
+                selectFloorElement(el);
                 inspectTableElement(el, tableData, seated, waiter);
             });
 
@@ -332,6 +335,7 @@ function render2DFloorPlan() {
                     rectEl.__justDragged = false;
                     return;
                 }
+                selectFloorElement(el);
                 inspectDecorElement(el);
             });
 
@@ -339,71 +343,147 @@ function render2DFloorPlan() {
             canvas.appendChild(rectEl);
         }
     });
+
+    // Deselect if clicking on empty canvas
+    canvas.onclick = (e) => {
+        if (e.target === canvas) {
+            deselectFloorElement();
+        }
+    };
 }
 
-function makeElementDraggable(domEl, stateObj) {
-    let startX, startY, initLeft, initTop;
-    let hasMoved = false;
+// ==========================================================================
+// 🔒 PANTALLA FIJA (MODO EDICIÓN MÓVIL) & ARRASTRE TÁCTIL BLINDADO
+// ==========================================================================
 
-    // Enforce touch-action none directly on DOM element for mobile browsers
-    domEl.style.touchAction = 'none';
-
-    function startDrag(clientX, clientY) {
-        startX = clientX;
-        startY = clientY;
-        initLeft = stateObj.x || 0;
-        initTop = stateObj.y || 0;
-        hasMoved = false;
-        domEl.classList.add('dragging-2d');
+function toggleFloorScreenLock(locked) {
+    if (typeof locked === 'undefined') {
+        isFloorScreenLocked = !isFloorScreenLocked;
+    } else {
+        isFloorScreenLocked = !!locked;
     }
 
-    function moveDrag(clientX, clientY) {
-        const dx = clientX - startX;
-        const dy = clientY - startY;
+    const checkbox = document.getElementById('checkLockScreenFloor');
+    if (checkbox) checkbox.checked = isFloorScreenLocked;
 
-        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+    const labelText = document.getElementById('lockScreenFloorText');
+    const noticeBadge = document.getElementById('floorCanvasNoticeBadge');
+
+    if (isFloorScreenLocked) {
+        document.body.classList.add('floor-screen-locked');
+        if (labelText) {
+            labelText.innerHTML = `<span class="lock-icon-state active">🔒</span> <strong>Pantalla Fija</strong> <small>(Edición Táctil Activa)</small>`;
+        }
+        if (noticeBadge) noticeBadge.style.display = 'flex';
+        showToast('🔒 Pantalla Bloqueada: Mueve libremente las mesas, pista de baile y decoración sin que la pantalla se desplace.');
+    } else {
+        document.body.classList.remove('floor-screen-locked');
+        if (labelText) {
+            labelText.innerHTML = `<span class="lock-icon-state">🔓</span> <strong>Bloquear Pantalla</strong> <small>(Modo Edición Táctil)</small>`;
+        }
+        if (noticeBadge) noticeBadge.style.display = 'none';
+        showToast('🔓 Pantalla Desbloqueada para navegar libremente.');
+    }
+}
+
+// Listener de prevención universal de scroll cuando el modo bloqueo está activo
+window.addEventListener('touchmove', (e) => {
+    if (isFloorScreenLocked) {
+        // Permitir scroll solo dentro de modales emergentes si existen
+        if (e.target && e.target.closest('.app-modal-card')) return;
+        e.preventDefault();
+    }
+}, { passive: false });
+
+function makeElementDraggable(domEl, stateObj) {
+    let startPointerX, startPointerY;
+    let elemStartLeft, elemStartTop;
+    let isDragging = false;
+    let hasMoved = false;
+
+    // Direct inline enforcement of touch-action none
+    domEl.style.touchAction = 'none';
+
+    function initDrag(clientX, clientY) {
+        const canvas = document.getElementById('floorCanvasViewport');
+        if (!canvas) return;
+
+        startPointerX = clientX;
+        startPointerY = clientY;
+        elemStartLeft = stateObj.x || 0;
+        elemStartTop = stateObj.y || 0;
+        isDragging = true;
+        hasMoved = false;
+        domEl.classList.add('dragging-2d');
+
+        // Seleccionar inmediatamente el elemento para mostrar flechas de ajuste
+        selectFloorElement(stateObj);
+    }
+
+    function processDrag(clientX, clientY) {
+        if (!isDragging) return;
+
+        const deltaX = clientX - startPointerX;
+        const deltaY = clientY - startPointerY;
+
+        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
             hasMoved = true;
             domEl.__justDragged = true;
         }
 
         const canvas = document.getElementById('floorCanvasViewport');
-        const maxW = canvas ? Math.max(100, canvas.clientWidth - (domEl.offsetWidth || 60)) : 1200;
-        const maxH = canvas ? Math.max(100, canvas.clientHeight - (domEl.offsetHeight || 50)) : 1200;
+        if (!canvas) return;
 
-        stateObj.x = Math.max(5, Math.min(maxW, initLeft + dx));
-        stateObj.y = Math.max(5, Math.min(maxH, initTop + dy));
+        const maxW = Math.max(50, canvas.clientWidth - (domEl.offsetWidth || 60));
+        const maxH = Math.max(50, canvas.clientHeight - (domEl.offsetHeight || 50));
+
+        stateObj.x = Math.max(5, Math.min(maxW, Math.round(elemStartLeft + deltaX)));
+        stateObj.y = Math.max(5, Math.min(maxH, Math.round(elemStartTop + deltaY)));
 
         domEl.style.left = `${stateObj.x}px`;
         domEl.style.top = `${stateObj.y}px`;
+
+        // Actualizar coordenadas en el D-Pad si está visible
+        const titleEl = document.getElementById('dpadItemTitle');
+        if (titleEl && selectedFloorElementId === stateObj.id) {
+            const icon = stateObj.icon || (stateObj.type === 'table' ? '🍽️' : '✨');
+            const name = stateObj.name || (stateObj.tableNumber ? `Mesa #${stateObj.tableNumber}` : 'Elemento');
+            titleEl.innerHTML = `${icon} <strong>${name}</strong> <small>(${stateObj.x}, ${stateObj.y})</small>`;
+        }
     }
 
-    function endDrag() {
+    function finishDrag() {
+        if (!isDragging) return;
+        isDragging = false;
         domEl.classList.remove('dragging-2d');
+
         if (hasMoved) {
             saveFloorPlanState();
             setTimeout(() => {
                 domEl.__justDragged = false;
-            }, 250);
+            }, 300);
         } else {
             domEl.__justDragged = false;
         }
     }
 
-    // 1. Unified Pointer Events (Modern Mobile iOS 13+, Android Chrome & Desktop)
+    // 1. POINTER EVENTS (Chrome Mobile Android, iOS Safari 13+, Edge & Desktop)
     domEl.addEventListener('pointerdown', (e) => {
         if (e.button && e.button !== 0) return;
         e.stopPropagation();
+        e.preventDefault(); // Impide que el navegador móvil active el desplazamiento de página
+
         try {
             domEl.setPointerCapture(e.pointerId);
         } catch(err) {}
 
-        startDrag(e.clientX, e.clientY);
+        initDrag(e.clientX, e.clientY);
 
         function onPointerMove(moveEv) {
             if (moveEv.pointerId !== e.pointerId) return;
             moveEv.preventDefault();
             moveEv.stopPropagation();
-            moveDrag(moveEv.clientX, moveEv.clientY);
+            processDrag(moveEv.clientX, moveEv.clientY);
         }
 
         function onPointerUp(upEv) {
@@ -414,40 +494,155 @@ function makeElementDraggable(domEl, stateObj) {
             domEl.removeEventListener('pointermove', onPointerMove);
             domEl.removeEventListener('pointerup', onPointerUp);
             domEl.removeEventListener('pointercancel', onPointerUp);
-            endDrag();
+            finishDrag();
         }
 
         domEl.addEventListener('pointermove', onPointerMove);
         domEl.addEventListener('pointerup', onPointerUp);
         domEl.addEventListener('pointercancel', onPointerUp);
-    });
+    }, { passive: false });
 
-    // 2. Touch Events Fallback (Prevents page scroll during mobile drag on older WebViews)
+    // 2. TOUCH EVENTS (Blindaje total para Android WebViews que ignoren Pointer Events)
     domEl.addEventListener('touchstart', (e) => {
         if (!e.touches || e.touches.length !== 1) return;
         e.stopPropagation();
+        e.preventDefault();
+
         const touch = e.touches[0];
-        startDrag(touch.clientX, touch.clientY);
+        initDrag(touch.clientX, touch.clientY);
 
         function onTouchMove(moveEv) {
             if (!moveEv.touches || moveEv.touches.length !== 1) return;
-            moveEv.preventDefault(); // Prevents page scrolling while moving elements
+            moveEv.preventDefault();
             moveEv.stopPropagation();
             const t = moveEv.touches[0];
-            moveDrag(t.clientX, t.clientY);
+            processDrag(t.clientX, t.clientY);
         }
 
         function onTouchEnd() {
             window.removeEventListener('touchmove', onTouchMove);
             window.removeEventListener('touchend', onTouchEnd);
             window.removeEventListener('touchcancel', onTouchEnd);
-            endDrag();
+            finishDrag();
         }
 
         window.addEventListener('touchmove', onTouchMove, { passive: false });
         window.addEventListener('touchend', onTouchEnd);
         window.addEventListener('touchcancel', onTouchEnd);
-    }, { passive: true });
+    }, { passive: false });
+}
+
+// ==========================================================================
+// 🕹️ SELECCIÓN DE ELEMENTOS Y CONTROLADOR D-PAD (FLECHAS MÓVILES)
+// ==========================================================================
+
+function selectFloorElement(stateObj) {
+    if (!stateObj) return;
+    selectedFloorElementId = stateObj.id;
+
+    // Resaltar elemento activo en el DOM
+    document.querySelectorAll('#floorCanvasViewport > *').forEach(node => {
+        node.classList.remove('selected-floor-element');
+    });
+    const targetNode = document.getElementById(stateObj.id);
+    if (targetNode) {
+        targetNode.classList.add('selected-floor-element');
+    }
+
+    // Mostrar panel D-Pad de flechas
+    const dpadBar = document.getElementById('floorElementDpadBar');
+    const titleEl = document.getElementById('dpadItemTitle');
+    if (dpadBar && titleEl) {
+        dpadBar.style.display = 'flex';
+        const icon = stateObj.icon || (stateObj.type === 'table' ? '🍽️' : '✨');
+        const name = stateObj.name || (stateObj.tableNumber ? `Mesa #${stateObj.tableNumber}` : 'Elemento');
+        titleEl.innerHTML = `${icon} <strong>${name}</strong> <small>(${stateObj.x}px, ${stateObj.y}px)</small>`;
+    }
+}
+
+function deselectFloorElement() {
+    selectedFloorElementId = null;
+    document.querySelectorAll('#floorCanvasViewport > *').forEach(node => {
+        node.classList.remove('selected-floor-element');
+    });
+    const dpadBar = document.getElementById('floorElementDpadBar');
+    if (dpadBar) dpadBar.style.display = 'none';
+}
+
+function nudgeSelectedElement(dx, dy) {
+    if (!selectedFloorElementId) {
+        showToast('💡 Toca primero una mesa o elemento para moverlo.');
+        return;
+    }
+    const el = floorPlanState.elements.find(e => e.id === selectedFloorElementId);
+    if (!el) return;
+
+    const canvas = document.getElementById('floorCanvasViewport');
+    const domEl = document.getElementById(el.id);
+    if (!canvas || !domEl) return;
+
+    const maxW = Math.max(50, canvas.clientWidth - (domEl.offsetWidth || 60));
+    const maxH = Math.max(50, canvas.clientHeight - (domEl.offsetHeight || 50));
+
+    el.x = Math.max(5, Math.min(maxW, (el.x || 0) + dx));
+    el.y = Math.max(5, Math.min(maxH, (el.y || 0) + dy));
+
+    domEl.style.left = `${el.x}px`;
+    domEl.style.top = `${el.y}px`;
+
+    // Actualizar indicador
+    const titleEl = document.getElementById('dpadItemTitle');
+    if (titleEl) {
+        const icon = el.icon || (el.type === 'table' ? '🍽️' : '✨');
+        const name = el.name || (el.tableNumber ? `Mesa #${el.tableNumber}` : 'Elemento');
+        titleEl.innerHTML = `${icon} <strong>${name}</strong> <small>(${el.x}px, ${el.y}px)</small>`;
+    }
+
+    saveFloorPlanState();
+}
+
+function rotateOrShapeSelectedElement() {
+    if (!selectedFloorElementId) return;
+    const el = floorPlanState.elements.find(e => e.id === selectedFloorElementId);
+    if (!el) return;
+
+    if (el.type === 'decor' || el.type === 'rect') {
+        // Rotar 90 grados intercambiando ancho y alto
+        const curW = el.w || 60;
+        const curH = el.h || 45;
+        el.w = curH;
+        el.h = curW;
+        showToast(`🔄 "${el.name}" rotado 90° (${el.w}x${el.h}m)`);
+    } else if (el.type === 'table') {
+        // Cambiar forma de mesa: redonda -> imperial (rect) -> cuadrada -> redonda
+        if (el.shape === 'round') el.shape = 'rect';
+        else if (el.shape === 'rect') el.shape = 'square';
+        else el.shape = 'round';
+        showToast(`🔄 Mesa #${el.tableNumber} cambiada a ${el.shape.toUpperCase()}`);
+    }
+
+    saveFloorPlanState();
+    render2DFloorPlan();
+    selectFloorElement(el);
+}
+
+function deleteSelectedDecorElement() {
+    if (!selectedFloorElementId) return;
+    const el = floorPlanState.elements.find(e => e.id === selectedFloorElementId);
+    if (!el) return;
+
+    if (el.type === 'table') {
+        showToast('⚠️ Las mesas numeradas no se pueden borrar del plano; retíralas desde el botón "+ Nueva Mesa".');
+        return;
+    }
+
+    if (confirm(`¿Quitar "${el.name}" del plano de distribución?`)) {
+        floorPlanState.elements = floorPlanState.elements.filter(e => e.id !== el.id);
+        deselectFloorElement();
+        saveFloorPlanState();
+        render2DFloorPlan();
+        showToast(`🗑️ Elemento "${el.name}" retirado.`);
+    }
 }
 
 function inspectTableElement(el, tableData, seated, waiter) {

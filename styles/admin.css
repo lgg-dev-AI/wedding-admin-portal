@@ -7150,3 +7150,266 @@ html, body.admin-body {
         width: 100%;
     }
 }
+
+/* ========================================================================== */
+/* 🔒 SCREEN LOCK (MODO EDICIÓN MÓVIL DE SALÓN 2D) & CONTROLES D-PAD         */
+/* ========================================================================== */
+
+body.floor-screen-locked,
+body.floor-screen-locked html,
+body.floor-screen-locked .app-viewport,
+body.floor-screen-locked .canvas-scroll-box {
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+.screen-lock-control-wrap {
+    display: inline-flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 7px 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+.screen-lock-control-wrap:hover {
+    border-color: #d97706;
+}
+body.floor-screen-locked .screen-lock-control-wrap {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    box-shadow: 0 0 14px rgba(217, 119, 6, 0.25);
+}
+
+.switch-lock-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.switch-lock-label input {
+    display: none;
+}
+.switch-lock-slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #cbd5e1;
+    border-radius: 20px;
+    transition: background 0.25s ease;
+    flex-shrink: 0;
+}
+.switch-lock-slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+.switch-lock-label input:checked + .switch-lock-slider {
+    background: #d97706;
+}
+.switch-lock-label input:checked + .switch-lock-slider::before {
+    transform: translateX(20px);
+}
+.switch-lock-text small {
+    color: #64748b;
+    font-weight: 600;
+}
+.lock-icon-state {
+    font-size: 1rem;
+}
+.lock-icon-state.active {
+    filter: drop-shadow(0 0 6px #d97706);
+}
+
+/* Floating Notice Badge over Canvas */
+.floor-canvas-notice-badge {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.15);
+    flex-wrap: wrap;
+}
+.notice-badge-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #92400e;
+    line-height: 1.35;
+}
+.notice-dot-pulse {
+    font-size: 1.15rem;
+}
+.btn-unlock-quick {
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+.btn-unlock-quick:hover {
+    background: #1e293b;
+}
+
+/* Selected Element Golden Ring */
+.selected-floor-element {
+    outline: 3px solid #d97706 !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 22px rgba(217, 119, 6, 0.8) !important;
+    z-index: 999 !important;
+}
+
+/* Floating Mobile D-Pad Bar */
+.floor-dpad-bar {
+    position: sticky;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 2px solid #0f172a;
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    margin-top: 12px;
+}
+.dpad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 6px;
+}
+.dpad-item-title {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+.btn-dpad-close {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dpad-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.dpad-arrows-grid {
+    display: grid;
+    grid-template-areas:
+        ". up ."
+        "left center right"
+        ". down .";
+    gap: 6px;
+    align-items: center;
+    justify-items: center;
+}
+.btn-dpad-arrow {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.btn-dpad-arrow:active {
+    background: #d97706;
+    transform: scale(0.92);
+}
+.btn-dpad-arrow.up { grid-area: up; }
+.btn-dpad-arrow.left { grid-area: left; }
+.btn-dpad-arrow.right { grid-area: right; }
+.btn-dpad-arrow.down { grid-area: down; }
+.dpad-center-indicator {
+    grid-area: center;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.dpad-actions-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 140px;
+}
+.btn-dpad-action {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    color: #1e293b;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-dpad-action:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+.btn-dpad-action.danger {
+    background: #fff5f5;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+.btn-dpad-action.danger:hover {
+    background: #fee2e2;
+}
+
