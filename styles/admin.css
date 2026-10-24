@@ -6745,28 +6745,6 @@ html, body.admin-body {
     50% { transform: scale(1.25); filter: drop-shadow(0 0 6px #f59e0b); }
 }
 
-/* Sidebar Callout Button for Desktop & Mobile */
-.menu-item-dayd-callout {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
-    border-left: 3.5px solid #d97706 !important;
-    border-top: 1px solid #fde68a !important;
-    border-right: 1px solid #fde68a !important;
-    border-bottom: 1px solid #fde68a !important;
-    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12) !important;
-    margin-bottom: 5px !important;
-    margin-top: 2px !important;
-    transition: all 0.2s ease !important;
-}
-.menu-item-dayd-callout:hover {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
-    transform: translateX(2px) !important;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.22) !important;
-}
-.menu-item-dayd-callout .menu-icon {
-    font-size: 1.1rem;
-    animation: diaDPulseAnim 1.8s infinite ease-in-out;
-}
-
 /* ==========================================================================
    MODAL MODO DÍA D (COMMAND CENTER OVERLAY)
    ========================================================================== */
