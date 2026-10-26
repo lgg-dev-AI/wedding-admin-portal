@@ -28,76 +28,7 @@ global.__weddingRsvpStore = global.__weddingRsvpStore || {
     ]
 };
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.toString()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
-async function notifyTelegramRsvp(data) {
-    const token = process.env.TELEGRAM_BOT_TOKEN || DEFAULT_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID || DEFAULT_CHAT_ID;
-
-    if (!token || !chatId) return;
-
-    const {
-        weddingTitle = 'Boda Ale & Pablo',
-        name = 'Invitado',
-        phone = '',
-        attendance = 'yes',
-        passes = 1,
-        adultsCount = 1,
-        kidsCount = 0,
-        companion = '',
-        menu = 'Menú Fijo de Gala',
-        allergies = 'Ninguna',
-        song = '',
-        message = ''
-    } = data;
-
-    const isAttending = (attendance === 'yes');
-    const statusIcon = isAttending ? '✅ <b>ASISTENCIA CONFIRMADA</b>' : '❌ <b>DECLINÓ ASISTENCIA</b>';
-    const passesText = isAttending 
-        ? `${passes} pase(s) (${adultsCount} Adulto${adultsCount > 1 ? 's' : ''}${kidsCount > 0 ? `, ${kidsCount} Niño(s)` : ''})`
-        : '0 pases (No asistirá)';
-
-    const timeStr = new Date().toLocaleString('es-MX', {
-        timeZone: 'America/Mexico_City',
-        dateStyle: 'short',
-        timeStyle: 'short'
-    });
-
-    const msgHtml = `
-💌 <b>¡NUEVA CONFIRMACIÓN RSVP EN VIVO!</b>
-━━━━━━━━━━━━━━━━━━━━
-💒 <b>Boda:</b> ${escapeHtml(weddingTitle)}
-📊 <b>Estatus:</b> ${statusIcon}
-👤 <b>Invitado Titular:</b> <b>${escapeHtml(name)}</b>
-📱 <b>WhatsApp / Tel:</b> ${escapeHtml(phone || 'No proporcionado')}
-🎟️ <b>Pases Confirmados:</b> ${escapeHtml(passesText)}
-${companion ? `👥 <b>Acompañante:</b> ${escapeHtml(companion)}\n` : ''}🍽️ <b>Preferencia Menú:</b> ${escapeHtml(menu || 'Estándar')}
-⚠️ <b>Restricciones / Alergias:</b> <b>${escapeHtml(allergies || 'Ninguna')}</b>
-${song ? `🎵 <b>Canción para el DJ:</b> <i>"${escapeHtml(song)}"</i>\n` : ''}${message ? `💬 <b>Dedicatoria:</b> <i>"${escapeHtml(message)}"</i>\n` : ''}🕒 <b>Registrado:</b> ${timeStr} hrs
-━━━━━━━━━━━━━━━━━━━━
-⚡ <i>Sincronizado automáticamente con el Seating Chart y lista de comensales.</i>
-`.trim();
-
-    try {
-        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: msgHtml,
-                parse_mode: 'HTML'
-            })
-        });
-    } catch (err) {
-        console.error('Error al despachar alerta Telegram RSVP:', err);
-    }
-}
+// (Las confirmaciones de comensales solo van a la base de datos de la Planner y a WhatsApp, NO a Telegram)
 
 module.exports = async (req, res) => {
     // CORS headers
@@ -186,12 +117,6 @@ module.exports = async (req, res) => {
             } else {
                 global.__weddingRsvpStore[weddingId].unshift(newRsvp);
             }
-
-            // Despachar alerta instantánea a Telegram
-            await notifyTelegramRsvp({
-                ...newRsvp,
-                weddingTitle
-            });
 
             return res.status(200).json({
                 ok: true,
