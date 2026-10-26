@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Asistencia (RSVP Digital) — Wedding OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #d97706;
+            --accent-light: #fef3c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 14px;
+        }
+        .rsvp-card {
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+            width: 100%;
+            max-width: 540px;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+        }
+        .rsvp-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+        }
+        .rsvp-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d97706 0%, #fbbf24 50%, #d97706 100%);
+        }
+        .rsvp-tag {
+            display: inline-block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #fbbf24;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .couple-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .event-meta {
+            font-size: 0.86rem;
+            color: #cbd5e1;
+        }
+        .rsvp-body {
+            padding: 28px 24px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--text);
+            background: #ffffff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+        .attendance-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .attendance-btn {
+            padding: 14px 10px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: #f8fafc;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .attendance-btn.active.yes {
+            border-color: var(--success);
+            background: #f0fdf4;
+            color: #166534;
+        }
+        .attendance-btn.active.no {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            background: #000000;
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        /* Success Screen */
+        .success-box {
+            display: none;
+            text-align: center;
+            padding: 36px 20px;
+        }
+        .success-icon {
+            font-size: 3.5rem;
+            margin-bottom: 14px;
+        }
+        .success-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.6rem;
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .success-desc {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        .btn-whatsapp-sync {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #25d366;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rsvp-card">
+        <!-- HEADER -->
+        <div class="rsvp-header">
+            <span class="rsvp-tag">Confirmación de Asistencia</span>
+            <h1 class="couple-title" id="displayCouple">Nuestra Boda</h1>
+            <p class="event-meta" id="displayMeta">Esperamos contar con tu compañía en este día tan especial</p>
+        </div>
+
+        <!-- FORM BODY -->
+        <div class="rsvp-body" id="rsvpFormArea">
+            <form id="formFastRsvp" onsubmit="handleFastRsvpSubmit(event)">
+                
+                <!-- ATTENDANCE TOGGLE -->
+                <div class="attendance-toggle">
+                    <div class="attendance-btn active yes" id="btnAttendYes" onclick="setAttendance('yes')">
+                        <span style="font-size:1.4rem;">🥂</span>
+                        <span>¡Sí, asistiré con gusto!</span>
+                    </div>
+                    <div class="attendance-btn" id="btnAttendNo" onclick="setAttendance('no')">
+                        <span style="font-size:1.4rem;">💌</span>
+                        <span>Con pesar declino</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre y Apellido *</label>
+                    <input type="text" id="guestName" required placeholder="Ej. Mariana Garza">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono Celular / WhatsApp *</label>
+                    <input type="tel" id="guestPhone" required placeholder="+52 81 2219 9352">
+                </div>
+
+                <div id="attendanceDetailsSection">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label>Pases a Confirmar</label>
+                            <select id="guestPasses" onchange="toggleCompanionInput(this.value)">
+                                <option value="1">1 Pase Personal</option>
+                                <option value="2" selected>2 Pases (Con pareja)</option>
+                                <option value="3">3 Pases</option>
+                                <option value="4">4 Pases (Familia)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Menú Principal</label>
+                            <select id="guestMenu">
+                                <option value="Filete de Res en Reducción">🥩 Filete de Res Angus</option>
+                                <option value="Salmón Noruego al Eneldo">🐟 Salmón Noruego</option>
+                                <option value="Risotto Cremoso de Hongos">🌱 Risotto (Vegetariano)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="companionWrap">
+                        <label>Nombre de tu Acompañante</label>
+                        <input type="text" id="guestCompanion" placeholder="Ej. Roberto Elizondo">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Alergias o Restricciones Alimentarias (Cocina & Chef)</label>
+                        <select id="guestAllergies">
+                            <option value="Ninguna">Ninguna (Come de todo)</option>
+                            <option value="Celíaco (Sin Gluten)">🚨 Celíaco / Sin Gluten</option>
+                            <option value="Alérgico a Mariscos">🚨 Alergia a Mariscos / Crustáceos</option>
+                            <option value="Alérgico a Nueces">🚨 Alergia Severa a Nueces</option>
+                            <option value="Intolerancia a Lactosa">🥛 Intolerante a Lactosa</option>
+                            <option value="Vegetariano estricto">🌱 Vegetariano estricto</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Canción que no puede faltar en la fiesta (DJ)</label>
+                        <input type="text" id="guestSong" placeholder="Ej. Luis Miguel - Será que no me amas">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mensaje de buenos deseos para los novios (Opcional)</label>
+                    <textarea id="guestMessage" rows="2" placeholder="Escribe unas palabras para la pareja..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmitRsvp">
+                    Confirmar mi Asistencia ➔
+                </button>
+            </form>
+        </div>
+
+        <!-- SUCCESS BOX -->
+        <div class="success-box" id="successArea">
+            <div class="success-icon">✨💍</div>
+            <h2 class="success-title">¡Confirmación Registrada!</h2>
+            <p class="success-desc" id="successMessageText">
+                Tus datos han sido enviados directamente a la coordinación de la boda y a la cocina del banquete.
+            </p>
+            <a href="#" id="btnWhatsAppSyncLink" target="_blank" class="btn-whatsapp-sync">
+                <span>💬 Avisar por WhatsApp a la Planner</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let currentAttendance = 'yes';
+        
+        // Parse wedding ID from query string (e.g. ?wedding=aura)
+        const params = new URLSearchParams(window.location.search);
+        const weddingId = (params.get('wedding') || 'aura').toLowerCase();
+
+        // Preset names mapping for nice title display
+        const WEDDING_NAMES = {
+            aura: "Sofía & Alejandro",
+            camila: "Camila & Sebastián",
+            valeria: "Valeria & Fernando",
+            elena: "Elena & Rodrigo",
+            daniela: "Daniela & Javier",
+            isabella: "Isabella & Mateo",
+            carmen: "Carmen & Diego",
+            mariana: "Mariana & Carlos",
+            lucia: "Lucía & Andrés",
+            sofia: "Sofía & Leonardo",
+            alejandra: "Alejandra & Pablo",
+            rebeca: "Rebeca & Gabriel"
+        };
+
+        if (WEDDING_NAMES[weddingId]) {
+            document.getElementById('displayCouple').innerText = WEDDING_NAMES[weddingId];
+            document.title = `Confirmación de Asistencia — ${WEDDING_NAMES[weddingId]}`;
+        }
+
+        function setAttendance(val) {
+            currentAttendance = val;
+            const btnYes = document.getElementById('btnAttendYes');
+            const btnNo = document.getElementById('btnAttendNo');
+            const detailsSection = document.getElementById('attendanceDetailsSection');
+            const btnSubmit = document.getElementById('btnSubmitRsvp');
+
+            if (val === 'yes') {
+                btnYes.className = 'attendance-btn active yes';
+                btnNo.className = 'attendance-btn';
+                if (detailsSection) detailsSection.style.display = 'block';
+                btnSubmit.innerText = 'Confirmar mi Asistencia ➔';
+            } else {
+                btnYes.className = 'attendance-btn';
+                btnNo.className = 'attendance-btn active no';
+                if (detailsSection) detailsSection.style.display = 'none';
+                btnSubmit.innerText = 'Enviar mi Notificación ➔';
+            }
+        }
+
+        function toggleCompanionInput(val) {
+            const wrap = document.getElementById('companionWrap');
+            if (wrap) {
+                wrap.style.display = parseInt(val) > 1 ? 'block' : 'none';
+            }
+        }
+
+        async function handleFastRsvpSubmit(e) {
+            e.preventDefault();
+            const btnSubmit = document.getElementById('btnSubmitRsvp');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Guardando en la nube...';
+
+            const name = document.getElementById('guestName').value.trim();
+            const phone = document.getElementById('guestPhone').value.trim();
+            const passes = currentAttendance === 'yes' ? (parseInt(document.getElementById('guestPasses').value) || 1) : 0;
+            const menu = currentAttendance === 'yes' ? document.getElementById('guestMenu').value : 'No asiste';
+            const companion = currentAttendance === 'yes' ? document.getElementById('guestCompanion').value.trim() : '';
+            const allergies = currentAttendance === 'yes' ? document.getElementById('guestAllergies').value : 'Ninguna';
+            const song = currentAttendance === 'yes' ? document.getElementById('guestSong').value.trim() : '';
+            const message = document.getElementById('guestMessage').value.trim();
+
+            const payload = {
+                weddingId: weddingId,
+                name: name,
+                phone: phone,
+                attendance: currentAttendance,
+                passes: passes,
+                menu: menu,
+                companion: companion,
+                allergies: allergies,
+                song: song,
+                message: message
+            };
+
+            try {
+                // Post to Vercel Serverless RSVP API
+                await fetch('/api/rsvp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.warn('Offline or relay issue, saved locally:', err);
+            }
+
+            // Also persist in localStorage for offline reliability
+            const localKey = `wedding_live_rsvps_${weddingId}`;
+            let existing = [];
+            try { existing = JSON.parse(localStorage.getItem(localKey) || '[]'); } catch(e){}
+            existing.unshift({
+                ...payload,
+                id: `rsvp_${Date.now()}`,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem(localKey, JSON.stringify(existing));
+
+            // Show success screen
+            document.getElementById('rsvpFormArea').style.display = 'none';
+            const successArea = document.getElementById('successArea');
+            successArea.style.display = 'block';
+
+            if (currentAttendance === 'yes') {
+                document.getElementById('successMessageText').innerHTML = 
+                    `¡Gracias <strong>${name}</strong>! Tus <strong>${passes} pase(s)</strong> han sido reservados y tus preferencias de menú (<em>${menu}</em>) fueron notificadas al banquete.`;
+            } else {
+                document.getElementById('successMessageText').innerHTML = 
+                    `Estimado/a <strong>${name}</strong>, lamentamos que no puedas acompañarnos, pero agradecemos mucho tu pronta notificación para la logística del evento.`;
+            }
+
+            // Build WhatsApp sync link
+            const coupleName = WEDDING_NAMES[weddingId] || "los Novios";
+            const waText = currentAttendance === 'yes'
+                ? `¡Hola! Confirmo con gusto mi asistencia a la boda de ${coupleName}. Nombre: ${name} (${passes} personas). Menú: ${menu}. Alergias: ${allergies}.`
+                : `¡Hola! Con pesar no podré asistir a la boda de ${coupleName}. Saludos cordiales de ${name}.`;
+            
+            const waLink = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+            const btnWa = document.getElementById('btnWhatsAppSyncLink');
+            if (btnWa) btnWa.href = waLink;
+        }
+    </script>
+</body>
+</html>

@@ -3242,6 +3242,11 @@
                     <label>Presupuesto Total Estimado ($ MXN)</label>
                     <input type="number" id="newWBudget" value="850000">
                 </div>
+                <div class="form-group">
+                    <label>Enlace de Invitación Digital (Opcional - Wedding OS o link externo de Canva / PDF / Wix)</label>
+                    <input type="url" id="newWLiveUrl" placeholder="https://canva.com/... o dejar en blanco para usar la nativa">
+                    <small style="display:block; font-size:0.7rem; color:#64748b; margin-top:2px;">Se usará automáticamente en los envíos de WhatsApp para los invitados.</small>
+                </div>
 
                 <!-- ACCESO AL PORTAL PARA LOS NOVIOS -->
                 <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px 14px; margin-bottom:14px;">
@@ -5356,6 +5361,34 @@
                             <div class="form-group">
                                 <label>Nota / Recordatorio para los Novios</label>
                                 <textarea id="editWPlannerNote" rows="2" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px; font-family:inherit; font-size:0.82rem;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- BLOQUE: ENLACE DE INVITACIÓN DIGITAL (INTERNA O EXTERNA CANVA/PDF) -->
+                        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:16px;">
+                            <div style="font-weight: 800; font-size: 0.84rem; color: #0f172a; margin-bottom: 8px; display:flex; align-items:center; justify-content:space-between;">
+                                <span style="display:flex; align-items:center; gap:6px;">
+                                    <span>🌐 Enlace de Invitación Digital</span>
+                                </span>
+                                <span style="font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-weight:700;">Para WhatsApp Masivo</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom:10px;">
+                                <label style="font-size:0.76rem; color:#334155; font-weight:700;">URL de Invitación Web (Wedding OS, Canva, Wix o PDF)</label>
+                                <input type="url" id="editWLiveUrl" placeholder="https://canva.com/... o https://tu-boda.com" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; font-size:0.82rem;">
+                                <small style="display:block; font-size:0.7rem; color:#64748b; margin-top:4px;">
+                                    💡 Si los novios ya tienen su invitación en Canva, PDF o sitio externo, pega aquí su link para que se envíe automáticamente por WhatsApp a cada invitado.
+                                </small>
+                            </div>
+                            <!-- Fast RSVP Link Helper for External Invitations -->
+                            <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                                <div style="font-size:0.72rem; color:#475569; flex:1;">
+                                    <strong style="color:#0f172a;">Link de Confirmación Rápida (Fast RSVP):</strong>
+                                    <span style="display:block; color:#64748b; margin-top:2px;">Pega este link en tu botón de Canva o PDF para que las confirmaciones caigan directo al CRM de Mesas:</span>
+                                    <code id="editWFastRsvpCode" style="font-size:0.7rem; color:#2563eb; word-break:break-all; font-weight:700;">https://wedding-admin-portal.vercel.app/rsvp.html?wedding=aura</code>
+                                </div>
+                                <button type="button" class="btn-dev-action-mini authorize" onclick="copyFastRsvpLink()" style="padding:6px 10px; font-size:0.72rem; white-space:nowrap; background:#0f172a; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:700;">
+                                    📋 Copiar Link
+                                </button>
                             </div>
                         </div>
 

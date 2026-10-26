@@ -1257,12 +1257,13 @@ function saveNewWeddingForm(e) {
     }
 
     const newId = 'w_' + Date.now();
+    const customLiveUrl = document.getElementById('newWLiveUrl') ? document.getElementById('newWLiveUrl').value.trim() : '';
     const newWeddingData = {
         couple: names,
         themeTag: "💍 Boda Personalizada",
         date: date,
         venue: venue,
-        liveUrl: "", // ¡Sin invitación web activa hasta contratar y publicar!
+        liveUrl: customLiveUrl || "", // Si se ingresó link externo (Canva/PDF) se usa de inmediato
         targetGuests: guests,
         budget: budget,
         couplePermissions: {
@@ -1529,6 +1530,14 @@ function openEditActiveWeddingModal() {
     const couplePassInput = document.getElementById('editWCouplePass');
     if (couplePassInput) couplePassInput.value = currentData.couplePass || 'boda2027';
 
+    // Digital Invitation URL & Fast RSVP link
+    const liveUrlInput = document.getElementById('editWLiveUrl');
+    if (liveUrlInput) liveUrlInput.value = currentData.liveUrl || '';
+    const rsvpCodeEl = document.getElementById('editWFastRsvpCode');
+    if (rsvpCodeEl) {
+        rsvpCodeEl.textContent = `https://wedding-admin-portal.vercel.app/rsvp.html?wedding=${currentWeddingId || 'aura'}`;
+    }
+
     modal.classList.add('active');
     modal.style.display = 'flex';
 }
@@ -1587,6 +1596,23 @@ function unlockClabeFieldsForPlanner() {
     showToast('🔓 Campos bancarios habilitados para edición.');
 }
 
+function copyFastRsvpLink() {
+    const wId = window.currentWeddingId || 'aura';
+    const link = `https://wedding-admin-portal.vercel.app/rsvp.html?wedding=${wId}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+            if (typeof showToast === 'function') {
+                showToast('🔗 Link de Fast RSVP copiado. Pégalo en tu botón de Canva o PDF externo.');
+            } else {
+                alert('Enlace copiado al portapapeles: ' + link);
+            }
+        });
+    } else {
+        prompt('Copia este enlace de confirmación:', link);
+    }
+}
+window.copyFastRsvpLink = copyFastRsvpLink;
+
 function closeEditActiveWeddingModal() {
     const modal = document.getElementById('modalEditWeddingGeneral');
     if (modal) {
@@ -1627,6 +1653,12 @@ function saveEditActiveWeddingForm(e) {
     // Couple Credentials
     currentData.coupleUser = (document.getElementById('editWCoupleUser').value || '').trim().toLowerCase();
     currentData.couplePass = (document.getElementById('editWCouplePass').value || '').trim();
+
+    // Digital Invitation URL
+    const liveUrlInput = document.getElementById('editWLiveUrl');
+    if (liveUrlInput) {
+        currentData.liveUrl = liveUrlInput.value.trim();
+    }
 
     // Audit Log for Security & Legal Proof
     if (!currentData.auditLogs) currentData.auditLogs = [];
