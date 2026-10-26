@@ -344,19 +344,164 @@ function simulateQrCameraScan() {
 // ==========================================================================
 
 function openChefReportModal() {
-    if (isDemoModeActive) {
-        // Gated for Signature Pro
+    if (typeof isDemoModeActive !== 'undefined' && isDemoModeActive) {
         openSpeiUpgradeModal('intermediate');
         return;
     }
-    const modal = document.getElementById('modalChefReport');
-    if (modal) {
-        modal.classList.add('active');
-        modal.style.display = 'flex';
-        modal.style.opacity = '1';
-        modal.style.pointerEvents = 'auto';
-        modal.style.zIndex = '999999';
+
+    if (typeof getWeddingState === 'function') {
+        currentData = getWeddingState(currentWeddingId);
     }
+    if (!currentData) {
+        if (typeof showToast === 'function') showToast('⚠️ Por favor selecciona o abre una boda primero.', 'warning');
+        return;
+    }
+
+    const modal = document.getElementById('modalChefReport');
+    if (!modal) return;
+
+    // 1. Datos Generales de la Boda
+    const coupleName = currentData.couple || 'Pareja Novios';
+    const venueName = currentData.venue || 'Recinto del Evento';
+    const weddingDate = currentData.date || 'Fecha por Definir';
+
+    const guests = currentData.guests || [];
+    const tables = currentData.tables || [];
+
+    const confirmedGuests = guests.filter(g => g.status === 'confirmed');
+    const totalConfirmedPax = confirmedGuests.reduce((sum, g) => sum + (g.passes || 1), 0);
+
+    const subTitle = document.getElementById('chefModalSubTitle');
+    if (subTitle) {
+        subTitle.innerText = `${coupleName} · ${venueName} (${totalConfirmedPax} Comensales Confirmados)`;
+    }
+
+    // 2. Conteo de Platos Fuertes y Alertas Médicas
+    let countFilet = 0;
+    let countSalmon = 0;
+    let countSpecial = 0;
+    const criticalAllergies = [];
+
+    confirmedGuests.forEach(g => {
+        const passes = g.passes || 1;
+        const tbl = tables.find(t => t.id === g.tableId);
+        const tableName = tbl ? tbl.name : 'Sin Mesa Asignada';
+
+        // Titular
+        const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+        if (m1.includes('salmon') || m1.includes('salmón')) countSalmon++;
+        else if (m1.includes('risotto') || m1.includes('veg') || m1.includes('esp')) countSpecial++;
+        else countFilet++;
+
+        const a1 = (g.guest1Allergies || g.allergies || '').trim();
+        if (a1 && a1.toLowerCase() !== 'ninguna') {
+            criticalAllergies.push({
+                table: tableName,
+                name: g.name,
+                allergy: a1
+            });
+        }
+
+        // Acompañante
+        if (passes > 1) {
+            const m2 = (g.companionMenu || (m1.includes('salmon') ? 'filete' : 'salmon')).toLowerCase();
+            if (m2.includes('salmon') || m2.includes('salmón')) countSalmon++;
+            else if (m2.includes('risotto') || m2.includes('veg') || m2.includes('esp')) countSpecial++;
+            else countFilet++;
+
+            const a2 = (g.companionAllergies || '').trim();
+            if (a2 && a2.toLowerCase() !== 'ninguna') {
+                criticalAllergies.push({
+                    table: tableName,
+                    name: g.companion || `Acompañante de ${g.name}`,
+                    allergy: a2
+                });
+            }
+        }
+    });
+
+    // Render KPIs
+    const elFilet = document.getElementById('chefCountFilet');
+    const elSalmon = document.getElementById('chefCountSalmon');
+    const elSpecial = document.getElementById('chefCountSpecial');
+    if (elFilet) elFilet.innerText = countFilet;
+    if (elSalmon) elSalmon.innerText = countSalmon;
+    if (elSpecial) elSpecial.innerText = countSpecial;
+
+    // Render Alertas Médicas
+    const allergiesListEl = document.getElementById('chefAllergiesList');
+    if (allergiesListEl) {
+        if (criticalAllergies.length === 0) {
+            allergiesListEl.innerHTML = '<li style="color:#059669; font-weight:700;">✓ No se han registrado alergias médicas críticas. Menú regular 100% seguro.</li>';
+        } else {
+            allergiesListEl.innerHTML = criticalAllergies.map(item => `
+                <li style="margin-bottom:6px;">
+                    <strong style="color:#0f172a;">${item.table}:</strong> ${item.name} — <span style="background:#fee2e2; color:#991b1b; padding:1px 8px; border-radius:4px; font-weight:800; font-size:0.8rem;">⚠️ ${item.allergy}</span>
+                </li>
+            `).join('');
+        }
+    }
+
+    // Render Distribución Mesa por Mesa
+    const tablesBody = document.getElementById('chefTablesBody');
+    if (tablesBody) {
+        tablesBody.innerHTML = '';
+        if (tables.length === 0) {
+            tablesBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:16px; color:#64748b;">No hay mesas creadas aún.</td></tr>';
+        } else {
+            tables.forEach((t, idx) => {
+                const seated = guests.filter(g => g.tableId === t.id && g.status === 'confirmed');
+                let tPax = 0;
+                let tFilet = 0;
+                let tSalmon = 0;
+                let tSpec = 0;
+                const tNotes = [];
+
+                seated.forEach(g => {
+                    const p = g.passes || 1;
+                    tPax += p;
+
+                    const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+                    if (m1.includes('salmon') || m1.includes('salmón')) tSalmon++;
+                    else if (m1.includes('risotto') || m1.includes('veg') || m1.includes('esp')) tSpec++;
+                    else tFilet++;
+
+                    const a1 = (g.guest1Allergies || g.allergies || '').trim();
+                    if (a1 && a1.toLowerCase() !== 'ninguna') tNotes.push(`${g.name} (${a1})`);
+
+                    if (p > 1) {
+                        const m2 = (g.companionMenu || (m1.includes('salmon') ? 'filete' : 'salmon')).toLowerCase();
+                        if (m2.includes('salmon') || m2.includes('salmón')) tSalmon++;
+                        else if (m2.includes('risotto') || m2.includes('veg') || m2.includes('esp')) tSpec++;
+                        else tFilet++;
+
+                        const a2 = (g.companionAllergies || '').trim();
+                        if (a2 && a2.toLowerCase() !== 'ninguna') tNotes.push(`${g.companion || 'Acomp'} (${a2})`);
+                    }
+                });
+
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid #e2e8f0';
+                tr.innerHTML = `
+                    <td style="padding:8px 10px;"><strong>${t.name || ('Mesa ' + (idx + 1))}</strong></td>
+                    <td style="padding:8px 10px; text-align:center; font-weight:800; color:#0f172a;">${tPax}</td>
+                    <td style="padding:8px 10px; text-align:center; font-weight:700; color:#b45309;">${tFilet}</td>
+                    <td style="padding:8px 10px; text-align:center; font-weight:700; color:#0369a1;">${tSalmon}</td>
+                    <td style="padding:8px 10px; font-size:0.78rem;">
+                        ${tSpec > 0 ? `<strong style="color:#15803d;">${tSpec} especial(es)</strong> ` : ''}
+                        ${tNotes.length > 0 ? `<div style="color:#b91c1c; font-weight:700; margin-top:2px;">⚠️ ${tNotes.join(', ')}</div>` : (tSpec === 0 ? '<span style="color:#94a3b8;">Estándar</span>' : '')}
+                    </td>
+                `;
+                tablesBody.appendChild(tr);
+            });
+        }
+    }
+
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+    modal.style.zIndex = '999999';
 }
 
 function closeChefReportModal() {
@@ -364,11 +509,304 @@ function closeChefReportModal() {
     if (modal) {
         modal.classList.remove('active');
         modal.style.display = 'none';
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
     }
 }
 
-function printChefReport() {
-    window.print();
+/**
+ * Abre una ventana limpia optimizada para impresión / guardar como PDF
+ * con formato ejecutivo para cocina y capitán de banquetes
+ */
+function printChefExecutiveDossier() {
+    if (typeof getWeddingState === 'function') {
+        currentData = getWeddingState(currentWeddingId);
+    }
+    if (!currentData) return;
+
+    const couple = currentData.couple || 'Boda Novios';
+    const venue = currentData.venue || 'Recinto Oficial';
+    const date = currentData.date || 'Fecha Oficial';
+    const guests = currentData.guests || [];
+    const tables = currentData.tables || [];
+    const planner = currentData.planner || 'Wedding Planner & Coordinación';
+
+    const confirmed = guests.filter(g => g.status === 'confirmed');
+    const totalPax = confirmed.reduce((s, g) => s + (g.passes || 1), 0);
+
+    let filet = 0, salmon = 0, special = 0;
+    const allergies = [];
+
+    confirmed.forEach(g => {
+        const p = g.passes || 1;
+        const tbl = tables.find(t => t.id === g.tableId);
+        const tName = tbl ? tbl.name : 'Sin Asignar';
+
+        const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+        if (m1.includes('salmon') || m1.includes('salmón')) salmon++;
+        else if (m1.includes('risotto') || m1.includes('veg') || m1.includes('esp')) special++;
+        else filet++;
+
+        const a1 = (g.guest1Allergies || g.allergies || '').trim();
+        if (a1 && a1.toLowerCase() !== 'ninguna') allergies.push({ table: tName, name: g.name, allergy: a1 });
+
+        if (p > 1) {
+            const m2 = (g.companionMenu || (m1.includes('salmon') ? 'filete' : 'salmon')).toLowerCase();
+            if (m2.includes('salmon') || m2.includes('salmón')) salmon++;
+            else if (m2.includes('risotto') || m2.includes('veg') || m2.includes('esp')) special++;
+            else filet++;
+
+            const a2 = (g.companionAllergies || '').trim();
+            if (a2 && a2.toLowerCase() !== 'ninguna') allergies.push({ table: tName, name: g.companion || 'Acompañante', allergy: a2 });
+        }
+    });
+
+    const printWin = window.open('', '_blank', 'width=900,height=800');
+    if (!printWin) {
+        alert('Por favor permite ventanas emergentes para generar la Ficha de Cocina en PDF.');
+        return;
+    }
+
+    const tableRowsHtml = tables.map((t, idx) => {
+        const seated = guests.filter(g => g.tableId === t.id && g.status === 'confirmed');
+        let tPax = 0, tFil = 0, tSal = 0, tSp = 0;
+        const notes = [];
+        seated.forEach(g => {
+            const p = g.passes || 1;
+            tPax += p;
+            const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+            if (m1.includes('salmon') || m1.includes('salmón')) tSal++;
+            else if (m1.includes('risotto') || m1.includes('veg') || m1.includes('esp')) tSp++;
+            else tFil++;
+            const a1 = (g.guest1Allergies || g.allergies || '').trim();
+            if (a1 && a1.toLowerCase() !== 'ninguna') notes.push(`${g.name}: ${a1}`);
+
+            if (p > 1) {
+                const m2 = (g.companionMenu || (m1.includes('salmon') ? 'filete' : 'salmon')).toLowerCase();
+                if (m2.includes('salmon') || m2.includes('salmón')) tSal++;
+                else if (m2.includes('risotto') || m2.includes('veg') || m2.includes('esp')) tSp++;
+                else tFil++;
+                const a2 = (g.companionAllergies || '').trim();
+                if (a2 && a2.toLowerCase() !== 'ninguna') notes.push(`${g.companion || 'Acomp'}: ${a2}`);
+            }
+        });
+
+        return `
+            <tr style="border-bottom:1px solid #cbd5e1;">
+                <td style="padding:6px 8px; font-weight:700;">${t.name || ('Mesa ' + (idx + 1))}</td>
+                <td style="padding:6px 8px; text-align:center; font-weight:800;">${tPax}</td>
+                <td style="padding:6px 8px; text-align:center;">${tFil}</td>
+                <td style="padding:6px 8px; text-align:center;">${tSal}</td>
+                <td style="padding:6px 8px;">
+                    ${tSp > 0 ? `<strong>${tSp} esp.</strong> ` : ''}
+                    ${notes.length > 0 ? `<span style="color:#b91c1c; font-weight:700;">⚠️ ${notes.join('; ')}</span>` : (tSp === 0 ? '—' : '')}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    const allergiesRowsHtml = allergies.length === 0
+        ? '<div style="color:#15803d; font-weight:700; padding:8px;">✓ No hay restricciones alimentarias médicas reportadas. Menú regular seguro.</div>'
+        : allergies.map(a => `
+            <div style="margin-bottom:6px; font-size:0.85rem;">
+                <strong>${a.table}</strong>: <span style="font-weight:600;">${a.name}</span> — 
+                <span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:4px; font-weight:800;">⚠️ ${a.allergy}</span>
+            </div>
+        `).join('');
+
+    printWin.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Ficha Técnica de Cocina & Banquetes - ${couple}</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; padding: 24px; color: #0f172a; margin: 0; }
+                h1, h2, h3, h4 { margin: 0; font-family: Georgia, serif; }
+                .header { border-bottom: 3px solid #065f46; padding-bottom: 14px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start; }
+                .badge { background: #065f46; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; display: inline-block; margin-bottom: 4px; }
+                .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+                .kpi-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; text-align: center; }
+                .kpi-box span { font-size: 0.7rem; color: #64748b; font-weight: 800; text-transform: uppercase; }
+                .kpi-box h2 { font-size: 1.4rem; color: #0f172a; margin-top: 4px; }
+                .allergy-box { background: #fff1f2; border: 2px solid #fecdd3; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+                .table-dossier { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 24px; }
+                .table-dossier th { background: #0f172a; color: #ffffff; padding: 8px; text-align: left; }
+                .table-dossier td { padding: 6px 8px; border: 1px solid #cbd5e1; }
+                .sign-box { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 36px; padding-top: 20px; border-top: 1px solid #cbd5e1; }
+                .sign-line { border-top: 1px solid #0f172a; margin-top: 40px; text-align: center; font-size: 0.8rem; font-weight: 700; padding-top: 4px; }
+                @media print {
+                    body { padding: 0; font-size: 12pt; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="no-print" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; background:#e0f2fe; padding:10px 16px; border-radius:8px;">
+                <span style="font-size:0.85rem; font-weight:700; color:#0369a1;">📄 Vista previa de impresión oficial para Banquetes y Chef Ejecutivo.</span>
+                <button onclick="window.print()" style="background:#059669; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:800; cursor:pointer;">🖨️ Mandar a Imprimir / Guardar en PDF</button>
+            </div>
+
+            <div class="header">
+                <div>
+                    <span class="badge">ORDEN DE PRODUCCIÓN DE COCINA & BANQUETES</span>
+                    <h1 style="font-size: 1.6rem; color: #065f46;">${couple}</h1>
+                    <p style="margin: 4px 0 0; color: #475569; font-size: 0.85rem;"><strong>Coordinación:</strong> ${planner}</p>
+                </div>
+                <div style="text-align: right; font-size: 0.82rem; color: #334155; line-height: 1.4;">
+                    <div><strong>Fecha del Evento:</strong> ${date}</div>
+                    <div><strong>Locación / Venue:</strong> ${venue}</div>
+                    <div><strong>Comensales Totales:</strong> <strong style="font-size:1.1rem; color:#065f46;">${totalPax} Pax</strong></div>
+                    <div><strong>Emisión:</strong> ${new Date().toLocaleDateString('es-MX')} hrs</div>
+                </div>
+            </div>
+
+            <!-- PRODUCCION TOTAL COCINA -->
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; color: #0f172a;">1. MATRIZ TOTAL DE PRODUCCIÓN DE PLATOS</h3>
+            <div class="kpi-strip">
+                <div class="kpi-box">
+                    <span>🥩 Filete de Res / Carne</span>
+                    <h2>${filet}</h2>
+                </div>
+                <div class="kpi-box">
+                    <span>🐟 Salmón / Pescado</span>
+                    <h2>${salmon}</h2>
+                </div>
+                <div class="kpi-box" style="background:#fef3c7;">
+                    <span style="color:#92400e;">🍄 Risotto / Veg / Especial</span>
+                    <h2 style="color:#b45309;">${special}</h2>
+                </div>
+                <div class="kpi-box" style="background:#d1fae5;">
+                    <span style="color:#065f46;">TOTAL PLATOS</span>
+                    <h2 style="color:#047857;">${filet + salmon + special}</h2>
+                </div>
+            </div>
+
+            <!-- ALERGIAS ROJAS -->
+            <div class="allergy-box">
+                <div style="font-size: 0.9rem; font-weight: 800; color: #991b1b; margin-bottom: 8px;">
+                    ⚠️ 2. PROTOCOLO DE ALERGIAS Y RESTRICCIONES MÉDICAS (EVITAR CONTAMINACIÓN CRUZADA)
+                </div>
+                ${allergiesRowsHtml}
+            </div>
+
+            <!-- DESGLOSE MESA POR MESA -->
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; color: #0f172a;">3. MATRIZ DE SERVICIO Y COMANDAS MESA POR MESA</h3>
+            <table class="table-dossier">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Mesa</th>
+                        <th style="text-align:center; width: 12%;">Pax</th>
+                        <th style="text-align:center; width: 12%;">Filete</th>
+                        <th style="text-align:center; width: 12%;">Salmón</th>
+                        <th>Especiales / Restricciones en Mesa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRowsHtml}
+                </tbody>
+            </table>
+
+            <!-- FIRMAS -->
+            <div class="sign-box">
+                <div>
+                    <div class="sign-line">
+                        Firma Wedding Planner<br>
+                        <small style="color:#64748b; font-weight:normal;">Entrega de comanda y especificaciones</small>
+                    </div>
+                </div>
+                <div>
+                    <div class="sign-line">
+                        Firma Chef Ejecutivo / Capitán de Servicio<br>
+                        <small style="color:#64748b; font-weight:normal;">Recepción conforme de requerimientos y alergias</small>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+
+    printWin.document.close();
+    printWin.focus();
+}
+
+/**
+ * Copia el resumen ejecutivo al portapapeles listo para enviar por WhatsApp al Chef
+ */
+function copyChefReportToWhatsApp() {
+    if (typeof getWeddingState === 'function') {
+        currentData = getWeddingState(currentWeddingId);
+    }
+    if (!currentData) return;
+
+    const couple = currentData.couple || 'Boda Novios';
+    const venue = currentData.venue || 'Recinto';
+    const date = currentData.date || 'Fecha Oficial';
+    const guests = currentData.guests || [];
+    const tables = currentData.tables || [];
+
+    const confirmed = guests.filter(g => g.status === 'confirmed');
+    const totalPax = confirmed.reduce((s, g) => s + (g.passes || 1), 0);
+
+    let filet = 0, salmon = 0, special = 0;
+    const allergies = [];
+
+    confirmed.forEach(g => {
+        const p = g.passes || 1;
+        const tbl = tables.find(t => t.id === g.tableId);
+        const tName = tbl ? tbl.name : 'Sin Asignar';
+
+        const m1 = (g.guest1Menu || g.menu || 'filete').toLowerCase();
+        if (m1.includes('salmon') || m1.includes('salmón')) salmon++;
+        else if (m1.includes('risotto') || m1.includes('veg') || m1.includes('esp')) special++;
+        else filet++;
+
+        const a1 = (g.guest1Allergies || g.allergies || '').trim();
+        if (a1 && a1.toLowerCase() !== 'ninguna') allergies.push(`${tName}: ${g.name} (${a1})`);
+
+        if (p > 1) {
+            const m2 = (g.companionMenu || (m1.includes('salmon') ? 'filete' : 'salmon')).toLowerCase();
+            if (m2.includes('salmon') || m2.includes('salmón')) salmon++;
+            else if (m2.includes('risotto') || m2.includes('veg') || m2.includes('esp')) special++;
+            else filet++;
+
+            const a2 = (g.companionAllergies || '').trim();
+            if (a2 && a2.toLowerCase() !== 'ninguna') allergies.push(`${tName}: ${g.companion || 'Acomp'} (${a2})`);
+        }
+    });
+
+    let waText = `👨‍🍳 *ORDEN DE PRODUCCIÓN DE BANQUETE & COCINA* 🍽️\n\n`;
+    waText += `💍 *Boda:* ${couple}\n`;
+    waText += `📅 *Fecha:* ${date}\n`;
+    waText += `🏰 *Lugar:* ${venue}\n`;
+    waText += `👥 *Total Comensales:* ${totalPax} Pax confirmados\n\n`;
+    waText += `🥩 *Filete de Res:* ${filet} platos\n`;
+    waText += `🐟 *Salmón:* ${salmon} platos\n`;
+    waText += `🌱 *Especiales / Veg:* ${special} platos\n`;
+    waText += `📊 *Total Platos Fuertes:* ${filet + salmon + special}\n\n`;
+
+    if (allergies.length > 0) {
+        waText += `⚠️ *ALERTAS MÉDICAS CRÍTICAS (Evitar contaminación cruzada):*\n`;
+        allergies.forEach(a => {
+            waText += `• ${a}\n`;
+        });
+    } else {
+        waText += `✓ *Alergias:* No se reportaron alergias médicas.\n`;
+    }
+
+    waText += `\n_Generado automáticamente desde Antigravity Wedding OS._`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(waText).then(() => {
+            if (typeof showToast === 'function') {
+                showToast('✅ ¡Resumen de Cocina copiado al portapapeles para WhatsApp!', 'success');
+            }
+        }).catch(() => {
+            alert('Resumen de cocina:\n\n' + waText);
+        });
+    } else {
+        alert(waText);
+    }
 }
 
 function openVendorsRunOfShowModal() {

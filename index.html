@@ -1828,6 +1828,9 @@
                     </div>
                     <div class="tab-actions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                         <button class="btn-action primary" onclick="openNewTableModal()">+ Nueva Mesa</button>
+                        <button type="button" class="btn-action planner-only" onclick="openChefReportModal()" style="background:#059669; border-color:#059669; color:#ffffff; font-weight:700; display:inline-flex; align-items:center; gap:6px;" title="Generar orden de producción y comanda para el chef ejecutivo">
+                            <span>👨‍🍳 Ficha de Cocina &amp; Banquetes</span>
+                        </button>
                         <button class="btn-action secondary" onclick="printSeatingChartReport()">🖨️ Pizarrón de Mesas (PDF)</button>
                         <button class="btn-action secondary planner-only" onclick="openCaptainPrintModal()">🍽️ Hoja Capitán Meseros</button>
                         <button class="subtab-toggle-btn active" id="btnSubtabGuests" onclick="switchSeatingSubTab('guests')">
@@ -4841,71 +4844,83 @@
     <!-- ========================================================================== -->
     <!-- MODAL: REPORTE EJECUTIVO PARA CHEF & BANQUETES (ALERGIAS & MENÚS) -->
     <!-- ========================================================================== -->
+    <!-- ========================================================================== -->
+    <!-- MODAL: REPORTE EJECUTIVO PARA CHEF & BANQUETES (ALERGIAS & MENÚS) -->
+    <!-- ========================================================================== -->
     <div id="modalChefReport" class="app-modal-overlay">
-        <div class="app-modal-card" style="max-width: 680px;">
+        <div class="app-modal-card" style="max-width: 720px; width: 95%;">
             <div class="modal-header" style="background:#065f46 !important; border-bottom-color:#10b981 !important;">
                 <div class="d-flex align-center gap-2">
                     <span class="modal-icon">👨‍🍳</span>
                     <div>
-                        <h3 class="modal-title">Reporte de Cocina, Banquetes &amp; Alergias</h3>
-                        <p class="text-xs" style="color:#a7f3d0; margin:0;">Boda Valentina &amp; Sebastián · Hacienda Las Nubes (180 Invitados)</p>
+                        <h3 class="modal-title" style="color:#ffffff !important; font-weight:800;">Ficha de Cocina, Banquetes &amp; Alergias</h3>
+                        <p class="text-xs" id="chefModalSubTitle" style="color:#a7f3d0; margin:0;">Cargando comensales de la boda...</p>
                     </div>
                 </div>
                 <button class="btn-close-modal" onclick="closeChefReportModal()">✕</button>
             </div>
 
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body" style="max-height: 72vh; overflow-y: auto;">
                 <!-- SUMMARY STATS -->
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:18px;">
-                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; text-align:center;">
-                        <span style="font-size:0.75rem; color:#64748b; font-weight:700;">🥩 FILETE DE RES</span>
-                        <h3 style="color:#0f172a; margin:4px 0 0; font-size:1.4rem;">118</h3>
+                    <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid #e2e8f0; text-align:center;">
+                        <span style="font-size:0.75rem; color:#64748b; font-weight:800; text-transform:uppercase;">🥩 FILETE / RES</span>
+                        <h3 id="chefCountFilet" style="color:#0f172a; margin:4px 0 0; font-size:1.6rem; font-weight:900;">0</h3>
                     </div>
-                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; text-align:center;">
-                        <span style="font-size:0.75rem; color:#64748b; font-weight:700;">🐟 SALMÓN GLASEADO</span>
-                        <h3 style="color:#0f172a; margin:4px 0 0; font-size:1.4rem;">54</h3>
+                    <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid #e2e8f0; text-align:center;">
+                        <span style="font-size:0.75rem; color:#64748b; font-weight:800; text-transform:uppercase;">🐟 SALMÓN / PESCADO</span>
+                        <h3 id="chefCountSalmon" style="color:#0f172a; margin:4px 0 0; font-size:1.6rem; font-weight:900;">0</h3>
                     </div>
-                    <div style="background:#fef3c7; padding:12px; border-radius:8px; border:1px solid #fde68a; text-align:center;">
-                        <span style="font-size:0.75rem; color:#92400e; font-weight:700;">🌱 MENÚS ESPECIALES</span>
-                        <h3 style="color:#b45309; margin:4px 0 0; font-size:1.4rem;">8</h3>
+                    <div style="background:#fef3c7; padding:12px; border-radius:10px; border:1px solid #fde68a; text-align:center;">
+                        <span style="font-size:0.75rem; color:#92400e; font-weight:800; text-transform:uppercase;">🌱 VEG / ESPECIALES</span>
+                        <h3 id="chefCountSpecial" style="color:#b45309; margin:4px 0 0; font-size:1.6rem; font-weight:900;">0</h3>
                     </div>
                 </div>
 
                 <!-- CRITICAL ALLERGIES BY TABLE -->
-                <h4 style="color:#991b1b; font-size:0.88rem; margin-bottom:8px;">⚠️ Alertas Médicas Críticas por Mesa</h4>
-                <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:12px; margin-bottom:16px;">
-                    <ul style="margin:0; padding-left:20px; font-size:0.82rem; color:#881337; line-height:1.6;">
-                        <li><strong>Mesa 2:</strong> Dra. Ana Cecilia Morales — <em>Alergia severa a mariscos (Contaminación cruzada)</em></li>
-                        <li><strong>Mesa 3:</strong> Sotomayor Jr. — <em>1 Menú Vegano Estricto (Sin derivados lácteos ni miel)</em></li>
-                        <li><strong>Mesa 4:</strong> Arq. Sofía Benavides — <em>Celíaco (100% Sin Gluten)</em></li>
-                        <li><strong>Mesa 6:</strong> Valeria Elizondo — <em>Alergia severa a nueces y frutos secos</em></li>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h4 style="color:#991b1b; font-size:0.9rem; margin:0; font-weight:800;">⚠️ Alertas Médicas Críticas por Mesa (Evitar Contaminación Cruzada)</h4>
+                    <span style="font-size:0.72rem; color:#991b1b; font-weight:700; background:#fee2e2; padding:2px 8px; border-radius:12px;">Protocolo Seguridad</span>
+                </div>
+                <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:10px; padding:14px; margin-bottom:18px;">
+                    <ul id="chefAllergiesList" style="margin:0; padding-left:20px; font-size:0.84rem; color:#881337; line-height:1.7;">
+                        <li>Cargando alertas médicas...</li>
                     </ul>
                 </div>
 
                 <!-- TABLES BREAKDOWN -->
-                <h4 style="color:#0f172a; font-size:0.88rem; margin-bottom:8px;">📍 Distribución Detallada de Mesas</h4>
-                <table style="width:100%; font-size:0.8rem; border-collapse:collapse; text-align:left;">
-                    <thead>
-                        <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
-                            <th style="padding:6px 8px;">Mesa</th>
-                            <th style="padding:6px 8px;">Comensales</th>
-                            <th style="padding:6px 8px;">Filete</th>
-                            <th style="padding:6px 8px;">Salmón</th>
-                            <th style="padding:6px 8px;">Especial</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px 8px;"><strong>Mesa 1 (Presidencia)</strong></td><td style="padding:6px 8px;">10</td><td style="padding:6px 8px;">8</td><td style="padding:6px 8px;">2</td><td style="padding:6px 8px;">-</td></tr>
-                        <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px 8px;"><strong>Mesa 2 (Novia)</strong></td><td style="padding:6px 8px;">10</td><td style="padding:6px 8px;">4</td><td style="padding:6px 8px;">5</td><td style="padding:6px 8px;">1 (Sin Mariscos)</td></tr>
-                        <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px 8px;"><strong>Mesa 3 (Monterrey)</strong></td><td style="padding:6px 8px;">12</td><td style="padding:6px 8px;">9</td><td style="padding:6px 8px;">2</td><td style="padding:6px 8px;">1 (Vegano)</td></tr>
-                        <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px 8px;"><strong>Mesa 4 (Damas)</strong></td><td style="padding:6px 8px;">10</td><td style="padding:6px 8px;">5</td><td style="padding:6px 8px;">4</td><td style="padding:6px 8px;">1 (Sin Gluten)</td></tr>
-                    </tbody>
-                </table>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h4 style="color:#0f172a; font-size:0.9rem; margin:0; font-weight:800;">📍 Distribución de Servicio Mesa por Mesa</h4>
+                    <span style="font-size:0.72rem; color:#64748b;">Comanda para garroteros y meseros</span>
+                </div>
+                <div style="border:1px solid #e2e8f0; border-radius:10px; overflow:hidden;">
+                    <table style="width:100%; font-size:0.82rem; border-collapse:collapse; text-align:left;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:2px solid #cbd5e1; color:#334155;">
+                                <th style="padding:8px 10px;">Mesa</th>
+                                <th style="padding:8px 10px; text-align:center;">Comensales</th>
+                                <th style="padding:8px 10px; text-align:center;">Filete</th>
+                                <th style="padding:8px 10px; text-align:center;">Salmón</th>
+                                <th style="padding:8px 10px;">Especial / Alergia Médica</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chefTablesBody">
+                            <tr><td colspan="5" style="text-align:center; padding:16px; color:#64748b;">Cargando mesas...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="modal-footer">
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <button type="button" class="btn-modal secondary" onclick="closeChefReportModal()">Cerrar</button>
-                <button type="button" class="btn-modal primary" onclick="printChefReport()" style="background:#059669; border-color:#047857;">🖨️ Imprimir Hoja para Chef / Cocina</button>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-modal" onclick="copyChefReportToWhatsApp()" style="background:#25d366; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:6px;">
+                        <span>📲 Copiar para WhatsApp del Chef</span>
+                    </button>
+                    <button type="button" class="btn-modal primary" onclick="printChefExecutiveDossier()" style="background:#059669; border-color:#047857; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <span>🖨️ Imprimir Ficha de Cocina (PDF)</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
