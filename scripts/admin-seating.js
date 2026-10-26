@@ -159,6 +159,10 @@ function addDecorElement(type) {
 }
 
 function recalcVenueDimensions() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     const w = parseFloat(document.getElementById('venueWidthInput').value) || 40;
     const l = parseFloat(document.getElementById('venueLengthInput').value) || 60;
     floorPlanState.venueWidth = w;
@@ -942,6 +946,10 @@ function renderWaitersStaffing() {
 }
 
 function addNewWaiterPrompt() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     const name = prompt('Nombre completo del mesero/a:');
     if (!name) return;
     const phone = prompt('Teléfono / WhatsApp de contacto:', '+52 55 ');
@@ -962,6 +970,10 @@ function addNewWaiterPrompt() {
 
 // CAPTAIN PRINT MODAL
 function openCaptainPrintModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     currentData = getWeddingState(currentWeddingId);
     const paper = document.getElementById('captainPrintPaper');
     if (!paper) return;

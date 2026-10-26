@@ -210,6 +210,10 @@ function generateAndPreviewPDF() {
 // 1. REPORTE DE BARRA, MIXOLOGÍA & ACTA DE CIERRE DE DESCORCHE (tab-barcalc)
 // ==========================================================================
 function printBarAuditReport() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     currentData = getWeddingState(currentWeddingId);
     const items = (typeof barInventoryState !== 'undefined' && barInventoryState.items) ? barInventoryState.items : [];
     const pax = document.getElementById('barGuestsInput') ? document.getElementById('barGuestsInput').value : 180;

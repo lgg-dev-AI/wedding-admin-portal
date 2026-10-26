@@ -328,6 +328,10 @@ function openWhatsAppVendor(phone, vendorName, pendingAmount) {
 // CREATE & EDIT VENDOR MODALS
 // ==========================================================================
 function openNewVendorModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     document.getElementById('newVendorCat').value = 'catering';
     document.getElementById('newVendorName').value = '';
     document.getElementById('newVendorContact').value = '';

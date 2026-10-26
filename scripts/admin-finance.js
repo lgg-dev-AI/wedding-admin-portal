@@ -10,6 +10,11 @@ let currentFinanceSearch = '';
  * Main render function for Tab 4: Mesa de Regalos & Validación Bancaria
  */
 function renderFinanceTab() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        if (typeof activeFinanceSubtab !== 'undefined' && activeFinanceSubtab === 'destination') {
+            switchFinanceSubtab('gifts');
+        }
+    }
     currentData = getWeddingState(currentWeddingId);
     if (!currentData) {
         const setZero = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
@@ -632,6 +637,12 @@ function escapeHtml(text) {
 let activeFinanceSubtab = 'gifts';
 
 function switchFinanceSubtab(tabName) {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple' && tabName === 'destination') {
+        if (typeof showToast === 'function') {
+            showToast('🔒 Esta sección contable y fiscal es exclusiva de tu Wedding Planner.');
+        }
+        tabName = 'gifts';
+    }
     activeFinanceSubtab = tabName;
     const viewGifts = document.getElementById('subviewFinanceGifts');
     const viewDest = document.getElementById('subviewFinanceDestination');

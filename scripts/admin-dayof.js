@@ -362,6 +362,10 @@ function handleTimelineDragEnd(e) {
 // PRESETS CATALOG MODAL
 // ==========================================================================
 function openPresetModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     const grid = document.getElementById('presetsListGrid');
     if (grid) {
         grid.innerHTML = timelinePresetsLibrary.map(p => `
@@ -464,6 +468,10 @@ function parseAndFormatTime(start, end) {
 // NEW & EDIT MILESTONE MODALS
 // ==========================================================================
 function openNewMilestoneModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     const startInput = document.getElementById('newMileTimeStart');
     const endInput = document.getElementById('newMileTimeEnd');
     if (startInput) startInput.value = '19:00';
@@ -732,6 +740,10 @@ function printDayOfSheet() {
 // PUNTO 7: AJUSTE GLOBAL DE HORARIOS EN ESCALETA (+15 / +30 / -15 MINUTOS)
 // ==========================================================================
 function shiftActiveDaySchedule(minutes) {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     const day = timelineDaysData[activeDayTab];
     if (!day || !day.milestones || day.milestones.length === 0) {
         if (typeof showToast === 'function') showToast("No hay hitos en el día seleccionado para ajustar.");

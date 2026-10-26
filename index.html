@@ -498,7 +498,7 @@
                         <button class="btn-action secondary" onclick="printGuestsMasterReport()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
                             <span>🖨️ Imprimir Bitácora (PDF)</span>
                         </button>
-                        <button class="btn-action primary" id="btnBatchDispatch" onclick="openBatchDispatchModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
+                        <button class="btn-action primary planner-only" id="btnBatchDispatch" onclick="openBatchDispatchModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
                             <span>⚡ Enviar en Lote a Pendientes</span>
                         </button>
                     </div>
@@ -1751,7 +1751,7 @@
                     <div class="tab-actions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                         <button class="btn-action primary" onclick="openNewTableModal()">+ Nueva Mesa</button>
                         <button class="btn-action secondary" onclick="printSeatingChartReport()">🖨️ Pizarrón de Mesas (PDF)</button>
-                        <button class="btn-action secondary" onclick="openCaptainPrintModal()">🍽️ Hoja Capitán Meseros</button>
+                        <button class="btn-action secondary planner-only" onclick="openCaptainPrintModal()">🍽️ Hoja Capitán Meseros</button>
                         <button class="subtab-toggle-btn active" id="btnSubtabGuests" onclick="switchSeatingSubTab('guests')">
                             🪑 1. Asignación &amp; Sillas
                         </button>
@@ -1799,7 +1799,7 @@
                             <button type="button" class="btn-quick-pill" id="btnToggleFloor_layers" onclick="toggleFloorDrawer('layers')">
                                 <span>🎨 Capas de Vista</span> <span class="pill-chevron">▾</span>
                             </button>
-                            <button type="button" class="btn-quick-pill" id="btnToggleFloor_dimensions" onclick="toggleFloorDrawer('dimensions')">
+                            <button type="button" class="btn-quick-pill planner-only" id="btnToggleFloor_dimensions" onclick="toggleFloorDrawer('dimensions')">
                                 <span>⚙️ Medidas Salón</span> <span class="pill-chevron">▾</span>
                             </button>
                         </div>
@@ -1858,8 +1858,8 @@
                             <div class="dimension-inputs-row">
                                 <label>Ancho (m): <input type="number" id="venueWidthInput" value="40" min="10" max="200" class="input-dim-metric"></label>
                                 <label>Largo (m): <input type="number" id="venueLengthInput" value="60" min="10" max="200" class="input-dim-metric"></label>
-                                <button class="btn-dim-apply" onclick="recalcVenueDimensions()">Recalibrar</button>
-                                <button class="btn-captain-print" onclick="openCaptainPrintModal()">🖨️ Hoja Capitán</button>
+                                <button class="btn-dim-apply planner-only" onclick="recalcVenueDimensions()">Recalibrar</button>
+                                <button class="btn-captain-print planner-only" onclick="openCaptainPrintModal()">🖨️ Hoja Capitán</button>
                             </div>
                         </div>
                     </div>
@@ -1953,7 +1953,7 @@
                             </div>
 
                             <!-- Waiter Quadrants & Staffing -->
-                            <div class="staffing-card">
+                            <div class="staffing-card planner-only">
                                 <div class="staffing-card-header">
                                     <h4>👨‍🍳 Staffing & Cuadrantes de Meseros</h4>
                                     <button class="btn-xs-add-waiter" onclick="addNewWaiterPrompt()">+ Mesero</button>
@@ -1977,11 +1977,11 @@
                         <p class="tab-subtitle">Cronograma maestro modular de producción y protocolo. Arrastra los bloques (⠿) para reordenar la secuencia en tiempo real.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-action primary" onclick="openNewMilestoneModal()">+ Agregar Hito</button>
-                        <button class="btn-action secondary" onclick="openPresetModal()">📦 Insertar Bloque</button>
-                        <button class="btn-action secondary" onclick="shiftActiveDaySchedule(15)" title="Atrasar 15 min toda la escaleta por retraso" style="font-weight:700;">⏳ +15 min</button>
-                        <button class="btn-action secondary" onclick="shiftActiveDaySchedule(30)" title="Atrasar 30 min toda la escaleta por retraso" style="font-weight:700;">⏳ +30 min</button>
-                        <button class="btn-action secondary" onclick="shiftActiveDaySchedule(-15)" title="Adelantar 15 min toda la escaleta" style="font-weight:700;">⚡ -15 min</button>
+                        <button class="btn-action primary planner-only" onclick="openNewMilestoneModal()">+ Agregar Hito</button>
+                        <button class="btn-action secondary planner-only" onclick="openPresetModal()">📦 Insertar Bloque</button>
+                        <button class="btn-action secondary planner-only" onclick="shiftActiveDaySchedule(15)" title="Atrasar 15 min toda la escaleta por retraso" style="font-weight:700;">⏳ +15 min</button>
+                        <button class="btn-action secondary planner-only" onclick="shiftActiveDaySchedule(30)" title="Atrasar 30 min toda la escaleta por retraso" style="font-weight:700;">⏳ +30 min</button>
+                        <button class="btn-action secondary planner-only" onclick="shiftActiveDaySchedule(-15)" title="Adelantar 15 min toda la escaleta" style="font-weight:700;">⚡ -15 min</button>
                         <button class="btn-action secondary" onclick="printDayOfSheet()">🖨️ Imprimir</button>
                     </div>
                 </div>
@@ -2035,7 +2035,7 @@
                         <p class="tab-subtitle">Cálculo paramétrico de alcohol por comensales, duración y clima, con conciliación de botellas y valor recuperado.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-action secondary" onclick="printBarAuditReport()">🖨️ Imprimir Acta de Barra (PDF)</button>
+                        <button class="btn-action secondary planner-only" onclick="printBarAuditReport()">🖨️ Imprimir Acta de Barra (PDF)</button>
                         <button class="btn-action primary" onclick="recalcBar()">⚡ Recalcular Insumos</button>
                     </div>
                 </div>
@@ -2175,7 +2175,7 @@
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn-action secondary" onclick="printVendorsReport()">🖨️ Estado de Cuenta &amp; Montaje (PDF)</button>
-                        <button class="btn-action primary" onclick="openNewVendorModal()">+ Nuevo Proveedor</button>
+                        <button class="btn-action primary planner-only" onclick="openNewVendorModal()">+ Nuevo Proveedor</button>
                     </div>
                 </div>
 
@@ -2289,7 +2289,7 @@
                     <button type="button" class="finance-subtab-btn active" id="btnSubtabGifts" onclick="switchFinanceSubtab('gifts')" style="padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.86rem; border:none; cursor:pointer; background:#0f172a; color:#ffffff; transition:all 0.2s;">
                         🎁 Mesa de Regalos &amp; Luna de Miel
                     </button>
-                    <button type="button" class="finance-subtab-btn" id="btnSubtabDestination" onclick="switchFinanceSubtab('destination')" style="padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.86rem; border:1px solid #cbd5e1; cursor:pointer; background:#ffffff; color:#0f172a; transition:all 0.2s; display:flex; align-items:center; gap:6px;">
+                    <button type="button" class="finance-subtab-btn planner-only" id="btnSubtabDestination" onclick="switchFinanceSubtab('destination')" style="padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.86rem; border:1px solid #cbd5e1; cursor:pointer; background:#ffffff; color:#0f172a; transition:all 0.2s; display:flex; align-items:center; gap:6px;">
                         <span>🏖️ Control de Pagos de Estancia &amp; Hacienda/SAT</span>
                         <span id="badgeFinanceDestinationStatus" style="background:#dbeafe; color:#1e40af; font-size:0.68rem; padding:2px 7px; border-radius:12px; font-weight:800;">Destino</span>
                     </button>
@@ -3352,17 +3352,17 @@
     <div id="toastNotification" class="toast-notification"></div>
 
             <!-- APP ENGINE SCRIPTS -->
-    <script src="scripts/admin-data.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-settings.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-album-playlist.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-seating.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-dayof.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-barcalc.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-finance.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-pdf-reports.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-app.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-dispatch.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-seating.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-dayof.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-barcalc.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-vendors.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-finance.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-pdf-reports.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-app.js?v=20261025_planner_shield_v9"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -5790,11 +5790,11 @@
     </div>
 
     <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/admin-auth.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_album_qr_planner_v8"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-clients.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-auth.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_planner_shield_v9"></script>
 
 </body>
 </html>

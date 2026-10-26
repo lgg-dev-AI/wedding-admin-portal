@@ -656,6 +656,10 @@ function sendAutomatedSingleMessage(guestId) {
 // BATCH DISPATCH MODAL & ENGINE
 // ==========================================================================
 function openBatchDispatchModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
+        return;
+    }
     currentData = getWeddingState(currentWeddingId);
 
     const activePlan = localStorage.getItem('wedding_subscription_tier') || 'signature';

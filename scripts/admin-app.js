@@ -288,7 +288,7 @@ function setRole(role) {
 
     // Planner-only controls
     document.querySelectorAll('.planner-only').forEach(el => {
-        el.style.display = (role === 'planner') ? '' : 'none';
+        el.style.display = (role === 'planner' || role === 'developer') ? '' : 'none';
     });
 
     const weddingSelect = document.getElementById('weddingSelect');
