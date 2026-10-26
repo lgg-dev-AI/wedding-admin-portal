@@ -67,6 +67,10 @@ function initAuthSystem() {
     } else {
         hideAuthOverlays();
         applyRoleVisibility();
+        const savedRole = sessionStorage.getItem(AUTH_CONFIG.ROLE_KEY);
+        if (savedRole === 'couple' && typeof setRole === 'function') {
+            setRole('couple');
+        }
         if (typeof populateWeddingSelectorForUser === 'function') {
             populateWeddingSelectorForUser();
         }
@@ -216,9 +220,15 @@ function applyRoleVisibility() {
     // Update brand badge if dev
     const brandBadge = document.querySelector('.brand-badge');
     if (brandBadge) {
-        brandBadge.innerText = isDev ? 'Developer Master' : 'Planner Portal';
-        brandBadge.style.background = isDev ? 'rgba(217, 119, 6, 0.25)' : 'rgba(16, 185, 129, 0.2)';
-        brandBadge.style.color = isDev ? '#fbbf24' : '#34d399';
+        brandBadge.innerText = isDev ? 'Developer Master' : (role === 'couple' ? 'Portal de Novios' : 'Planner Portal');
+        brandBadge.style.background = isDev ? 'rgba(217, 119, 6, 0.25)' : (role === 'couple' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(16, 185, 129, 0.2)');
+        brandBadge.style.color = isDev ? '#fbbf24' : (role === 'couple' ? '#818cf8' : '#34d399');
+    }
+
+    // Ocultar selector de roles a los novios para evitar cambios accidentales a vista Wedding Planner
+    const roleSwitch = document.querySelector('.role-switch-container');
+    if (roleSwitch) {
+        roleSwitch.style.display = (role === 'couple') ? 'none' : 'block';
     }
 }
 

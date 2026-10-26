@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261024_dayd_v7">
+    <link rel="stylesheet" href="styles/admin.css?v=20261025_couple_services_v2">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -848,91 +848,200 @@
                     </div>
                 </div>
 
-                <!-- GRANULAR TOGGLES MATRIX -->
+                <!-- PERSONALIZAR PORTAL DE NOVIOS & SERVICIOS EXTRA (INDEPENDIENTE POR BODA) -->
                 <div class="section-card">
-                    <h3 class="card-heading mb-3">🎛️ Control Granular de Visibilidad para la Pareja (`Vista Novios`)</h3>
-                    <p class="text-muted text-sm mb-4">Activa o desactiva individualmente los módulos que deseas mostrar u ocultar en la cuenta de los novios:</p>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h3 class="card-heading" style="margin-bottom:4px;">✨ Personalizar Portal de Novios</h3>
+                            <p class="text-muted text-sm" style="margin:0;">Configura de forma independiente para cada boda qué módulos verá la pareja y define tus precios de cotización por servicio digital:</p>
+                        </div>
+                    </div>
 
-                    <div class="toggles-grid">
-                        <div class="toggle-item-row">
-                            <div>
+                    <!-- BODA ACTIVA INDICATOR -->
+                    <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:12px 16px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.2rem;">💍</span>
+                            <span style="font-size:0.86rem; color:#475569;">Boda en configuración:</span>
+                            <strong id="settingsActiveWeddingName" style="color:#0f172a; font-size:0.95rem;">Sofía &amp; Alejandro</strong>
+                        </div>
+                        <span style="font-size:0.75rem; color:#059669; background:#dcfce7; padding:4px 10px; border-radius:20px; font-weight:700;">⚙️ Configuración Única para esta Boda</span>
+                    </div>
+
+                    <!-- RESUMEN DE COTIZACIÓN PARA LA PAREJA -->
+                    <div class="quotation-summary-card">
+                        <div>
+                            <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.8px; color:#94a3b8; font-weight:700; display:block; margin-bottom:4px;">Inversión Digital Cotizada a los Novios</span>
+                            <div class="quotation-badge-price" id="coupleServicesTotalPrice">$0 MXN</div>
+                            <span id="coupleServicesActiveCount" style="color:#cbd5e1; font-size:0.82rem; font-weight:600;">0 módulos activos</span>
+                        </div>
+                        <button type="button" class="btn-whatsapp-quote" onclick="copyServicesQuotationForWhatsApp()">
+                            <span>📲</span>
+                            <span>Copiar Propuesta para WhatsApp</span>
+                        </button>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <!-- 1. WHATSAPP DISPATCH -->
+                        <div class="couple-service-row" id="row_service_showDispatch">
+                            <div class="couple-service-info">
                                 <strong>📲 Tablero de Envíos de WhatsApp</strong>
-                                <p class="text-xs text-muted">Permite a los novios ver su lista y enviar las invitaciones directas por WhatsApp con 1 clic.</p>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Permite a los novios enviar sus invitaciones y recordatorios por WhatsApp con 1 clic.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showDispatch" onchange="updateIndividualPermission('showDispatch', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showDispatch" min="0" step="50" placeholder="1000" onchange="updateIndividualPricing('showDispatch', this.value)" oninput="updateIndividualPricing('showDispatch', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showDispatch" onchange="updateIndividualPermission('showDispatch', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
-                                <strong>🪑 Acomodo de Mesas &amp; Sillas</strong>
-                                <p class="text-xs text-muted">Permite a los novios arrastrar a sus invitados y organizarlos en las mesas del banquete.</p>
+                        <!-- 2. MESAS 2D -->
+                        <div class="couple-service-row" id="row_service_showSeating">
+                            <div class="couple-service-info">
+                                <strong>🪑 Distribución de Mesas 2D Interactivo</strong>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Permite a los novios arrastrar a sus invitados y organizar el plano del banquete.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showSeating" onchange="updateIndividualPermission('showSeating', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showSeating" min="0" step="50" placeholder="2500" onchange="updateIndividualPricing('showSeating', this.value)" oninput="updateIndividualPricing('showSeating', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showSeating" onchange="updateIndividualPermission('showSeating', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
-                                <strong>👥 CRM de Invitados &amp; Menú</strong>
-                                <p class="text-xs text-muted">Lista maestra de invitados con elección de platillos y restricciones alimentarias.</p>
+                        <!-- 3. CRM INVITADOS & MENÚ -->
+                        <div class="couple-service-row" id="row_service_showCRM">
+                            <div class="couple-service-info">
+                                <strong>👥 CRM de Invitados, Menú &amp; Alergias</strong>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Lista maestra de confirmaciones RSVP, selección de platillos y restricciones alimentarias.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showCRM" onchange="updateIndividualPermission('showCRM', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showCRM" min="0" step="50" placeholder="0" onchange="updateIndividualPricing('showCRM', this.value)" oninput="updateIndividualPricing('showCRM', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showCRM" onchange="updateIndividualPermission('showCRM', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
-                                <strong>💳 Mesa de Regalos &amp; Comprobantes</strong>
-                                <p class="text-xs text-muted">Historial de aportaciones a luna de miel y validación de transferencias bancarias.</p>
+                        <!-- 4. MESA DE REGALOS & COMPROBANTES -->
+                        <div class="couple-service-row" id="row_service_showFinance">
+                            <div class="couple-service-info">
+                                <strong>💳 Mesa de Regalos &amp; Comprobantes SPEI</strong>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Historial de transferencias bancarias de invitados y aportaciones de luna de miel.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showFinance" onchange="updateIndividualPermission('showFinance', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showFinance" min="0" step="50" placeholder="0" onchange="updateIndividualPricing('showFinance', this.value)" oninput="updateIndividualPricing('showFinance', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showFinance" onchange="updateIndividualPermission('showFinance', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
-                                <strong>📸 Álbum de Fotos Colaborativo (QR)</strong>
-                                <p class="text-xs text-muted">Galería en vivo donde los novios ven las fotos subidas por sus invitados en tiempo real.</p>
+                        <!-- 5. ÁLBUM COLABORATIVO QR -->
+                        <div class="couple-service-row" id="row_service_showAlbum">
+                            <div class="couple-service-info">
+                                <strong>📸 Álbum Colaborativo con QR en Vivo</strong>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Galería interactiva donde los novios reciben las fotos subidas por invitados en tiempo real.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showAlbum" onchange="updateIndividualPermission('showAlbum', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showAlbum" min="0" step="50" placeholder="1000" onchange="updateIndividualPricing('showAlbum', this.value)" oninput="updateIndividualPricing('showAlbum', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showAlbum" onchange="updateIndividualPermission('showAlbum', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
-                                <strong>🎵 Playlist para el DJ</strong>
-                                <p class="text-xs text-muted">Canciones sugeridas por los invitados para la fiesta y votaciones.</p>
+                        <!-- 6. PLAYLIST PARA EL DJ -->
+                        <div class="couple-service-row" id="row_service_showPlaylist">
+                            <div class="couple-service-info">
+                                <strong>🎵 Playlist Interactiva para el DJ</strong>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Repertorio musical colaborativo con votaciones y peticiones de los invitados.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showPlaylist" onchange="updateIndividualPermission('showPlaylist', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showPlaylist" min="0" step="50" placeholder="800" onchange="updateIndividualPricing('showPlaylist', this.value)" oninput="updateIndividualPricing('showPlaylist', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showPlaylist" onchange="updateIndividualPermission('showPlaylist', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
+                        <!-- 7. LOGÍSTICA & HOTELES -->
+                        <div class="couple-service-row" id="row_service_showTravel">
+                            <div class="couple-service-info">
                                 <strong>✈️ Logística, Hoteles &amp; Shuttles</strong>
-                                <p class="text-xs text-muted">Códigos de hotel sede y rutas de vans privadas para invitados foráneos.</p>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Bloques de habitaciones con descuento y rutas de transporte para invitados foráneos.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showTravel" onchange="updateIndividualPermission('showTravel', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showTravel" min="0" step="50" placeholder="1200" onchange="updateIndividualPricing('showTravel', this.value)" oninput="updateIndividualPricing('showTravel', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showTravel" onchange="updateIndividualPermission('showTravel', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
+                        <!-- 8. MINUTA DÍA D -->
+                        <div class="couple-service-row" id="row_service_showDayOf">
+                            <div class="couple-service-info">
                                 <strong>⏱️ Minuta Día D (Cronograma Minuto a Minuto)</strong>
-                                <p class="text-xs text-muted">Horarios detallados del evento y checklist en vivo. (Recomendado apagar en planes básicos).</p>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Itinerario detallado del día de la boda y checklist en vivo para la pareja.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showDayOf" onchange="updateIndividualPermission('showDayOf', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showDayOf" min="0" step="50" placeholder="1500" onchange="updateIndividualPricing('showDayOf', this.value)" oninput="updateIndividualPricing('showDayOf', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showDayOf" onchange="updateIndividualPermission('showDayOf', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
+                        <!-- 9. CALCULADORA DE BARRA -->
+                        <div class="couple-service-row" id="row_service_showBarCalc">
+                            <div class="couple-service-info">
                                 <strong>🍾 Calculadora de Barra &amp; Descorche</strong>
-                                <p class="text-xs text-muted">Cálculo de botellas de alcohol e inventario de remisiones.</p>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Estimación de botellas, desglose de consumo por invitado e inventario de remisiones.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showBarCalc" onchange="updateIndividualPermission('showBarCalc', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showBarCalc" min="0" step="50" placeholder="1500" onchange="updateIndividualPricing('showBarCalc', this.value)" oninput="updateIndividualPricing('showBarCalc', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showBarCalc" onchange="updateIndividualPermission('showBarCalc', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
 
-                        <div class="toggle-item-row">
-                            <div>
+                        <!-- 10. PROVEEDORES & FINANZAS INTERNAS -->
+                        <div class="couple-service-row" id="row_service_showVendors">
+                            <div class="couple-service-info">
                                 <strong>🏢 Proveedores &amp; Finanzas Internas</strong>
-                                <p class="text-xs text-muted">Directorio confidencial con montos contratados, anticipos y requerimientos de producción.</p>
+                                <p class="text-xs text-muted" style="margin:2px 0 0;">Directorio de proveedores con montos contratados, anticipos y saldos pendientes.</p>
                             </div>
-                            <label class="switch"><input type="checkbox" id="toggle_showVendors" onchange="updateIndividualPermission('showVendors', this.checked)"><span class="slider"></span></label>
+                            <div class="couple-service-controls">
+                                <div class="service-price-box" title="Precio que le cobras a la pareja por este servicio">
+                                    <span>$</span>
+                                    <input type="number" id="pricing_showVendors" min="0" step="50" placeholder="1500" onchange="updateIndividualPricing('showVendors', this.value)" oninput="updateIndividualPricing('showVendors', this.value)">
+                                    <span class="price-currency">MXN</span>
+                                </div>
+                                <label class="switch"><input type="checkbox" id="toggle_showVendors" onchange="updateIndividualPermission('showVendors', this.checked)"><span class="slider"></span></label>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </section>
@@ -3184,17 +3293,17 @@
     <div id="toastNotification" class="toast-notification"></div>
 
             <!-- APP ENGINE SCRIPTS -->
-    <script src="scripts/admin-data.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-settings.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-album-playlist.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-seating.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-dayof.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-barcalc.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-finance.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-pdf-reports.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-app.js?v=20261025_multitenant_v1"></script>
+    <script src="scripts/admin-data.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-dispatch.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-settings.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-album-playlist.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-seating.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-dayof.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-barcalc.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-vendors.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-finance.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-pdf-reports.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-app.js?v=20261025_couple_services_v2"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -5622,11 +5731,11 @@
     </div>
 
     <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/admin-auth.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_multitenant_v1"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_multitenant_v1"></script>
+    <script src="scripts/admin-clients.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-auth.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_couple_services_v2"></script>
 
 </body>
 </html>

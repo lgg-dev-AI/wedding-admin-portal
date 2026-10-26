@@ -369,6 +369,15 @@ function setRole(role) {
 function showTab(tabName) {
     currentData = getWeddingState(currentWeddingId);
 
+    // Blindaje de seguridad para la Vista Novios:
+    // La pareja JAMÁS puede entrar a configuración de planes, cobros ni consolas administrativas
+    if (activeRole === 'couple' && (tabName === 'settings' || tabName === 'dev-clients' || tabName === 'dev-analytics' || tabName === 'backups')) {
+        if (typeof showToast === 'function') {
+            showToast('🔒 Esta sección es exclusiva de la administración de tu Wedding Planner.');
+        }
+        tabName = 'guests';
+    }
+
     // Gatekeeper: Solo aplica para la vista de novios o bodas sin briefing,
     // garantizando que Wedding Planner y Master Developer nunca queden bloqueados de sus herramientas.
     const isBriefingDone = currentData && (currentData.isBriefingCompleted || localStorage.getItem(`briefing_done_${currentWeddingId}`));

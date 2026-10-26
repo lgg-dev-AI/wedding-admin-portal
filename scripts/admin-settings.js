@@ -1,49 +1,78 @@
 // ==========================================================================
-// PLANNER VISIBILITY & PLAN PACKAGING CONFIGURATION ENGINE
+// PLANNER VISIBILITY, PRICING & COUPLE SERVICES CONFIGURATION ENGINE
 // ==========================================================================
 
 const DEFAULT_COUPLE_PERMISSIONS = {
     planTier: 'custom',
     showDispatch: true,      // Tablero de Envíos WhatsApp
-    showSeating: true,       // Acomodo de Mesas
+    showSeating: true,       // Acomodo de Mesas 2D
     showCRM: true,           // CRM de Invitados
     showFinance: true,       // Comprobantes & Regalos
     showDayOf: false,        // Minuta Día D
     showBarCalc: false,      // Calculadora de Barra
     showVendors: false,      // Proveedores & Anticipos
     showTravel: true,        // Logística & Hoteles
-    showAlbum: true,         // Álbum Colaborativo
+    showAlbum: true,         // Álbum Colaborativo QR
     showPlaylist: true       // Playlist para el DJ
 };
 
+const DEFAULT_COUPLE_PRICING = {
+    showDispatch: 1000,
+    showSeating: 2500,
+    showCRM: 0,
+    showFinance: 0,
+    showAlbum: 1000,
+    showPlaylist: 800,
+    showTravel: 1200,
+    showDayOf: 1500,
+    showBarCalc: 1500,
+    showVendors: 1500
+};
+
+const MODULE_DISPLAY_NAMES = {
+    showDispatch: '📲 Tablero de Envíos WhatsApp',
+    showSeating: '🪑 Distribución de Mesas 2D',
+    showCRM: '👥 CRM de Invitados & Menú',
+    showFinance: '💳 Mesa de Regalos SPEI',
+    showAlbum: '📸 Álbum Colaborativo en Vivo (QR)',
+    showPlaylist: '🎵 Playlist para el DJ',
+    showTravel: '✈️ Logística, Hoteles & Shuttles',
+    showDayOf: '⏱️ Cronograma Minuto a Minuto Día D',
+    showBarCalc: '🍾 Calculadora de Barra & Descorche',
+    showVendors: '🏢 Proveedores & Finanzas Internas'
+};
+
 function getCouplePermissions(weddingId) {
+    if (!weddingId) return Object.assign({}, DEFAULT_COUPLE_PERMISSIONS);
     const state = typeof getWeddingState === 'function' ? getWeddingState(weddingId) : (window.currentData || {});
     if (!state.couplePermissions) {
         state.couplePermissions = Object.assign({}, DEFAULT_COUPLE_PERMISSIONS);
-        if (typeof saveWeddingState === 'function') {
+        if (typeof saveWeddingState === 'function' && weddingId) {
             saveWeddingState(weddingId, state);
         }
     }
     return state.couplePermissions;
 }
 
-// Plan features matrix: which features are permitted under each tier
-const TIER_FEATURES = {
-    none: [],
-    basic: ['showDispatch', 'showCRM', 'showFinance'], // Essential ($800)
-    intermediate: ['showDispatch', 'showSeating', 'showCRM', 'showFinance', 'showTravel', 'showAlbum', 'showPlaylist'], // Signature Pro ($2,000)
-    elite: ['showDispatch', 'showSeating', 'showCRM', 'showFinance', 'showTravel', 'showAlbum', 'showPlaylist', 'showDayOf', 'showBarCalc', 'showVendors'] // Atelier Elite ($3,500)
-};
+function getCouplePricing(weddingId) {
+    if (!weddingId) return Object.assign({}, DEFAULT_COUPLE_PRICING);
+    const state = typeof getWeddingState === 'function' ? getWeddingState(weddingId) : (window.currentData || {});
+    if (!state.couplePricing) {
+        state.couplePricing = Object.assign({}, DEFAULT_COUPLE_PRICING);
+        if (typeof saveWeddingState === 'function' && weddingId) {
+            saveWeddingState(weddingId, state);
+        }
+    }
+    return state.couplePricing;
+}
 
 function getActiveSubscriptionTier() {
-    // If in demo mode or demo trial, NO plan is active! All plans must be chooseable
     if (sessionStorage.getItem('antigravity_demo_mode') === 'true' || 
         sessionStorage.getItem('antigravity_is_demo_trial') === 'true' || 
         sessionStorage.getItem('antigravity_role') === 'demo_planner') {
         return null;
     }
 
-    // Check if logged in as a specific client
     const email = (sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || '').toLowerCase();
     if (email) {
         const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
@@ -52,26 +81,23 @@ function getActiveSubscriptionTier() {
             if (client.paymentStatus === 'paid' && client.planTier && !client.isSuspended) {
                 return client.planTier;
             }
-            return null; // Demo trial or unpaid
+            return null;
         }
     }
 
-    // Check localStorage
     const tier = localStorage.getItem('wedding_subscription_tier');
     if (tier && ['basic', 'intermediate', 'elite'].includes(tier)) {
         return tier;
     }
-    return null; // No active plan purchased
+    return null;
 }
 
 function renderSettingsTab() {
     const activeSubTier = getActiveSubscriptionTier();
-    const perms = getCouplePermissions(currentWeddingId);
-
-    // Update preset cards and buttons
     const planNames = { basic: 'Essential', intermediate: 'Signature Pro', elite: 'Atelier Elite' };
     const allTiers = ['basic', 'intermediate', 'elite'];
 
+    // 1. Antigravity SaaS Subscription Preset Cards
     allTiers.forEach(tier => {
         const card = document.getElementById(`cardPlan_${tier}`);
         const isCurrentActive = activeSubTier === tier;
@@ -81,7 +107,6 @@ function renderSettingsTab() {
             card.style.boxShadow = isCurrentActive ? '0 8px 24px rgba(5, 150, 105, 0.25)' : '';
             card.style.position = 'relative';
 
-            // Existing badge check
             let activeTag = card.querySelector('.active-plan-badge-tag');
             if (isCurrentActive) {
                 if (!activeTag) {
@@ -117,129 +142,172 @@ function renderSettingsTab() {
         }
     });
 
-    // Update banner message regarding granular toggles status
-    let statusNotice = document.getElementById('granularTogglesStatusNotice');
-    if (!statusNotice) {
-        const matrixCard = document.querySelector('.section-card .toggles-grid')?.parentElement;
-        if (matrixCard) {
-            statusNotice = document.createElement('div');
-            statusNotice.id = 'granularTogglesStatusNotice';
-            statusNotice.style.cssText = 'margin-bottom: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 10px;';
-            matrixCard.insertBefore(statusNotice, matrixCard.querySelector('.toggles-grid'));
-        }
-    }
-
-    if (statusNotice) {
-        if (!activeSubTier) {
-            statusNotice.style.background = '#fef2f2';
-            statusNotice.style.border = '1px solid #fecaca';
-            statusNotice.style.color = '#991b1b';
-            statusNotice.innerHTML = `🔒 <span><strong>Sin plan contratado:</strong> Todos los controles están bloqueados. Contrata un plan arriba con Stripe para habilitar la personalización de módulos para la pareja.</span>`;
+    // 2. Sync Active Wedding Name in Header
+    const activeWeddingBadge = document.getElementById('settingsActiveWeddingName');
+    if (activeWeddingBadge) {
+        if (currentData && currentData.couple) {
+            activeWeddingBadge.innerText = currentData.couple;
         } else {
-            statusNotice.style.background = '#f0fdf4';
-            statusNotice.style.border = '1px solid #bbf7d0';
-            statusNotice.style.color = '#166534';
-            statusNotice.innerHTML = `🔓 <span><strong>Plan activo: ${planNames[activeSubTier]}</strong>. Puedes personalizar los interruptores incluidos en tu plan. Los módulos de planes superiores permanecen protegidos con candado 🔒.</span>`;
+            activeWeddingBadge.innerText = 'Sin Boda Creada (Crea una boda en "+ Nueva Boda")';
         }
     }
 
-    // Update toggles and apply strict lock
+    // 3. Update Granular Toggles & Pricing Inputs per Wedding
+    const perms = getCouplePermissions(currentWeddingId);
+    const pricing = getCouplePricing(currentWeddingId);
+
     const fields = [
         'showDispatch', 'showSeating', 'showCRM', 'showFinance',
-        'showDayOf', 'showBarCalc', 'showVendors',
-        'showTravel', 'showAlbum', 'showPlaylist'
+        'showAlbum', 'showPlaylist', 'showTravel',
+        'showDayOf', 'showBarCalc', 'showVendors'
     ];
 
-    const allowedInActiveTier = activeSubTier ? (TIER_FEATURES[activeSubTier] || []) : [];
-
     fields.forEach(field => {
+        // Toggle Switch
         const toggleEl = document.getElementById(`toggle_${field}`);
-        const row = (toggleEl && typeof toggleEl.closest === 'function') ? toggleEl.closest('.toggle-item-row') : null;
-
         if (toggleEl) {
-            // Check value
             toggleEl.checked = !!perms[field];
+        }
 
-            // Can this user toggle this checkbox?
-            // ONLY if there is an activeSubTier AND the field is included in that tier
-            const isFieldAllowed = activeSubTier && allowedInActiveTier.includes(field);
-
-            toggleEl.disabled = !isFieldAllowed;
-
-            if (row) {
-                if (!isFieldAllowed) {
-                    row.style.opacity = '0.55';
-                    row.style.background = '#f8fafc';
-                    row.style.cursor = 'not-allowed';
-                    row.setAttribute('title', !activeSubTier ? 'Requiere contratar un plan para configurar visibilidad.' : `Módulo no disponible en tu plan ${planNames[activeSubTier]}. Requiere upgrade.`);
-                    
-                    // Add lock indicator if missing
-                    let lockBadge = row.querySelector('.tier-lock-badge');
-                    if (!lockBadge) {
-                        lockBadge = document.createElement('span');
-                        lockBadge.className = 'tier-lock-badge';
-                        lockBadge.style.cssText = 'display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:700; color:#dc2626; background:#fee2e2; padding:2px 8px; border-radius:12px; margin-left:8px;';
-                        const strongTag = row.querySelector('strong');
-                        if (strongTag) {
-                            lockBadge.innerHTML = `🔒 Requiere ${getRequiredTierForField(field)}`;
-                            strongTag.appendChild(lockBadge);
-                        }
-                    } else {
-                        lockBadge.style.display = 'inline-flex';
-                    }
-                } else {
-                    row.style.opacity = '1';
-                    row.style.background = '';
-                    row.style.cursor = 'default';
-                    if (typeof row.removeAttribute === 'function') row.removeAttribute('title');
-                    const lockBadge = row.querySelector('.tier-lock-badge');
-                    if (lockBadge) lockBadge.style.display = 'none';
-                }
-            }
+        // Pricing Input
+        const priceInput = document.getElementById(`pricing_${field}`);
+        if (priceInput) {
+            priceInput.value = (pricing[field] !== undefined) ? pricing[field] : (DEFAULT_COUPLE_PRICING[field] || 0);
         }
     });
+
+    // 4. Calculate total quotation
+    calculateAndRenderServicesTotal();
 }
 
-function getRequiredTierForField(field) {
-    if (TIER_FEATURES.basic.includes(field)) return 'Plan Essential';
-    if (TIER_FEATURES.intermediate.includes(field)) return 'Plan Signature Pro';
-    return 'Plan Atelier Elite';
+function calculateAndRenderServicesTotal() {
+    const perms = getCouplePermissions(currentWeddingId);
+    const pricing = getCouplePricing(currentWeddingId);
+
+    let total = 0;
+    let activeCount = 0;
+
+    const fields = [
+        'showDispatch', 'showSeating', 'showCRM', 'showFinance',
+        'showAlbum', 'showPlaylist', 'showTravel',
+        'showDayOf', 'showBarCalc', 'showVendors'
+    ];
+
+    fields.forEach(f => {
+        if (perms[f]) {
+            activeCount++;
+            const cost = parseInt(pricing[f], 10) || 0;
+            total += cost;
+        }
+    });
+
+    const totalEl = document.getElementById('coupleServicesTotalPrice');
+    if (totalEl) {
+        totalEl.innerText = `$${total.toLocaleString('es-MX')} MXN`;
+    }
+
+    const countEl = document.getElementById('coupleServicesActiveCount');
+    if (countEl) {
+        countEl.innerText = `${activeCount} módulos activos para la pareja`;
+    }
 }
 
 function applyPlanPreset(planName, evt) {
     if (evt && evt.stopPropagation) evt.stopPropagation();
-    
-    // Open checkout directly for the chosen plan
     if (typeof openStripeCheckoutModal === 'function') {
         openStripeCheckoutModal(planName);
     }
 }
 
 function updateIndividualPermission(key, value) {
-    const activeSubTier = getActiveSubscriptionTier();
-    const planNames = { basic: 'Essential', intermediate: 'Signature Pro', elite: 'Atelier Elite' };
-
-    if (!activeSubTier) {
-        showToast(`🔒 No puedes modificar este permiso. Primero debes contratar un plan.`);
+    if (!currentWeddingId) {
+        showToast(`⚠️ Selecciona o crea una boda primero para configurar su portal.`);
         renderSettingsTab();
         return;
     }
 
-    const allowed = TIER_FEATURES[activeSubTier] || [];
-    if (!allowed.includes(key)) {
-        showToast(`🔒 Este módulo no está incluido en tu Plan ${planNames[activeSubTier]}. Realiza un upgrade para habilitarlo.`);
-        renderSettingsTab();
+    const state = typeof getWeddingState === 'function' ? getWeddingState(currentWeddingId) : (window.currentData || {});
+    if (!state.couplePermissions) {
+        state.couplePermissions = Object.assign({}, DEFAULT_COUPLE_PERMISSIONS);
+    }
+    state.couplePermissions[key] = value;
+    state.couplePermissions.planTier = 'custom';
+
+    if (typeof saveWeddingState === 'function') {
+        saveWeddingState(currentWeddingId, state);
+    }
+    window.currentData = state;
+
+    calculateAndRenderServicesTotal();
+    if (typeof applyVisibilityToCoupleView === 'function') {
+        applyVisibilityToCoupleView();
+    }
+    showToast(`⚙️ ${MODULE_DISPLAY_NAMES[key] || key}: ${value ? 'Habilitado' : 'Desactivado'} para la pareja.`);
+}
+
+function updateIndividualPricing(key, amount) {
+    if (!currentWeddingId) return;
+
+    const state = typeof getWeddingState === 'function' ? getWeddingState(currentWeddingId) : (window.currentData || {});
+    if (!state.couplePricing) {
+        state.couplePricing = Object.assign({}, DEFAULT_COUPLE_PRICING);
+    }
+
+    const cleanNum = Math.max(0, parseInt(amount, 10) || 0);
+    state.couplePricing[key] = cleanNum;
+
+    if (typeof saveWeddingState === 'function') {
+        saveWeddingState(currentWeddingId, state);
+    }
+    window.currentData = state;
+
+    calculateAndRenderServicesTotal();
+}
+
+function copyServicesQuotationForWhatsApp() {
+    if (!currentWeddingId || !window.currentData) {
+        showToast('⚠️ No hay boda seleccionada para generar la propuesta.');
         return;
     }
 
     const perms = getCouplePermissions(currentWeddingId);
-    perms[key] = value;
-    perms.planTier = 'custom';
-    currentData.couplePermissions = perms;
-    saveWeddingState(currentWeddingId, currentData);
-    renderSettingsTab();
-    applyVisibilityToCoupleView();
-    showToast(`⚙️ Permiso actualizado para Vista Novios.`);
+    const pricing = getCouplePricing(currentWeddingId);
+    const coupleName = window.currentData.couple || 'Pareja';
+
+    let total = 0;
+    let itemsText = '';
+
+    const fields = [
+        'showDispatch', 'showSeating', 'showCRM', 'showFinance',
+        'showAlbum', 'showPlaylist', 'showTravel',
+        'showDayOf', 'showBarCalc', 'showVendors'
+    ];
+
+    fields.forEach(key => {
+        if (perms[key]) {
+            const cost = parseInt(pricing[key], 10) || 0;
+            total += cost;
+            const costStr = cost === 0 ? '✓ Incluido en honorarios' : `$${cost.toLocaleString('es-MX')} MXN`;
+            itemsText += `  • ${MODULE_DISPLAY_NAMES[key] || key}: ${costStr}\n`;
+        }
+    });
+
+    const msg = `💍 *PROPUESTA DE SERVICIOS DIGITALES & PORTAL DE NOVIOS*\n\n` +
+        `¡Hola ${coupleName}! Les comparto los accesos y herramientas digitales personalizadas incluidas para su boda:\n\n` +
+        itemsText + `\n` +
+        `💰 *Inversión Total Servicios Digitales:* $${total.toLocaleString('es-MX')} MXN\n\n` +
+        `🔐 Su portal incluye acceso privado 24/7 desde computadora y celular con credenciales exclusivas.\n` +
+        `¡Quedo a su disposición para cualquier ajuste! ✨`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+            showToast('📲 ¡Propuesta copiada al portapapeles! Lista para pegar en WhatsApp.');
+        }).catch(() => {
+            prompt('Copia tu propuesta aquí:', msg);
+        });
+    } else {
+        prompt('Copia tu propuesta aquí:', msg);
+    }
 }
 
 function applyVisibilityToCoupleView() {
@@ -267,9 +335,22 @@ function applyVisibilityToCoupleView() {
                 btn.style.display = isAllowed ? 'flex' : 'none';
             }
         }
-        // Always hide settings and developer panel from couple
-        if (onclickAttr.includes(`showTab('settings')`) || onclickAttr.includes(`dev-clients`) || btn.id === 'menuItemDevPanel' || btn.classList.contains('dev-only')) {
+        // Always hide settings, developer panel and backups from couple
+        if (onclickAttr.includes(`showTab('settings')`) || 
+            onclickAttr.includes(`dev-clients`) || 
+            onclickAttr.includes(`dev-analytics`) || 
+            onclickAttr.includes(`backups`) || 
+            btn.id === 'menuItemDevPanel' || 
+            btn.classList.contains('dev-only') ||
+            btn.classList.contains('planner-only')) {
             btn.style.display = 'none';
+        }
+    });
+
+    // Also hide planner-only section headers
+    document.querySelectorAll('.menu-section-header').forEach(hdr => {
+        if (hdr.classList.contains('planner-only') || hdr.classList.contains('dev-only') || hdr.getAttribute('data-section') === 'settings') {
+            hdr.style.display = 'none';
         }
     });
 }
