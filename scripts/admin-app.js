@@ -102,6 +102,19 @@ function populateWeddingSelectorForUser() {
 
         try { updateLivePreviewButton(); } catch(e) {}
         try { updateHeaderBriefingButton(); } catch(e) {}
+        try { if (typeof renderVendorsTab === 'function') renderVendorsTab(); } catch(e) {}
+        try { if (typeof recalcBar === 'function') recalcBar(); } catch(e) {}
+        try { if (typeof renderDayOfTab === 'function') renderDayOfTab(); } catch(e) {}
+        try { if (typeof renderHostessDashboard === 'function') renderHostessDashboard(); } catch(e) {}
+        try { if (typeof renderAlbumTab === 'function') renderAlbumTab(); } catch(e) {}
+        try { if (typeof renderPlaylistTab === 'function') renderPlaylistTab(); } catch(e) {}
+        try { if (typeof renderTravelTab === 'function') renderTravelTab(); } catch(e) {}
+        try { if (typeof renderGuestTable === 'function') renderGuestTable(); } catch(e) {}
+        try { if (typeof renderSeatingChart === 'function') renderSeatingChart(); } catch(e) {}
+        try { 
+            if (typeof renderFinanceTab === 'function') renderFinanceTab(); 
+            if (typeof renderDestinationPaymentsSuite === 'function') renderDestinationPaymentsSuite();
+        } catch(e) {}
         return;
     }
 
@@ -192,6 +205,7 @@ function switchWedding(weddingId) {
         try { if (typeof renderDayOfTab === 'function') renderDayOfTab(); } catch(e) {}
         try { if (typeof renderAlbumTab === 'function') renderAlbumTab(); } catch(e) {}
         try { if (typeof renderPlaylistTab === 'function') renderPlaylistTab(); } catch(e) {}
+        try { if (typeof renderTravelTab === 'function') renderTravelTab(); } catch(e) {}
         try { if (typeof renderSettingsTab === 'function') renderSettingsTab(); } catch(e) {}
 
         // Check if there is an active tab open and re-render it if needed
@@ -406,6 +420,7 @@ function showTab(tabName) {
     }
     if (tabName === 'album') { if (typeof renderAlbumTab === 'function') renderAlbumTab(); }
     if (tabName === 'playlist') { if (typeof renderPlaylistTab === 'function') renderPlaylistTab(); }
+    if (tabName === 'travel') { if (typeof renderTravelTab === 'function') renderTravelTab(); }
     if (tabName === 'settings') { if (typeof renderSettingsTab === 'function') renderSettingsTab(); }
     if (tabName === 'dev-clients') { if (typeof renderClientsDashboard === 'function') renderClientsDashboard(); }
     if (tabName === 'dev-analytics') { if (typeof renderDevAnalyticsDashboard === 'function') renderDevAnalyticsDashboard(); }
@@ -685,6 +700,23 @@ function renderGuestTable() {
     const countConf = document.getElementById('countConf');
     const countPend = document.getElementById('countPend');
     const countDecl = document.getElementById('countDecl');
+
+    if (!currentData || !currentData.guests) {
+        if (countAll) countAll.innerText = '0';
+        if (countConf) countConf.innerText = '0';
+        if (countPend) countPend.innerText = '0';
+        if (countDecl) countDecl.innerText = '0';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align:center; padding:3rem 1rem; color:#64748b;">
+                    <div style="font-size:2rem; margin-bottom:8px;">👥</div>
+                    <strong style="color:#0f172a; font-size:1rem; display:block;">No hay lista de invitados</strong>
+                    <span style="font-size:0.85rem;">Crea o selecciona una boda para comenzar a registrar o importar comensales.</span>
+                </td>
+            </tr>
+        `;
+        return;
+    }
 
     if (countAll) countAll.innerText = currentData.guests.length;
     if (countConf) countConf.innerText = currentData.guests.filter(g => g.status === 'confirmed').length;
@@ -1203,9 +1235,7 @@ function saveNewWeddingForm(e) {
             { id: "t3", name: "Mesa 3 - Amigos", shape: "round", capacity: 10 }
         ],
         vouchers: [],
-        vendors: [
-            { name: "Banquete & Catering", category: "catering", contractTotal: budget * 0.4, paidTotal: budget * 0.2, status: "partial" }
-        ]
+        vendors: []
     };
 
     const authUserKey = (typeof AUTH_CONFIG !== 'undefined' && AUTH_CONFIG.USER_KEY) ? AUTH_CONFIG.USER_KEY : 'antigravity_logged_user';
@@ -1714,6 +1744,39 @@ function deleteFlightRow(btn) {
         if (tr) tr.remove();
         showToast('🗑️ Registro de vuelo eliminado.');
     }
+}
+
+function renderTravelTab() {
+    const activeWrap = document.getElementById('travelActiveContent');
+    const emptyWrap = document.getElementById('travelEmptyState');
+    if (!activeWrap || !emptyWrap) return;
+
+    if (!currentWeddingId) {
+        activeWrap.style.display = 'none';
+        emptyWrap.style.display = 'block';
+        return;
+    }
+
+    if (currentWeddingId === 'aura') {
+        activeWrap.style.display = 'block';
+        emptyWrap.style.display = 'none';
+        return;
+    }
+
+    const customFlights = localStorage.getItem(`wedding_flights_${currentWeddingId}`);
+    if (customFlights) {
+        try {
+            const list = JSON.parse(customFlights);
+            if (Array.isArray(list) && list.length > 0) {
+                activeWrap.style.display = 'block';
+                emptyWrap.style.display = 'none';
+                return;
+            }
+        } catch(e) {}
+    }
+
+    activeWrap.style.display = 'none';
+    emptyWrap.style.display = 'block';
 }
 
 // =============================================================================

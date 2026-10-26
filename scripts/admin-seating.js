@@ -1072,6 +1072,21 @@ function renderSeatingChart() {
     unassignedList.innerHTML = '';
     tablesGrid.innerHTML = '';
 
+    if (!currentData || !Array.isArray(currentData.guests)) {
+        const uCount = document.getElementById('unassignedCount');
+        if (uCount) uCount.innerText = '0';
+        const badgeSeating = document.getElementById('badgeSeatingPending');
+        if (badgeSeating) badgeSeating.innerText = '0 pendientes';
+        tablesGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align:center; padding:3rem; color:#64748b; background:#ffffff; border:1px dashed #cbd5e1; border-radius:12px;">
+                <div style="font-size:2rem; margin-bottom:8px;">🍽️</div>
+                <strong style="color:#0f172a; font-size:1rem; display:block;">Sin plano de mesas</strong>
+                <span style="font-size:0.85rem;">Crea o selecciona una boda para distribuir mesas e invitados.</span>
+            </div>
+        `;
+        return;
+    }
+
     const unassigned = currentData.guests.filter(g => !g.tableId && g.status === 'confirmed');
     document.getElementById('unassignedCount').innerText = unassigned.length;
     const badgeSeating = document.getElementById('badgeSeatingPending');

@@ -72,7 +72,7 @@ const defaultPhotos = [
     }
 ];
 
-const defaultPlaylist = [
+const defaultPlaylistMaster = [
     {
         id: 's1',
         title: 'A Sky Full of Stars',
@@ -162,6 +162,26 @@ const defaultPlaylist = [
         previewUrl: ''
     }
 ];
+
+function getActiveDJPlaylist() {
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return [];
+    const key = `wedding_dj_playlist_${wId}`;
+    try {
+        const raw = localStorage.getItem(key);
+        if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    if (wId === 'aura') {
+        return [...defaultPlaylistMaster];
+    }
+    return [];
+}
+
+function saveActiveDJPlaylist(list) {
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return;
+    localStorage.setItem(`wedding_dj_playlist_${wId}`, JSON.stringify(list));
+}
 
 const initialCatalogSuggestions = [
     { trackId: 'c1', title: 'Ahora Te Puedes Marchar', artist: 'Luis Miguel', album: 'Soy Como Quiero Ser', cover: '', previewUrl: '' },
@@ -412,8 +432,8 @@ if (typeof window !== 'undefined') {
 }
 
 function getActiveAlbumStorageKey() {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
-    return `wedding_album_photos_${wId}`;
+    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : null;
+    return wId ? `wedding_album_photos_${wId}` : 'wedding_album_photos_none';
 }
 
 // =========================================================================
@@ -422,7 +442,10 @@ function getActiveAlbumStorageKey() {
 let albumWindowCountdownInterval = null;
 
 function getAlbumTimeWindowConfig() {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : null;
+    if (!wId) {
+        return { mode: '2', startTime: Date.now(), durationHours: 2, isClosed: false };
+    }
     const raw = localStorage.getItem(`wedding_album_window_${wId}`);
     if (raw) {
         try { return JSON.parse(raw); } catch (e) {}
@@ -436,7 +459,8 @@ function getAlbumTimeWindowConfig() {
 }
 
 function saveAlbumTimeWindowConfig(cfg) {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : null;
+    if (!wId) return;
     localStorage.setItem(`wedding_album_window_${wId}`, JSON.stringify(cfg));
     if (typeof BroadcastChannel !== 'undefined') {
         const bc = new BroadcastChannel('wedding_live_album_sync');
@@ -561,20 +585,30 @@ function normalizeAlbumPhoto(p) {
 }
 
 function getStoredAlbumPhotos() {
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return [];
+
     const key = getActiveAlbumStorageKey();
     try {
         const raw = localStorage.getItem(key);
         const localList = raw ? JSON.parse(raw) : [];
-        const mergedMap = new Map();
-        [...localList, ...defaultPhotos].forEach(rawP => {
-            const p = normalizeAlbumPhoto(rawP);
-            if (p && p.id && !mergedMap.has(p.id)) {
-                mergedMap.set(p.id, p);
-            }
-        });
-        return Array.from(mergedMap.values());
+
+        // Solo la boda demo 'aura' incluye las fotos predefinidas de demostración
+        if (wId === 'aura') {
+            const mergedMap = new Map();
+            [...localList, ...defaultPhotos].forEach(rawP => {
+                const p = normalizeAlbumPhoto(rawP);
+                if (p && p.id && !mergedMap.has(p.id)) {
+                    mergedMap.set(p.id, p);
+                }
+            });
+            return Array.from(mergedMap.values());
+        }
+
+        // Para cualquier otra boda real de los planners, solo sus fotos
+        return localList.map(normalizeAlbumPhoto).filter(Boolean);
     } catch (e) {
-        return defaultPhotos.map(normalizeAlbumPhoto).filter(Boolean);
+        return (wId === 'aura') ? defaultPhotos.map(normalizeAlbumPhoto).filter(Boolean) : [];
     }
 }
 
@@ -742,7 +776,9 @@ function renderAlbumGridAndBanner(photos) {
         const origin = (window.location.origin && window.location.origin.startsWith('http'))
             ? window.location.origin
             : 'https://wedding-admin-portal.vercel.app';
-        const sampleQrUrl = `${origin}/album.html?wedding=${encodeURIComponent(currentWeddingId || 'aura')}&table=t1`;
+        const sampleQrUrl = currentWeddingId
+            ? `${origin}/album.html?wedding=${encodeURIComponent(currentWeddingId)}&table=t1`
+            : '#';
 
         banner.innerHTML = `
             <div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border-radius:16px; padding:16px 20px; border:1px solid #334155; box-shadow:0 8px 24px rgba(15,23,42,0.12);">
@@ -1321,7 +1357,8 @@ function renderLiveSearchResults(results) {
     if (!resultsBox) return;
 
     resultsBox.innerHTML = results.map((track, idx) => {
-        const alreadyInList = defaultPlaylist.find(
+        const currentList = getActiveDJPlaylist();
+        const alreadyInList = currentList.find(
             s => s.title.toLowerCase() === track.title.toLowerCase() && s.artist.toLowerCase() === track.artist.toLowerCase()
         );
         const isSelectedInDeck = selectedDeckTrack && selectedDeckTrack.trackId === track.trackId;
@@ -1377,7 +1414,8 @@ function renderActivePlayerDeck() {
     const deck = document.getElementById('djActivePlayerDeck');
     if (!deck) return;
 
-    const track = selectedDeckTrack || currentLiveSearchResults[0] || defaultPlaylist[0];
+    const currentList = getActiveDJPlaylist();
+    const track = selectedDeckTrack || currentLiveSearchResults[0] || currentList[0];
     if (!track) {
         deck.innerHTML = `<div style="padding:14px; color:#64748b; font-size:0.82rem;">Selecciona cualquier canción en el buscador para cargarla aquí y verificar su audio.</div>`;
         return;
@@ -1450,7 +1488,8 @@ function addCurrentlyLoadedDeckTrack(forcedCategory = null) {
                 : 'Sugerencia Pre-Boda (RSVP)';
         const requestedBy = (requesterInput && requesterInput.value.trim()) ? requesterInput.value.trim() : defaultNote;
 
-        defaultPlaylist.unshift({
+        const activeList = getActiveDJPlaylist();
+        activeList.unshift({
             id: 's_' + Date.now(),
             title: selectedDeckTrack.title,
             artist: selectedDeckTrack.artist,
@@ -1461,6 +1500,7 @@ function addCurrentlyLoadedDeckTrack(forcedCategory = null) {
             cover: selectedDeckTrack.cover || '',
             previewUrl: selectedDeckTrack.previewUrl || ''
         });
+        saveActiveDJPlaylist(activeList);
         renderSavedDJPlaylist();
         renderActivePlayerDeck();
         showToast(getCategoryToastMessage(selectedDeckTrack.title, chosenCat));
@@ -1536,7 +1576,8 @@ function addTrackFromSearchByIndex(idx, forcedCategory = null) {
         requestedBy = 'Protocolo Oficial — Reproducir versión exacta';
     }
 
-    const existing = defaultPlaylist.find(
+    const currentList = getActiveDJPlaylist();
+    const existing = currentList.find(
         s => s.title.toLowerCase() === track.title.toLowerCase() && s.artist.toLowerCase() === track.artist.toLowerCase()
     );
 
@@ -1547,7 +1588,7 @@ function addTrackFromSearchByIndex(idx, forcedCategory = null) {
         if (!existing.previewUrl && track.previewUrl) existing.previewUrl = track.previewUrl;
         showToast(getCategoryToastMessage(track.title, chosenCat));
     } else {
-        defaultPlaylist.unshift({
+        currentList.unshift({
             id: 's_' + Date.now(),
             title: track.title,
             artist: track.artist,
@@ -1561,6 +1602,7 @@ function addTrackFromSearchByIndex(idx, forcedCategory = null) {
         showToast(getCategoryToastMessage(track.title, chosenCat));
     }
 
+    saveActiveDJPlaylist(currentList);
     renderLiveSearchResults(currentLiveSearchResults);
     renderActivePlayerDeck();
     renderSavedDJPlaylist();
@@ -1586,7 +1628,8 @@ function setSavedPlaylistCategoryFilter(cat) {
 }
 
 function changeSongCategoryInline(songId, newCat) {
-    const s = defaultPlaylist.find(item => item.id === songId);
+    const currentList = getActiveDJPlaylist();
+    const s = currentList.find(item => item.id === songId);
     if (!s) return;
     s.category = newCat;
     if (newCat === 'blacklist') {
@@ -1595,6 +1638,7 @@ function changeSongCategoryInline(songId, newCat) {
             s.requestedBy = `Vetada por Novios (Antes: ${s.requestedBy})`;
         }
     }
+    saveActiveDJPlaylist(currentList);
     renderSavedDJPlaylist();
     showToast(getCategoryToastMessage(s.title, newCat));
 }
@@ -1610,7 +1654,8 @@ function setSavedPlaylistSort(mode) {
 }
 
 function previewSavedSongInDeck(songId) {
-    const s = defaultPlaylist.find(item => item.id === songId);
+    const currentList = getActiveDJPlaylist();
+    const s = currentList.find(item => item.id === songId);
     if (!s) return;
     if (!s.previewUrl) {
         fetchLiveMusicCatalog(`${s.title} ${s.artist}`);
@@ -1630,10 +1675,11 @@ function previewSavedSongInDeck(songId) {
 }
 
 function updateCategoryCounters() {
-    const total = defaultPlaylist.length;
-    const protocolCount = defaultPlaylist.filter(s => s.category === 'protocol').length;
-    const partyCount = defaultPlaylist.filter(s => (!s.category || s.category === 'party')).length;
-    const blacklistCount = defaultPlaylist.filter(s => s.category === 'blacklist').length;
+    const list = getActiveDJPlaylist();
+    const total = list.length;
+    const protocolCount = list.filter(s => s.category === 'protocol').length;
+    const partyCount = list.filter(s => (!s.category || s.category === 'party')).length;
+    const blacklistCount = list.filter(s => s.category === 'blacklist').length;
 
     const setEl = (id, val) => {
         const el = document.getElementById(id);
@@ -1652,7 +1698,8 @@ function renderSavedDJPlaylist() {
 
     updateCategoryCounters();
 
-    let items = [...defaultPlaylist];
+    const activeList = getActiveDJPlaylist();
+    let items = [...activeList];
 
     if (savedPlaylistCategoryFilter !== 'all') {
         items = items.filter(s => (s.category || 'party') === savedPlaylistCategoryFilter);
@@ -1748,9 +1795,11 @@ function renderSavedDJPlaylist() {
 }
 
 function upvoteSong(songId) {
-    const s = defaultPlaylist.find(item => item.id === songId);
+    const list = getActiveDJPlaylist();
+    const s = list.find(item => item.id === songId);
     if (s) {
-        s.votes += 1;
+        s.votes = (s.votes || 0) + 1;
+        saveActiveDJPlaylist(list);
         renderSavedDJPlaylist();
         renderLiveSearchResults(currentLiveSearchResults);
         renderActivePlayerDeck();
@@ -1763,9 +1812,10 @@ function addSongPrompt() {
 }
 
 function exportDJPlaylist() {
-    const protocolList = defaultPlaylist.filter(s => s.category === 'protocol');
-    const partyList = defaultPlaylist.filter(s => (!s.category || s.category === 'party')).sort((a, b) => b.votes - a.votes);
-    const blackList = defaultPlaylist.filter(s => s.category === 'blacklist');
+    const list = getActiveDJPlaylist();
+    const protocolList = list.filter(s => s.category === 'protocol');
+    const partyList = list.filter(s => (!s.category || s.category === 'party')).sort((a, b) => b.votes - a.votes);
+    const blackList = list.filter(s => s.category === 'blacklist');
 
     let text = "AURA WEDDINGS • BRIEFING MUSICAL OFICIAL PARA CABINA DE DJ\n";
     text += "==============================================================\n\n";

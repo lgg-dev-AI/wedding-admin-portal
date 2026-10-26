@@ -94,14 +94,16 @@ const vendorsDataMaster = [
 let activeVendorPaymentId = null;
 
 function getActiveVendorsList() {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return [];
+
     const state = (typeof getWeddingState === 'function') ? getWeddingState(wId) : (typeof currentData !== 'undefined' ? currentData : null);
     
     if (state && Array.isArray(state.vendors) && state.vendors.length > 0) {
         return state.vendors;
     }
     
-    // Check localStorage fallback
+    // Check localStorage fallback for this specific wedding
     const stored = localStorage.getItem(`wedding_vendors_${wId}`);
     if (stored) {
         try {
@@ -113,17 +115,18 @@ function getActiveVendorsList() {
         } catch(e) {}
     }
 
-    // Default for demo wedding 'aura'
+    // Default for demo wedding 'aura' only
     if (wId === 'aura') {
         if (state) state.vendors = [...vendorsDataMaster];
         return vendorsDataMaster;
     }
 
-    return (state && state.vendors) ? state.vendors : [];
+    return (state && Array.isArray(state.vendors)) ? state.vendors : [];
 }
 
 function saveActiveVendorsList(vendors) {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return;
     localStorage.setItem(`wedding_vendors_${wId}`, JSON.stringify(vendors));
     
     const state = (typeof getWeddingState === 'function') ? getWeddingState(wId) : (typeof currentData !== 'undefined' ? currentData : null);

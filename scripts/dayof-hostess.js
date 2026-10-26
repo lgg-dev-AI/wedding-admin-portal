@@ -21,7 +21,9 @@ const INITIAL_DAYOF_GUESTS = [
 ];
 
 function getHostessGuests() {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return [];
+
     const key = `${HOSTESS_GUESTS_KEY}_${wId}`;
     try {
         const raw = localStorage.getItem(key);
@@ -58,7 +60,7 @@ function getHostessGuests() {
             }
         }
 
-        // Fallback for demo wedding
+        // Fallback for demo wedding 'aura' only
         if (wId === 'aura') {
             localStorage.setItem(key, JSON.stringify(INITIAL_DAYOF_GUESTS));
             return INITIAL_DAYOF_GUESTS;
@@ -71,7 +73,8 @@ function getHostessGuests() {
 }
 
 function saveHostessGuests(guests) {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return;
     const key = `${HOSTESS_GUESTS_KEY}_${wId}`;
     localStorage.setItem(key, JSON.stringify(guests));
     renderHostessDashboard();

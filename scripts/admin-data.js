@@ -1,5 +1,5 @@
 // Global Active Wedding Identifiers
-window.currentWeddingId = "aura";
+window.currentWeddingId = null;
 window.currentData = null;
 
 const WEDDINGS_DB = {
@@ -295,6 +295,7 @@ const WEDDINGS_DB = {
 window.WEDDINGS_DB = WEDDINGS_DB;
 
 function getWeddingState(weddingId) {
+    if (!weddingId) return null;
     let state = null;
     const saved = localStorage.getItem(`wp_enterprise_os_${weddingId}`);
     if (saved) {
@@ -386,6 +387,7 @@ function getWeddingState(weddingId) {
 }
 
 function saveWeddingState(weddingId, data) {
+    if (!weddingId || !data) return;
     localStorage.setItem(`wp_enterprise_os_${weddingId}`, JSON.stringify(data));
 }
 

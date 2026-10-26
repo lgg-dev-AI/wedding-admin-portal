@@ -11,7 +11,29 @@ let currentFinanceSearch = '';
  */
 function renderFinanceTab() {
     currentData = getWeddingState(currentWeddingId);
-    if (!currentData) return;
+    if (!currentData) {
+        const setZero = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+        setZero('badgePendingVouchers', '0 por validar');
+        setZero('pendingVouchersCount', '0');
+        setZero('countPillAll', '0');
+        setZero('countPillPending', '0');
+        setZero('countPillApproved', '0');
+        setZero('approvedTotalAmount', '$0 MXN');
+        setZero('approvedCount', '0 donaciones');
+        setZero('averageDonation', '$0 MXN');
+        setZero('financeCollectedHero', '$0 MXN');
+        setZero('financeGoalHero', '$0 MXN');
+        setZero('financeGoalPercentBadge', '0% Alcanzado');
+        setZero('financeGoalRemaining', 'Sin meta activa');
+        setZero('financeGoalAveragePax', 'Promedio: $0 MXN');
+        const progressBar = document.getElementById('financeGoalProgressBar');
+        if (progressBar) progressBar.style.width = '0%';
+        const pendingList = document.getElementById('pendingVouchersList');
+        const approvedList = document.getElementById('approvedVouchersList');
+        if (pendingList) pendingList.innerHTML = '<div style="text-align:center; padding:2rem 1rem; color:#64748b; background:#f8fafc; border-radius:10px;">No hay boda seleccionada</div>';
+        if (approvedList) approvedList.innerHTML = '<div style="text-align:center; padding:2rem 1rem; color:#64748b; background:#f8fafc; border-radius:10px;">No hay boda seleccionada</div>';
+        return;
+    }
 
     // Ensure vouchers array exists
     if (!Array.isArray(currentData.vouchers)) {
@@ -648,7 +670,19 @@ function switchFinanceSubtab(tabName) {
 
 function renderDestinationPaymentsSuite() {
     currentData = getWeddingState(currentWeddingId);
-    if (!currentData) return;
+    if (!currentData) {
+        const destTbody = document.getElementById('destPaymentsTableBody');
+        if (destTbody) {
+            destTbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2rem; color:#64748b;">No hay boda seleccionada</td></tr>';
+        }
+        const setZero = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+        setZero('destTotalPax', '0');
+        setZero('destTotalProjected', '$0 MXN');
+        setZero('destTotalCollected', '$0 MXN');
+        setZero('destTotalPending', '$0 MXN');
+        setZero('destComplianceRate', '0%');
+        return;
+    }
 
     // Toggle Planner Fiscal View vs Couple Clean View
     const isCouple = (typeof activeRole !== 'undefined' && activeRole === 'couple');

@@ -126,8 +126,19 @@ const timelinePresetsLibrary = [
     }
 ];
 
+function getEmptyTimelineStructure() {
+    return {
+        day1: { title: "Día 1: Rompehielos (Viernes)", milestones: [] },
+        day2: { title: "Día 2: Boda & Recepción - Día D (Sábado)", milestones: [] },
+        day3: { title: "Día 3: Tornaboda & Brunch (Domingo)", milestones: [] }
+    };
+}
+
 function getActiveTimelineData() {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) {
+        return getEmptyTimelineStructure();
+    }
     const key = `wedding_timeline_${wId}`;
     try {
         const raw = localStorage.getItem(key);
@@ -138,11 +149,18 @@ function getActiveTimelineData() {
             }
         }
     } catch(e) {}
-    return timelineDaysData;
+
+    // Solo la boda demo 'aura' carga la escaleta de demostración
+    if (wId === 'aura') {
+        return timelineDaysData;
+    }
+
+    return getEmptyTimelineStructure();
 }
 
 function saveActiveTimelineData(data) {
-    const wId = (typeof currentWeddingId !== 'undefined' && currentWeddingId) ? currentWeddingId : 'aura';
+    const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
+    if (!wId) return;
     const key = `wedding_timeline_${wId}`;
     try {
         localStorage.setItem(key, JSON.stringify(data));
