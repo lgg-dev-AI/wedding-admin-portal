@@ -81,7 +81,7 @@
                         <option value="">Cargando bodas...</option>
                     </select>
                     <button class="btn-new-wedding-header planner-only" onclick="showNewWeddingModal()" title="Registrar y configurar nueva boda">+ Nueva Boda</button>
-                    <button class="btn-briefing-header" id="btnHeaderBriefing" onclick="openActiveWeddingBriefing()" title="Abrir Formulario de Briefing para la Boda Activa" style="display:none;">📋 Formulario para Invitación Web</button>
+                    <button class="btn-briefing-header planner-only" id="btnHeaderBriefing" onclick="openActiveWeddingBriefing()" title="Abrir y modificar el Formulario de Briefing para la Boda Activa" style="display:inline-flex; align-items:center; gap:6px; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; padding:6px 12px; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer;">📝 Formulario de Briefing</button>
                 </div>
             </div>
         </div>
@@ -278,6 +278,7 @@
                     </div>
                     <div class="tab-actions">
                         <button type="button" class="btn-action secondary planner-only" onclick="copyCoupleWhatsAppSummary()" style="border-color:#22c55e; color:#15803d; font-weight:700;" title="Copiar resumen ejecutivo formateado para enviar por WhatsApp a los novios">📲 Resumen WhatsApp</button>
+                        <button type="button" class="btn-action secondary planner-only" onclick="openActiveWeddingBriefing()" title="Abrir y modificar el Formulario de Briefing completo de la boda activa (15 fotos, menú, shuttles, etc.)">📝 Formulario de Briefing</button>
                         <button class="btn-action secondary planner-only" onclick="openEditActiveWeddingModal()">✏️ Editar Boda</button>
                         <button class="btn-action secondary" onclick="generateAndPreviewPDF()">📄 Reporte PDF</button>
                         <button class="btn-action primary" onclick="showQuickAddModal()">+ Nuevo Invitado</button>
@@ -1366,6 +1367,81 @@
                                 <!-- Populated dynamically by admin-clients.js -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- BOT DE TELEGRAM & ALERTAS EN TIEMPO REAL -->
+                <div class="section-card mt-4" style="border:1px solid #e0e7ff; background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+                    <div class="d-flex justify-between align-center mb-3" style="flex-wrap:wrap; gap:12px;">
+                        <div class="d-flex align-center gap-3">
+                            <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #0088cc 0%, #006699 100%); display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:1.5rem; box-shadow:0 4px 12px rgba(0,136,204,0.3);">
+                                ✈️
+                            </div>
+                            <div>
+                                <div class="d-flex align-center gap-2">
+                                    <h3 class="card-heading" style="margin:0; font-size:1.15rem; color:#0f172a;">🤖 Bot de Telegram &amp; Alertas en Tiempo Real</h3>
+                                    <span id="telegramStatusBadge" class="badge-accent" style="background:#f59e0b; color:#fff; font-size:0.75rem;">🟡 Configuración Pendiente</span>
+                                </div>
+                                <p class="text-xs text-muted" style="margin:2px 0 0 0;">Recibe una notificación push instantánea a tu celular cada vez que una Wedding Planner se suscriba, pague un plan en Stripe o se dé de alta.</p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" class="btn-action secondary" onclick="testTelegramNotification()" style="font-size:0.8rem; display:flex; align-items:center; gap:6px;">
+                                <span>📲 Enviar Alerta de Prueba</span>
+                            </button>
+                            <button type="button" class="btn-action primary" onclick="handleSaveTelegramSettings()" style="font-size:0.8rem; background:#0088cc; border-color:#0088cc; display:flex; align-items:center; gap:6px;">
+                                <span>💾 Guardar Credenciales</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Feedback Status Box -->
+                    <div id="telegramTestStatus" style="display:none; padding:10px 14px; border-radius:10px; font-size:0.85rem; margin-bottom:14px; line-height:1.4;"></div>
+
+                    <!-- Config Input Grid -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:6px;">
+                                🔑 Telegram Bot Token (Proporcionado por @BotFather)
+                            </label>
+                            <input type="password" id="telegramBotTokenInput" placeholder="Ej: 7123456789:AAFlkB4m2Q..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
+                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Token secreto de la API HTTP de Telegram.</span>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:6px;">
+                                🆔 Tu Chat ID de Telegram (Personal o Canal)
+                            </label>
+                            <input type="text" id="telegramChatIdInput" placeholder="Ej: 987654321 o -1001234567890" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
+                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Tu número de usuario personal o el ID del canal donde quieres los avisos.</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Setup Guide Accordion -->
+                    <div style="background:#f1f5f9; border-radius:12px; padding:12px 16px; border:1px dashed #cbd5e1;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                            <strong style="font-size:0.85rem; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                                <span>📘 Guía rápida: ¿Cómo obtener tu Token y Chat ID en 2 minutos?</span>
+                            </strong>
+                            <span style="font-size:0.75rem; color:#64748b; background:#e2e8f0; padding:2px 8px; border-radius:6px; font-weight:600;">Gratis y sin servidor</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#475569; line-height:1.6; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+                            <div>
+                                <b style="color:#0f172a;">1. Crear el Bot:</b>
+                                <ol style="margin:4px 0 0 18px; padding:0;">
+                                    <li>Abre Telegram y busca <b>@BotFather</b>.</li>
+                                    <li>Envía <code>/newbot</code> y dale un nombre (ej. <i>Antigravity Wedding Alerts</i>).</li>
+                                    <li>Copia el <b>Token</b> generado y pégalo arriba.</li>
+                                </ol>
+                            </div>
+                            <div>
+                                <b style="color:#0f172a;">2. Obtener tu Chat ID:</b>
+                                <ol style="margin:4px 0 0 18px; padding:0;">
+                                    <li>Abre tu bot recién creado y presiona <b>START</b> (/start).</li>
+                                    <li>Busca en Telegram el bot <b>@userinfobot</b> y dale start; te dará tu <b>Id</b> numérico.</li>
+                                    <li>Pégalo en el campo <i>Chat ID</i> y presiona <b>"Enviar Alerta de Prueba"</b>.</li>
+                                </ol>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -5175,6 +5251,15 @@
             </div>
             <form id="formEditWeddingGeneral" onsubmit="saveEditActiveWeddingForm(event)" style="padding: 20px 24px;">
                 
+                <!-- BANNER DE ENLACE DIRECTO AL BRIEFING FORM -->
+                <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <strong style="color:#166534; font-size:0.86rem;">📋 Formulario de Briefing para Invitación Web</strong>
+                        <p style="margin:2px 0 0; font-size:0.75rem; color:#15803d;">Modifica el blueprint de 15 fotos, modalidad de menú, itinerario, shuttles y mesa de regalos.</p>
+                    </div>
+                    <button type="button" onclick="closeEditActiveWeddingModal(); openActiveWeddingBriefing();" style="background:#166534; color:#ffffff; border:none; padding:8px 14px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer;">Abrir Formulario Completo ➔</button>
+                </div>
+
                 <!-- GRID HORIZONTAL EN 2 COLUMNAS (IZQUIERDA: DATOS GENERALES + NOVIOS / DERECHA: BODA DESTINO & CLABE) -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; align-items: start;">
                     
@@ -5789,12 +5874,13 @@
         </div>
     </div>
 
-    <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-auth.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_planner_shield_v9"></script>
+    <!-- CLIENTS, AUTH, DAY-OF, TELEGRAM & STRIPE BILLING SCRIPTS -->
+    <script src="scripts/admin-clients.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/admin-auth.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/telegram-notify.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_telegram_v1"></script>
 
 </body>
 </html>

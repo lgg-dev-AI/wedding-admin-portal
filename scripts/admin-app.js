@@ -1443,6 +1443,24 @@ function quickSendGuestWhatsApp(guestId) {
     window.open(waUrl, '_blank');
 }
 
+window.openActiveWeddingBriefing = function() {
+    const weddingId = currentWeddingId || 'valeria-fernando';
+    const state = typeof getWeddingState === 'function' ? getWeddingState(weddingId) : null;
+    const couple = state && state.couple ? state.couple : (document.getElementById('coupleTitle')?.innerText || 'Valeria & Fernando');
+    const date = state && state.date ? state.date : '';
+    const venue = state && state.venue ? state.venue : '';
+    const theme = state && state.themeTag ? state.themeTag : '';
+
+    const params = new URLSearchParams();
+    params.set('weddingId', weddingId);
+    if (couple) params.set('couple', couple);
+    if (date) params.set('date', date);
+    if (venue) params.set('venue', venue);
+    if (theme) params.set('theme', theme);
+
+    window.open(`onboarding.html?${params.toString()}`, '_blank');
+};
+
 function openEditActiveWeddingModal() {
     if (activeRole === 'couple') {
         if (typeof showToast === 'function') {

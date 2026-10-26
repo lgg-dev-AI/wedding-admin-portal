@@ -841,34 +841,62 @@
                         <input type="date" id="rsvpDeadline" class="field-input" required>
                     </div>
                     <div class="field-group">
-                        <label class="field-label">Política de Niños</label>
-                        <select id="kidsPolicy" class="field-select">
-                            <option value="no_kids" selected>Boda Exclusiva de Adultos (No Niños - Protocolo Cortés)</option>
-                            <option value="kids_welcome">Boda Familiar (Niños Bienvenidos con Menú Infantil)</option>
+                        <label class="field-label" style="font-weight:800; color:#0f172a;">
+                            👶 ¿Habrá niños en la boda? (Política de Pases de la Invitación) <span class="req">*</span>
+                        </label>
+                        <select id="kidsPolicy" class="field-select" onchange="handleKidsPolicyChange(this.value)" style="font-weight:700;">
+                            <option value="no_kids" selected>🚫 No, evento exclusivo para adultos (Adults Only) — Solo hasta 6 adultos mayores de edad</option>
+                            <option value="kids_welcome">👶 Sí, niños bienvenidos — Habilitar Adultos + Niños con Menú Infantil</option>
+                            <option value="cortejo_only">⛪ Solo niños del cortejo nupcial en ceremonia — Recepción solo adultos (hasta 6 adultos)</option>
                         </select>
                     </div>
                 </div>
 
-                <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0;">
-                    <h3 style="font-size:0.95rem; font-weight:800; color:#0f172a; margin-bottom:10px;">🥩 Opciones de Plato Fuerte para Invitados</h3>
-                    <div class="form-grid-2">
-                        <div class="field-group">
-                            <label class="field-label">Opción A (Carne / Res)</label>
-                            <input type="text" id="menuOptionA" class="field-input" value="Filete de Res en reducción de oporto con puré de papa trufado">
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Opción B (Ave / Pescado)</label>
-                            <input type="text" id="menuOptionB" class="field-input" value="Salmón Noruego glaseado al balsámico sobre cama de espárragos">
+                <div id="kidsPolicyHelper" style="margin-top:-6px; margin-bottom:18px; padding:12px 16px; border-radius:12px; font-size:0.85rem; line-height:1.45; background:#fef2f2; border:1px solid #fecaca; color:#991b1b;">
+                    🔒 <strong>Modo Solo Adultos Configurado:</strong> La invitación web no desplegará pases infantiles ni platillos de niños. Se configurará el selector para confirmar <strong>hasta 6 invitados, todos mayores de edad</strong>, con menú gourmet y alergias individuales.
+                </div>
+
+                <div style="background:#f8fafc; padding:18px; border-radius:14px; margin-bottom:16px; border:1px solid #e2e8f0;">
+                    <div class="field-group" style="margin-bottom:14px;">
+                        <label class="field-label" style="font-size:0.95rem; font-weight:800; color:#0f172a;">
+                            🥩 Modalidad del Menú de Banquete <span class="req">*</span>
+                        </label>
+                        <select id="menuTypeSelect" class="field-select" onchange="handleMenuTypeChange(this.value)" style="font-weight:700;">
+                            <option value="choice" selected>🍴 Menú con Elección de Platillo (Los invitados eligen entre Carne, Ave/Pescado o Vegano)</option>
+                            <option value="fixed">🍷 Menú Único / Igual para Todos (Sin platillos opcionales — Mismo menú general para todos los invitados)</option>
+                        </select>
+                    </div>
+
+                    <!-- MODO MENÚ FIJO (IGUAL PARA TODOS) -->
+                    <div id="fixedMenuContainer" style="display:none; background:#ffffff; border:1.5px dashed #cbd5e1; border-radius:12px; padding:16px; margin-bottom:14px;">
+                        <label class="field-label" style="font-weight:700; color:#0f172a;">Descripción del Platillo General (Servido a todos los invitados)</label>
+                        <input type="text" id="fixedMenuDesc" class="field-input" value="Banquete de Gala de 4 Tiempos por Chef Ejecutivo (Mismo plato principal para todos los comensales)">
+                        <div style="font-size:0.82rem; color:#475569; margin-top:8px; line-height:1.45;">
+                            ✨ <strong>En la Invitación Web:</strong> No se desplegarán botones de elección de platillo (Res, Pescado, etc.). A los comensales se les confirmará su lugar en el banquete general y únicamente registrarán sus <strong>alergias médicas, intolerancias y dietas especiales</strong> (vegetariano, sin gluten, etc.) para la cocina.
                         </div>
                     </div>
-                    <div class="form-grid-2">
-                        <div class="field-group">
-                            <label class="field-label">Opción C (Vegetariano / Vegano)</label>
-                            <input type="text" id="menuOptionC" class="field-input" value="Risotto de Portobello y alcachofas confitadas">
+
+                    <!-- MODO PLATOS A ELEGIR -->
+                    <div id="choiceMenuContainer">
+                        <div class="form-grid-2">
+                            <div class="field-group">
+                                <label class="field-label">Opción A (Carne / Res)</label>
+                                <input type="text" id="menuOptionA" class="field-input" value="Filete de Res en reducción de oporto con puré de papa trufado">
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Opción B (Ave / Pescado)</label>
+                                <input type="text" id="menuOptionB" class="field-input" value="Salmón Noruego glaseado al balsámico sobre cama de espárragos">
+                            </div>
                         </div>
-                        <div class="field-group">
-                            <label class="field-label">Opción D (Menú Infantil - Si aplica)</label>
-                            <input type="text" id="menuOptionD" class="field-input" value="Pechuguitas crujientes con papitas y ensalada dulce">
+                        <div class="form-grid-2">
+                            <div class="field-group">
+                                <label class="field-label">Opción C (Vegetariano / Vegano)</label>
+                                <input type="text" id="menuOptionC" class="field-input" value="Risotto de Portobello y alcachofas confitadas">
+                            </div>
+                            <div class="field-group" id="menuOptionDGroup" style="opacity:0.65;">
+                                <label class="field-label" id="menuOptionDLabel">Opción D (Menú Infantil - Inactivo en Solo Adultos)</label>
+                                <input type="text" id="menuOptionD" class="field-input" value="No Aplica (Boda Exclusiva de Adultos)" disabled>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -941,6 +969,7 @@
         </form>
     </main>
 
+    <script src="scripts/telegram-notify.js?v=20261025_telegram_v1"></script>
     <script>
         let currentLoadedWeddingId = null;
 
@@ -978,35 +1007,13 @@
                 }
             }
 
-            // Gatekeeper estricto: Verificar plan contratado
+            // Plan de la Boda: Signature Pro por defecto o el asignado
             const validTiers = ['basic', 'intermediate', 'elite'];
             const planTierParam = params.get('plan');
             const storedTier = localStorage.getItem('wedding_subscription_tier');
-            const effectivePlan = (planTierParam && validTiers.includes(planTierParam)) ? planTierParam : (validTiers.includes(storedTier) ? storedTier : null);
-
-            if (!effectivePlan) {
-                document.body.innerHTML = `
-                    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0f172a; padding:20px; font-family:'Plus Jakarta Sans', sans-serif;">
-                        <div style="background:#ffffff; max-width:540px; width:100%; border-radius:20px; padding:36px 32px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.4); border:2px solid #f59e0b;">
-                            <div style="width:72px; height:72px; background:#fef3c7; border:2px solid #fde047; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
-                                🔒
-                            </div>
-                            <h2 style="margin:0 0 10px; font-family:'Playfair Display', serif; font-size:1.6rem; color:#0f172a;">
-                                Acceso Exclusivo con Plan Activo
-                            </h2>
-                            <p style="margin:0 0 24px; font-size:0.9rem; color:#475569; line-height:1.5;">
-                                El <strong>Formulario para Invitación Web</strong> está reservado exclusivamente para la Wedding Planner y los Novios con un plan oficial contratado (<em>Essential, Signature Pro o Atelier Elite</em>).
-                            </p>
-                            <div style="display:flex; flex-direction:column; gap:10px;">
-                                <a href="index.html" style="display:block; text-decoration:none; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; padding:14px 20px; border-radius:10px; font-size:0.95rem; font-weight:800;">
-                                    ← Ir a Configuración de Planes
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
+            const effectivePlan = (planTierParam && validTiers.includes(planTierParam)) 
+                ? planTierParam 
+                : (validTiers.includes(storedTier) ? storedTier : 'intermediate');
 
             const planTier = effectivePlan;
             const heroBadge = document.querySelector('.hero-badge');
@@ -1056,7 +1063,236 @@
                     }
                 }
             }
+
+            // CARGAR AUTOMÁTICAMENTE DATOS GUARDADOS PREVIAMENTE SI EXISTEN (MODO EDICIÓN)
+            loadExistingBriefingData(currentLoadedWeddingId);
         });
+
+        const DEFAULT_VALERIA_BRIEFING = {
+            couple: "Valeria Garza & Fernando Treviño",
+            date: "2027-11-20",
+            planner: "Atelier Event Architecture · Valeria Sotomayor",
+            phone: "+52 81 1928 3400",
+            cityVenue: "Hacienda San José Lavista, San Miguel de Allende, Gto.",
+            theme: "tuscany",
+            masterDrive: "https://drive.google.com/drive/folders/valeria-fernando-wedding-hd",
+            photos: {
+                hero: "hero_valeria_fernando_vinhedo.jpg",
+                story: [
+                    "02_primer_viaje_tulum.jpg",
+                    "03_nuestra_propuesta_paris.jpg",
+                    "04_nuestro_hogar.jpg",
+                    "05_compromiso_sesion.jpg"
+                ],
+                gallery: "galeria_01.jpg a galeria_06.jpg",
+                dresscode: "dresscode_mujeres_largo.jpg, dresscode_hombres_traje.jpg",
+                gift: "luna_de_miel_tokyo.jpg",
+                footer: "despedida_novios.jpg"
+            },
+            itinerary: {
+                ceremony: {
+                    start: "16:00",
+                    end: "17:15",
+                    venue: "Parroquia de San Miguel Arcángel (Centro Histórico)",
+                    map: "https://maps.app.goo.gl/sanmiguel-parroquia"
+                },
+                reception: {
+                    cocktail: "18:00",
+                    dinner: "20:00",
+                    partyEnd: "03:00",
+                    venue: "Hacienda San José Lavista (Viñedos & Bodega)",
+                    map: "https://maps.app.goo.gl/sanmiguel-lavista"
+                },
+                multiDay: {
+                    icebreaker: "Viernes 19 Nov: Callejoneada Tradicional en Centro Histórico (19:00 hrs)",
+                    tornaboda: "01:30 hrs: Estación de Chilaquiles y Tacos al Pastor en la Hacienda"
+                }
+            },
+            dressCode: {
+                type: "black_tie",
+                reserved: "Blanco, Marfil, Perla y Beige Claro (Exclusivo para la Novia)",
+                suggested: "Verde Olivo (#3f4f34), Terracota (#c87d55), Oro Champagne (#d4af37), Marfil (#fdfbf7)",
+                shoeNote: "Tacón ancho o corrido para mujeres (zonas de empedrado y césped natural en la hacienda). Habrá cubre-tacones en entrada."
+            },
+            giftRegistry: {
+                bank: "BBVA Bancomer",
+                owner: "Valeria Garza Sada",
+                clabe: "012580015489632147",
+                store: "Liverpool (Evento #51429801)",
+                amazon: "https://amazon.com.mx/wedding/valeria-y-fernando",
+                envelope: true
+            },
+            rsvp: {
+                deadline: "2027-10-15",
+                kidsPolicy: "no_kids",
+                menuType: "choice",
+                fixedMenuDesc: "Banquete de Gala de 4 Tiempos por Chef Ejecutivo",
+                menuOptions: {
+                    a: "Filete de Res en costra de hierbas con reducción Lavista y puré trufado",
+                    b: "Robalo en costra de pistache con risotto de espárragos",
+                    c: "Lasaña vegetariana de hongos silvestres (Gluten Free)",
+                    d: "Dedos de pechuga con puré rústico (Cortejo Ceremonial)"
+                }
+            },
+            transport: {
+                hasShuttle: "yes",
+                pickup: "Hotel Rosewood San Miguel de Allende",
+                departures: "17:15 hrs hacia la Hacienda San José Lavista",
+                returns: "00:30 hrs, 02:00 hrs y 03:30 hrs hacia Rosewood y Matilda",
+                hotel1: "Hotel Rosewood San Miguel (Código: BODA-VAL-FER)",
+                hotel2: "Hotel Matilda (Código: BODA-VAL-FER)"
+            }
+        };
+
+        function loadExistingBriefingData(weddingKey) {
+            try {
+                let data = null;
+                let storedStr = localStorage.getItem(`briefing_data_${weddingKey}`);
+                if (!storedStr && weddingKey !== 'aura') {
+                    storedStr = localStorage.getItem('briefing_data_aura');
+                }
+                if (storedStr) {
+                    try { data = JSON.parse(storedStr); } catch(e) {}
+                }
+                if (!data) {
+                    data = DEFAULT_VALERIA_BRIEFING;
+                }
+
+                // 1. Datos Generales
+                if (data.couple) document.getElementById('coupleNames').value = data.couple;
+                if (data.date) document.getElementById('weddingDate').value = data.date;
+                if (data.planner) setPlannerFromValue(data.planner);
+                if (data.phone) document.getElementById('plannerPhone').value = data.phone;
+                if (data.cityVenue) document.getElementById('venueCity').value = data.cityVenue;
+
+                // 2. Estilo Visual
+                if (data.theme) {
+                    const card = document.querySelector(`.theme-card[onclick*="'${data.theme}'"]`);
+                    if (card) selectTheme(card, data.theme);
+                    if (data.theme === 'custom' && data.customThemeDetails) {
+                        if (document.getElementById('customThemeName')) document.getElementById('customThemeName').value = data.customThemeDetails.name || '';
+                        if (document.getElementById('customThemeNotes')) document.getElementById('customThemeNotes').value = data.customThemeDetails.notes || '';
+                    }
+                }
+
+                // 3. Drive & Blueprint
+                if (data.masterDrive) document.getElementById('masterDriveFolder').value = data.masterDrive;
+                if (data.photos) {
+                    if (data.photos.hero) document.getElementById('photo_hero').value = data.photos.hero;
+                    if (Array.isArray(data.photos.story)) {
+                        data.photos.story.forEach((url, idx) => {
+                            const el = document.getElementById(`photo_story_${idx + 1}`);
+                            if (el && url) el.value = url;
+                        });
+                    }
+                    if (data.photos.gallery) document.getElementById('photos_gallery').value = data.photos.gallery;
+                    if (data.photos.dresscode) document.getElementById('photos_dresscode').value = data.photos.dresscode;
+                    if (data.photos.gift) document.getElementById('photo_gift').value = data.photos.gift;
+                    if (data.photos.footer) document.getElementById('photo_footer').value = data.photos.footer;
+                }
+
+                // 4. Itinerario
+                if (data.itinerary) {
+                    if (data.itinerary.ceremony) {
+                        if (data.itinerary.ceremony.start) document.getElementById('ceremonyStart').value = data.itinerary.ceremony.start;
+                        if (data.itinerary.ceremony.end) document.getElementById('ceremonyEnd').value = data.itinerary.ceremony.end;
+                        if (data.itinerary.ceremony.venue) document.getElementById('ceremonyVenue').value = data.itinerary.ceremony.venue;
+                        if (data.itinerary.ceremony.map) document.getElementById('ceremonyMap').value = data.itinerary.ceremony.map;
+                    }
+                    if (data.itinerary.reception) {
+                        if (data.itinerary.reception.cocktail) document.getElementById('cocktailStart').value = data.itinerary.reception.cocktail;
+                        if (data.itinerary.reception.dinner) document.getElementById('dinnerStart').value = data.itinerary.reception.dinner;
+                        if (data.itinerary.reception.partyEnd) document.getElementById('partyEnd').value = data.itinerary.reception.partyEnd;
+                        if (data.itinerary.reception.venue) document.getElementById('receptionVenue').value = data.itinerary.reception.venue;
+                        if (data.itinerary.reception.map) document.getElementById('receptionMap').value = data.itinerary.reception.map;
+                    }
+                    if (data.itinerary.multiDay) {
+                        if (data.itinerary.multiDay.icebreaker) document.getElementById('icebreakerInfo').value = data.itinerary.multiDay.icebreaker;
+                        if (data.itinerary.multiDay.tornaboda) document.getElementById('tornabodaInfo').value = data.itinerary.multiDay.tornaboda;
+                    }
+                }
+
+                // 5. Dress Code
+                if (data.dressCode) {
+                    if (data.dressCode.type) document.getElementById('dressCodeType').value = data.dressCode.type;
+                    if (data.dressCode.reserved) document.getElementById('reservedColors').value = data.dressCode.reserved;
+                    if (data.dressCode.suggested) document.getElementById('suggestedColors').value = data.dressCode.suggested;
+                    if (data.dressCode.shoeNote) document.getElementById('shoeNote').value = data.dressCode.shoeNote;
+                }
+
+                // 6. Mesa de Regalos
+                if (data.giftRegistry) {
+                    if (data.giftRegistry.bank) document.getElementById('bankName').value = data.giftRegistry.bank;
+                    if (data.giftRegistry.owner) document.getElementById('bankOwner').value = data.giftRegistry.owner;
+                    if (data.giftRegistry.clabe) document.getElementById('bankClabe').value = data.giftRegistry.clabe;
+                    if (data.giftRegistry.store) document.getElementById('storeRegistry').value = data.giftRegistry.store;
+                    if (data.giftRegistry.amazon) document.getElementById('amazonRegistry').value = data.giftRegistry.amazon;
+                    if (typeof data.giftRegistry.envelope === 'boolean') document.getElementById('showEnvelopeOption').checked = data.giftRegistry.envelope;
+                }
+
+                // 7. RSVP, Menú & Alergias
+                if (data.rsvp) {
+                    if (data.rsvp.deadline) document.getElementById('rsvpDeadline').value = data.rsvp.deadline;
+                    if (data.rsvp.kidsPolicy) {
+                        document.getElementById('kidsPolicy').value = data.rsvp.kidsPolicy;
+                        handleKidsPolicyChange(data.rsvp.kidsPolicy);
+                    }
+                    if (data.rsvp.menuType) {
+                        const menuSel = document.getElementById('menuTypeSelect');
+                        if (menuSel) {
+                            menuSel.value = data.rsvp.menuType;
+                            handleMenuTypeChange(data.rsvp.menuType);
+                        }
+                    }
+                    if (data.rsvp.fixedMenuDesc) {
+                        const fixedDesc = document.getElementById('fixedMenuDesc');
+                        if (fixedDesc) fixedDesc.value = data.rsvp.fixedMenuDesc;
+                    }
+                    if (data.rsvp.menuOptions) {
+                        if (data.rsvp.menuOptions.a) document.getElementById('menuOptionA').value = data.rsvp.menuOptions.a;
+                        if (data.rsvp.menuOptions.b) document.getElementById('menuOptionB').value = data.rsvp.menuOptions.b;
+                        if (data.rsvp.menuOptions.c) document.getElementById('menuOptionC').value = data.rsvp.menuOptions.c;
+                        if (data.rsvp.menuOptions.d) document.getElementById('menuOptionD').value = data.rsvp.menuOptions.d;
+                    }
+                }
+
+                // 8. Transporte & Hoteles
+                if (data.transport) {
+                    if (data.transport.hasShuttle) document.getElementById('hasShuttle').value = data.transport.hasShuttle;
+                    if (data.transport.pickup) document.getElementById('shuttlePickup').value = data.transport.pickup;
+                    if (data.transport.departures) document.getElementById('shuttleDepartures').value = data.transport.departures;
+                    if (data.transport.returns) document.getElementById('shuttleReturns').value = data.transport.returns;
+                    if (data.transport.hotel1) document.getElementById('hotel1').value = data.transport.hotel1;
+                    if (data.transport.hotel2) document.getElementById('hotel2').value = data.transport.hotel2;
+                }
+
+                // Mostrar Banner de Edición Activa
+                const heroSection = document.querySelector('.onboarding-hero');
+                if (heroSection) {
+                    const editNotice = document.createElement('div');
+                    editNotice.id = 'editModeActiveNotice';
+                    editNotice.style.cssText = 'background:#f0fdf4; border:1.5px solid #86efac; border-radius:12px; padding:12px 18px; margin-top:16px; color:#166534; font-size:0.9rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;';
+                    editNotice.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.3rem;">✏️</span>
+                            <div>
+                                <strong>Modo Edición Activo:</strong> Se cargó la información guardada de <strong>${data.couple || 'esta boda'}</strong>.
+                                <div style="font-size:0.78rem; color:#15803d;">Puedes modificar cualquier sección y hacer clic en "Guardar y Actualizar" para guardar los cambios de inmediato.</div>
+                            </div>
+                        </div>
+                        <span style="background:#dcfce7; border:1px solid #86efac; color:#15803d; padding:4px 10px; border-radius:20px; font-weight:800; font-size:0.75rem;">Guardado Previo Disponible</span>
+                    `;
+                    heroSection.appendChild(editNotice);
+                }
+
+                const submitBtn = document.getElementById('btnSubmitBriefing');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<span style="font-size:1.3rem;">💾</span><span>Guardar y Actualizar Cambios del Briefing</span>';
+                }
+            } catch(e) {
+                console.warn('Error al cargar datos previos del briefing:', e);
+            }
+        }
 
         const KNOWN_PLANNERS = [
             { agency: "Aura Weddings & Design", planner: "Mariana Garza", phone: "+52 81 8990 1122" },
@@ -1167,6 +1403,55 @@
             }
         }
 
+        function handleKidsPolicyChange(val) {
+            const helper = document.getElementById('kidsPolicyHelper');
+            const menuDGroup = document.getElementById('menuOptionDGroup');
+            const menuDLabel = document.getElementById('menuOptionDLabel');
+            const menuDInput = document.getElementById('menuOptionD');
+            
+            if (val === 'kids_welcome') {
+                if (helper) {
+                    helper.style.background = '#f0fdf4';
+                    helper.style.borderColor = '#bbf7d0';
+                    helper.style.color = '#166534';
+                    helper.innerHTML = '✨ <strong>Modo Familiar Activo:</strong> La invitación web habilitará el selector dual (👨 Adultos 1-6 y 🧒 Niños 0-4) con asignación de platillo infantil para cada menor y control de alergias.';
+                }
+                if (menuDGroup) menuDGroup.style.opacity = '1';
+                if (menuDLabel) menuDLabel.innerText = 'Opción D (Menú Infantil Activo)';
+                if (menuDInput) {
+                    menuDInput.disabled = false;
+                    if (menuDInput.value.includes('No Aplica')) {
+                        menuDInput.value = 'Dedos de pechuga crujientes con puré rústico y salsa dulce';
+                    }
+                }
+            } else {
+                if (helper) {
+                    helper.style.background = '#fef2f2';
+                    helper.style.borderColor = '#fecaca';
+                    helper.style.color = '#991b1b';
+                    helper.innerHTML = '🔒 <strong>Modo Solo Adultos Configurado:</strong> La invitación web no desplegará pases infantiles ni platillos de niños. Se configurará el selector para confirmar <strong>hasta 6 invitados, todos mayores de edad</strong>, con menú gourmet y alergias individuales.';
+                }
+                if (menuDGroup) menuDGroup.style.opacity = '0.65';
+                if (menuDLabel) menuDLabel.innerText = 'Opción D (Menú Infantil - Inactivo en Solo Adultos)';
+                if (menuDInput) {
+                    menuDInput.disabled = true;
+                    menuDInput.value = 'No Aplica (Boda Exclusiva de Adultos)';
+                }
+            }
+        }
+
+        function handleMenuTypeChange(val) {
+            const fixedBox = document.getElementById('fixedMenuContainer');
+            const choiceBox = document.getElementById('choiceMenuContainer');
+            if (val === 'fixed') {
+                if (fixedBox) fixedBox.style.display = 'block';
+                if (choiceBox) choiceBox.style.display = 'none';
+            } else {
+                if (fixedBox) fixedBox.style.display = 'none';
+                if (choiceBox) choiceBox.style.display = 'block';
+            }
+        }
+
         function collectBriefingData() {
             const selectedTheme = document.getElementById('selectedThemeInput').value;
             return {
@@ -1230,6 +1515,8 @@
                 rsvp: {
                     deadline: document.getElementById('rsvpDeadline').value,
                     kidsPolicy: document.getElementById('kidsPolicy').value,
+                    menuType: document.getElementById('menuTypeSelect') ? document.getElementById('menuTypeSelect').value : 'choice',
+                    fixedMenuDesc: document.getElementById('fixedMenuDesc') ? document.getElementById('fixedMenuDesc').value : '',
                     menuOptions: {
                         a: document.getElementById('menuOptionA').value,
                         b: document.getElementById('menuOptionB').value,
@@ -1257,6 +1544,11 @@
 
         function copyPromptForAI() {
             const data = collectBriefingData();
+            const isFixed = data.rsvp.menuType === 'fixed';
+            const menuText = isFixed 
+                ? `- Modalidad: Menú Único / General (Mismo banquete de autor para todos los comensales — sin elección previa)\n- Detalle del Menú: ${data.rsvp.fixedMenuDesc || 'Banquete de Gala de 4 Tiempos'}\n- Alergias y Dietas: Se registran individualmente por invitado en la web.`
+                : `- Modalidad: Menú con Selección Gourmet\n- Res: ${data.rsvp.menuOptions.a}\n- Ave/Pescado: ${data.rsvp.menuOptions.b}\n- Vegano: ${data.rsvp.menuOptions.c}`;
+
             const prompt = `Hola Antigravity Devs, aquí está el Briefing Completo de la Boda para maquetar la Invitación Web y configurar el Dashboard:
 
 💍 DATOS GENERALES:
@@ -1293,11 +1585,10 @@ ${data.customThemeDetails ? '- Notas: ' + data.customThemeDetails.notes : ''}
 - Tiendas: ${data.giftRegistry.store || 'N/A'} | Amazon: ${data.giftRegistry.amazon || 'N/A'}
 - Lluvia de Sobres: ${data.giftRegistry.envelope ? 'Activada' : 'Desactivada'}
 
-🍽️ MENÚ & ALERGIAS:
-- Res: ${data.rsvp.menuOptions.a}
-- Ave/Pescado: ${data.rsvp.menuOptions.b}
-- Vegano: ${data.rsvp.menuOptions.c}
-- RSVP Límite: ${data.rsvp.deadline} | Política Niños: ${data.rsvp.kidsPolicy}
+🍽️ MENÚ & POLÍTICA DE PASES:
+${menuText}
+- RSVP Límite: ${data.rsvp.deadline}
+- Política Niños: ${data.rsvp.kidsPolicy === 'kids_welcome' ? '👶 Niños bienvenidos (Pases de adultos + niños con menú infantil)' : '🚫 Solo Adultos (Hasta 6 invitados mayores de edad)'}
 
 🚐 TRANSPORTE & SHUTTLES:
 - Shuttles: ${data.transport.hasShuttle} | Salida: ${data.transport.pickup} | Horarios Ida: ${data.transport.departures} | Retorno: ${data.transport.returns}
@@ -1385,6 +1676,15 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
             // Copiar al portapapeles automáticamente como respaldo instantáneo
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(summary).catch(() => {});
+            }
+
+            // Disparar Notificación Push a Telegram si está configurado
+            if (typeof sendTelegramBriefingAlert === 'function') {
+                try {
+                    sendTelegramBriefingAlert(data);
+                } catch (tgErr) {
+                    console.warn('Telegram briefing notification skipped:', tgErr);
+                }
             }
 
             // Mostrar modal de confirmación de éxito in situ

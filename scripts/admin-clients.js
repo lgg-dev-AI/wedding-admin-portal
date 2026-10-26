@@ -898,6 +898,14 @@ function saveNewClientPlanner(e) {
     saveClientsDatabase(clients);
     closeNewClientModal();
 
+    if (typeof sendTelegramNewAgencyAlert === 'function') {
+        try {
+            sendTelegramNewAgencyAlert(newClient);
+        } catch (tgErr) {
+            console.warn('Telegram new agency alert error:', tgErr);
+        }
+    }
+
     if (typeof showToast === 'function') {
         showToast(`🎉 Cliente "${agencyName}" aprovisionado (Plan: ${planTier}, $${monthlyFee} MXN/mes). Contraseña guardada.`);
     }

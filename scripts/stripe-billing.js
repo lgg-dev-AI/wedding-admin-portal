@@ -305,6 +305,24 @@ async function handleStripePaymentSubmit(e) {
             });
         }
 
+        // 2.1 Enviar Notificación Instantánea a Telegram
+        if (typeof sendTelegramSubscriptionAlert === 'function') {
+            try {
+                sendTelegramSubscriptionAlert({
+                    agencyName: agencyName,
+                    email: email,
+                    planTier: activeCheckoutPlan,
+                    planName: plan.name,
+                    amount: plan.amount,
+                    currency: 'MXN',
+                    folio: receiptFolio,
+                    method: 'Stripe Tarjeta'
+                });
+            } catch (tgErr) {
+                console.warn('Telegram alert skipped or error:', tgErr);
+            }
+        }
+
         // 3. Cerrar checkout y mostrar modal de éxito con el folio oficial de Stripe
         closeStripeCheckoutModal();
         if (btn) {
