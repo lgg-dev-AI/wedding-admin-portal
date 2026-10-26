@@ -430,6 +430,10 @@ function showTab(tabName) {
         return;
     }
 
+    if (activeRole === 'couple') {
+        document.querySelectorAll('.planner-only').forEach(el => el.style.display = 'none');
+    }
+
     document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
 
@@ -1440,6 +1444,12 @@ function quickSendGuestWhatsApp(guestId) {
 }
 
 function openEditActiveWeddingModal() {
+    if (activeRole === 'couple') {
+        if (typeof showToast === 'function') {
+            showToast('🔒 La edición y configuración de la boda es exclusiva de tu Wedding Planner.');
+        }
+        return;
+    }
     currentData = getWeddingState(currentWeddingId);
     if (!currentData) return;
 
@@ -1829,6 +1839,12 @@ function renderTravelTab() {
 // FEATURE 1: 📲 1-CLICK RESUMEN PARA NOVIOS (WHATSAPP FORMATTED REPORT)
 // =============================================================================
 function copyCoupleWhatsAppSummary() {
+    if (activeRole === 'couple') {
+        if (typeof showToast === 'function') {
+            showToast('🔒 Esta herramienta es exclusiva de la Wedding Planner para enviar resúmenes a los novios.');
+        }
+        return;
+    }
     const data = (typeof getWeddingState === 'function') ? getWeddingState(currentWeddingId) : currentData;
     if (!data) {
         showToast('⚠️ No hay datos disponibles para la boda activa.');

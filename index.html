@@ -130,8 +130,8 @@
                 <span class="card-tag" id="sidebarThemeTag">🌿 Haute Editorial</span>
                 <h3 class="card-names" id="sidebarCoupleNames">Sofía &amp; Alejandro</h3>
                 <p class="card-date" id="sidebarWeddingDate">📍 Valldemossa, Mallorca · 24 Oct 2027</p>
-                <div style="margin-top:10px; display:flex; gap:6px;">
-                    <button type="button" class="btn-sidebar-quick-edit planner-only" onclick="openEditActiveWeddingModal()" title="Editar datos del evento, recinto y accesos de los novios">
+                <div class="planner-only" style="margin-top:10px; display:flex; gap:6px;">
+                    <button type="button" class="btn-sidebar-quick-edit" onclick="openEditActiveWeddingModal()" title="Editar datos del evento, recinto y accesos de los novios">
                         ✏️ Datos &amp; Accesos Novios
                     </button>
                 </div>
@@ -277,8 +277,8 @@
                         <p class="tab-subtitle">Monitoreo consolidado en tiempo real: Asistencia, Finanzas, Proveedores, Mesas y Alertas Operativas.</p>
                     </div>
                     <div class="tab-actions">
-                        <button type="button" class="btn-action secondary" onclick="copyCoupleWhatsAppSummary()" style="border-color:#22c55e; color:#15803d; font-weight:700;" title="Copiar resumen ejecutivo formateado para enviar por WhatsApp a los novios">📲 Resumen WhatsApp</button>
-                        <button class="btn-action secondary" onclick="openEditActiveWeddingModal()">✏️ Editar Boda</button>
+                        <button type="button" class="btn-action secondary planner-only" onclick="copyCoupleWhatsAppSummary()" style="border-color:#22c55e; color:#15803d; font-weight:700;" title="Copiar resumen ejecutivo formateado para enviar por WhatsApp a los novios">📲 Resumen WhatsApp</button>
+                        <button class="btn-action secondary planner-only" onclick="openEditActiveWeddingModal()">✏️ Editar Boda</button>
                         <button class="btn-action secondary" onclick="generateAndPreviewPDF()">📄 Reporte PDF</button>
                         <button class="btn-action primary" onclick="showQuickAddModal()">+ Nuevo Invitado</button>
                     </div>
@@ -2398,7 +2398,7 @@
                                         Gestiona la recaudación de habitaciones y paquetes turísticos de los invitados. El sistema desglosa de manera transparente el <strong>Costo del Resort</strong> (dinero de terceros), tu <strong>Fee de Wedding Planner</strong> y la <strong>Proyección de Impuestos (IVA 16% e ISR estimado)</strong> para que Hacienda no te multe ni considere los depósitos hoteleros como ingreso 100% gravable.
                                     </p>
                                 </div>
-                                <button type="button" class="btn-action secondary" onclick="openEditActiveWeddingModal()" style="font-size:0.8rem; padding:8px 14px; white-space:nowrap; background:#ffffff; color:#0f172a; font-weight:800;">
+                                <button type="button" class="btn-action secondary planner-only" onclick="openEditActiveWeddingModal()" style="font-size:0.8rem; padding:8px 14px; white-space:nowrap; background:#ffffff; color:#0f172a; font-weight:800;">
                                     ⚙️ Ajustar Costo / CLABE
                                 </button>
                             </div>
@@ -3352,17 +3352,17 @@
     <div id="toastNotification" class="toast-notification"></div>
 
             <!-- APP ENGINE SCRIPTS -->
-    <script src="scripts/admin-data.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-settings.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-album-playlist.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-seating.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-dayof.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-barcalc.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-finance.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-pdf-reports.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-app.js?v=20261025_couple_access_v6"></script>
+    <script src="scripts/admin-data.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-dispatch.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-settings.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-album-playlist.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-seating.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-dayof.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-barcalc.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-vendors.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-finance.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-pdf-reports.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-app.js?v=20261025_couple_shield_v7"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -5790,11 +5790,11 @@
     </div>
 
     <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/admin-auth.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_couple_access_v6"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_couple_access_v6"></script>
+    <script src="scripts/admin-clients.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-auth.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_couple_shield_v7"></script>
 
 </body>
 </html>
