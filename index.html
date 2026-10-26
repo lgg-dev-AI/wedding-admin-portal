@@ -143,6 +143,11 @@
                     <span class="menu-icon">📊</span>
                     <span class="menu-text">Torre de Control (Dash)</span>
                 </button>
+                <button class="menu-item" onclick="showTab('kanban')">
+                    <span class="menu-icon">📋</span>
+                    <span class="menu-text">CRM Actividades (Kanban)</span>
+                    <span class="menu-badge badge-warning" id="statKanbanPendingBadge">12 pendientes</span>
+                </button>
 
                 <!-- FASE 1: CONVOCATORIA & MESAS -->
                 <div class="menu-section-header" data-section="phase1">
@@ -316,6 +321,33 @@
                     </div>
                 </div>
 
+                <!-- CRM ROADMAP & KANBAN DIRECT BANNER -->
+                <div class="section-card mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 14px; padding: 18px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 280px;">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(217, 119, 6, 0.2); border: 1px solid #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                            📋
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                                <span style="font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: #fbbf24; font-weight: 800;">CRM de Actividades &amp; Roadmap</span>
+                                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; color: #cbd5e1;">Cero Configuración · Drag &amp; Drop</span>
+                            </div>
+                            <h4 style="font-size: 1.05rem; margin: 0; color: #ffffff; font-weight: 700;">Checklist Maestro de 12 Meses</h4>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                                <div style="flex: 1; max-width: 240px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden;">
+                                    <div id="dashKanbanProgressBar" style="width: 45%; height: 100%; background: #fbbf24; border-radius: 6px; transition: width 0.3s ease;"></div>
+                                </div>
+                                <span id="dashKanbanProgressText" style="font-size: 0.78rem; color: #e2e8f0; font-weight: 600;">Cargando avance...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-action primary" onclick="showTab('kanban')" style="background: #d97706; border-color: #d97706; font-weight: 700; padding: 10px 20px; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
+                            Abrir Tablero Kanban ➔
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 6-CARD CONSOLIDATED EXECUTIVE METRICS GRID -->
                 <div class="metrics-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                     <!-- 1. ASISTENCIA & RATIO -->
@@ -483,8 +515,11 @@
                 </div>
             </section>
 
+            <!-- TAB: CRM DE ACTIVIDADES & ROADMAP (KANBAN DRAG & DROP) -->
+            <section id="tab-kanban" class="tab-pane">
+                <!-- Content will be rendered dynamically by renderKanbanTab() -->
+            </section>
 
-            
             <!-- TAB: TABLERO DE CONTROL DE ENVÍOS WHATSAPP (WEDDING PLANNER HUB) -->
             <section id="tab-dispatch" class="tab-pane">
                 <div class="tab-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
@@ -3446,6 +3481,7 @@
     <script src="scripts/admin-vendors.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-finance.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-pdf-reports.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-kanban.js?v=20261026_kanban_v1"></script>
     <script src="scripts/admin-app.js?v=20261025_planner_shield_v9"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->

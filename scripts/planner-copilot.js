@@ -73,6 +73,12 @@ const KNOWLEDGE_BASE = [
         actionTab: 'dashboard'
     },
     {
+        keywords: ['crm', 'kanban', 'actividades', 'tareas', 'checklist', 'roadmap', 'hoja de ruta', 'arrastrar', 'estatus', '12 meses', 'pendientes'],
+        answer: '📋 <strong>¿Cómo funciona el CRM y Tablero Kanban de Actividades?</strong><br><br>• Viene <strong>pre-cargado desde el día 1</strong> con el Checklist Maestro de 12 meses (24 hitos esenciales de boda).<br>• Puedes <strong>arrastrar y soltar (drag & drop)</strong> cualquier tarjeta entre las 3 columnas (<em>Por Hacer</em>, <em>En Curso</em> y <em>Completado</em>) para cambiar su estatus al instante.<br>• También cuenta con botones de 1 clic para mover rápido desde tu celular o tablet.<br>• Puedes filtrar por responsable (<em>Solo Planner</em> o <em>Novios</em>), por fase cronológica (12-10 meses, 9-7 meses, etc.) o agregar actividades personalizadas con el botón <strong>"+ Nueva Actividad"</strong>.<br>• Al final, puedes generar un reporte formal impreso para reuniones con los novios.',
+        actionTab: 'kanban',
+        actionLabel: '📋 Ir al Tablero Kanban'
+    },
+    {
         keywords: ['boda nueva', 'nueva boda', 'crear boda', 'agregar boda', 'registrar boda', 'alta de boda'],
         answer: '💍 <strong>¿Cómo dar de alta una nueva boda?</strong><br><br>1. Ve al encabezado superior (arriba a la derecha del selector de boda).<br>2. Haz clic en el botón dorado <strong>"+ Nueva Boda"</strong>.<br>3. Completa los nombres de la pareja, fecha, recinto y revisa el usuario y contraseña sugeridos para los novios.<br>4. Haz clic en <strong>"💍 Registrar & Activar Boda"</strong> y el sistema la activará de inmediato en tu cartera.',
         actionTab: null

@@ -414,7 +414,7 @@ function showTab(tabName) {
     // Gatekeeper: Solo aplica para la vista de novios o bodas sin briefing,
     // garantizando que Wedding Planner y Master Developer nunca queden bloqueados de sus herramientas.
     const isBriefingDone = currentData && (currentData.isBriefingCompleted || localStorage.getItem(`briefing_done_${currentWeddingId}`));
-    const nonGatedTabs = ['dashboard', 'backups', 'dev-clients', 'dev-analytics', 'hostess', 'settings', 'album', 'playlist'];
+    const nonGatedTabs = ['dashboard', 'kanban', 'backups', 'dev-clients', 'dev-analytics', 'hostess', 'settings', 'album', 'playlist'];
 
     if (activeRole === 'couple' && !nonGatedTabs.includes(tabName) && !isBriefingDone) {
         showToast(`⚠️ Debes completar el Formulario para Invitación Web antes de usar este módulo.`);
@@ -453,6 +453,7 @@ function showTab(tabName) {
     if (btn) btn.classList.add('active');
 
     if (tabName === 'dashboard') renderDashboard();
+    if (tabName === 'kanban') { if (typeof renderKanbanTab === 'function') renderKanbanTab(); }
     if (tabName === 'dispatch') { if (typeof renderDispatchTab === 'function') renderDispatchTab(); }
     if (tabName === 'seating') { if (typeof renderSeatingChart === 'function') renderSeatingChart(); }
     if (tabName === 'dayof') { if (typeof renderDayOfTab === 'function') renderDayOfTab(); }
@@ -735,6 +736,9 @@ function renderDashboard() {
     const elActionVouchersSub = document.getElementById('quickActionVouchersSubtitle');
     if (elActionVouchersTitle) elActionVouchersTitle.innerText = `${pendingVouchers.length} Comprobantes SPEI`;
     if (elActionVouchersSub) elActionVouchersSub.innerText = pendingVouchers.length === 0 ? 'Sin transferencias por revisar' : 'Transferencias bancarias por verificar';
+
+    // 11. Sync Kanban Roadmap Badges and Progress Widget
+    if (typeof updateKanbanBadges === 'function') updateKanbanBadges();
 }
 
 // GUEST CRM TABLE

@@ -7813,3 +7813,44 @@ body.floor-screen-locked .screen-lock-control-wrap {
     background: #fee2e2;
 }
 
+/* ==========================================================================
+   CRM KANBAN ROADMAP STYLES
+   ========================================================================== */
+.kanban-board {
+    margin-top: 14px;
+}
+.kanban-column {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+.kanban-card {
+    user-select: none;
+    -webkit-user-drag: element;
+}
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+}
+.kanban-card:active {
+    cursor: grabbing;
+}
+.kanban-card.dragging {
+    opacity: 0.35 !important;
+    transform: scale(0.96);
+    border: 2px dashed #d97706 !important;
+}
+.kanban-column.drag-over {
+    background: #fef3c7 !important;
+    border-color: #d97706 !important;
+    transform: scale(1.005);
+}
+@media (max-width: 768px) {
+    .kanban-board {
+        grid-template-columns: 1fr !important;
+    }
+    .kanban-column {
+        min-height: auto !important;
+        margin-bottom: 16px;
+    }
+}
+
+
