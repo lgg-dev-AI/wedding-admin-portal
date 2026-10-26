@@ -1530,13 +1530,9 @@ function openEditActiveWeddingModal() {
     const couplePassInput = document.getElementById('editWCouplePass');
     if (couplePassInput) couplePassInput.value = currentData.couplePass || 'boda2027';
 
-    // Digital Invitation URL & Fast RSVP link
+    // Digital Invitation URL
     const liveUrlInput = document.getElementById('editWLiveUrl');
     if (liveUrlInput) liveUrlInput.value = currentData.liveUrl || '';
-    const rsvpCodeEl = document.getElementById('editWFastRsvpCode');
-    if (rsvpCodeEl) {
-        rsvpCodeEl.textContent = `https://wedding-admin-portal.vercel.app/rsvp.html?wedding=${currentWeddingId || 'aura'}`;
-    }
 
     modal.classList.add('active');
     modal.style.display = 'flex';
@@ -1595,23 +1591,6 @@ function unlockClabeFieldsForPlanner() {
     handleClabeCertificationToggle(false);
     showToast('🔓 Campos bancarios habilitados para edición.');
 }
-
-function copyFastRsvpLink() {
-    const wId = window.currentWeddingId || 'aura';
-    const link = `https://wedding-admin-portal.vercel.app/rsvp.html?wedding=${wId}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(link).then(() => {
-            if (typeof showToast === 'function') {
-                showToast('🔗 Link de Fast RSVP copiado. Pégalo en tu botón de Canva o PDF externo.');
-            } else {
-                alert('Enlace copiado al portapapeles: ' + link);
-            }
-        });
-    } else {
-        prompt('Copia este enlace de confirmación:', link);
-    }
-}
-window.copyFastRsvpLink = copyFastRsvpLink;
 
 function closeEditActiveWeddingModal() {
     const modal = document.getElementById('modalEditWeddingGeneral');
