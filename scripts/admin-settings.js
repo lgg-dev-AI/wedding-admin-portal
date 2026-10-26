@@ -142,7 +142,7 @@ function renderSettingsTab() {
         }
     });
 
-    // 2. Sync Active Wedding Name in Header
+    // 2. Sync Active Wedding Name in Header & Credentials Card
     const activeWeddingBadge = document.getElementById('settingsActiveWeddingName');
     if (activeWeddingBadge) {
         if (currentData && currentData.couple) {
@@ -150,6 +150,15 @@ function renderSettingsTab() {
         } else {
             activeWeddingBadge.innerText = 'Sin Boda Creada (Crea una boda en "+ Nueva Boda")';
         }
+    }
+
+    const userInput = document.getElementById('settingsWCoupleUser');
+    if (userInput) {
+        userInput.value = (currentData && currentData.coupleUser) ? currentData.coupleUser : (currentWeddingId === 'aura' ? 'sofia-y-alejandro' : '');
+    }
+    const passInput = document.getElementById('settingsWCouplePass');
+    if (passInput) {
+        passInput.value = (currentData && currentData.couplePass) ? currentData.couplePass : (currentWeddingId === 'aura' ? 'boda2027' : '');
     }
 
     // 3. Update Granular Toggles & Pricing Inputs per Wedding
@@ -354,3 +363,42 @@ function applyVisibilityToCoupleView() {
         }
     });
 }
+
+function saveCoupleCredentialsFromSettings() {
+    if (!currentWeddingId || !window.currentData) {
+        showToast('⚠️ No hay boda activa seleccionada para guardar credenciales.');
+        return;
+    }
+
+    const userInput = document.getElementById('settingsWCoupleUser');
+    const passInput = document.getElementById('settingsWCouplePass');
+
+    const cleanUser = (userInput ? userInput.value : '').trim().toLowerCase();
+    const cleanPass = (passInput ? passInput.value : '').trim();
+
+    if (!cleanUser || !cleanPass) {
+        showToast('⚠️ Por favor completa el usuario y la contraseña de los novios.');
+        return;
+    }
+
+    window.currentData.coupleUser = cleanUser;
+    window.currentData.couplePass = cleanPass;
+
+    // Sync with modal inputs if present
+    const modalUser = document.getElementById('editWCoupleUser');
+    if (modalUser) modalUser.value = cleanUser;
+    const modalPass = document.getElementById('editWCouplePass');
+    if (modalPass) modalPass.value = cleanPass;
+
+    if (typeof saveWeddingState === 'function') {
+        saveWeddingState(currentWeddingId, window.currentData);
+    }
+
+    if (typeof WEDDINGS_DB !== 'undefined' && WEDDINGS_DB[currentWeddingId]) {
+        WEDDINGS_DB[currentWeddingId].coupleUser = cleanUser;
+        WEDDINGS_DB[currentWeddingId].couplePass = cleanPass;
+    }
+
+    showToast(`✅ Credenciales guardadas: Usuario "${cleanUser}" / Clave "${cleanPass}"`);
+}
+

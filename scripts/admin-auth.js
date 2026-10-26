@@ -133,7 +133,7 @@ function showFullLoginGatekeeper() {
         
         const userInput = document.getElementById('loginUserInput');
         if (userInput && !userInput.value) {
-            userInput.value = sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || AUTH_CONFIG.DEVELOPER_EMAIL;
+            userInput.value = sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || '';
         }
         const pinInput = document.getElementById('loginPinInput');
         if (pinInput) {

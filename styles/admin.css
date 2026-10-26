@@ -2433,6 +2433,29 @@ input:checked + .slider {
 }
 input:checked + .slider:before {
   transform: translateX(20px);
+/* SIDEBAR QUICK EDIT WEDDING BUTTON */
+.btn-sidebar-quick-edit {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.btn-sidebar-quick-edit:hover {
+  background: #ffffff;
+  border-color: #059669;
+  color: #059669;
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.15);
 }
 
 /* PERSONALIZAR PORTAL DE NOVIOS & SERVICIOS EXTRA */

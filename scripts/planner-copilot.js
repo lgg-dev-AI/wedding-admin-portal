@@ -4,48 +4,99 @@
 
 const KNOWLEDGE_BASE = [
     {
-        keywords: ['paso a paso', 'desde cero', 'desde 0', 'programar boda', 'como empezar', 'como inicio', 'flujo', 'guia', 'guía', 'onboarding'],
-        answer: `🚀 <strong>GUÍA MAESTRA: CÓMO PROGRAMAR UNA BODA DESDE 0 EN WEDDING OS</strong><br><br>
-        Sigue estos <strong>7 pasos cronológicos</strong> para configurar y operar cualquier boda de punta a punta:<br><br>
-        <strong>1️⃣ Registrar la Boda:</strong><br>
-        Haz clic en <strong>"+ Nueva Boda"</strong> (barra superior). Ingresa los nombres de la pareja, fecha, recinto y estimado de invitados.<br><br>
-        <strong>2️⃣ Briefing y Diseño Web (Invitación Digital):</strong><br>
-        Haz clic en <strong>"📋 Formulario para Invitación Web"</strong> en el navbar. Completa o comparte este enlace con los novios para recopilar la historia, itinerario, código de vestimenta y datos bancarios para regalos.<br><br>
-        <strong>3️⃣ Carga de Invitados (CRM):</strong><br>
-        Ve a <strong>"CRM Invitados & Menú"</strong>. Puedes dar de alta a tus comensales con <em>"+ Nuevo Invitado"</em> o importar tu lista de Excel con teléfonos mexicanos (+52). Asigna pases individuales o dobles y menús.<br><br>
+        keywords: ['paso a paso', 'desde cero', 'desde 0', 'programar boda', 'como empezar', 'como inicio', 'flujo', 'guia', 'guía', 'onboarding', 'proceso wedding planner'],
+        answer: `🚀 <strong>GUÍA MAESTRA: PROCESO COMPLETO DE LA WEDDING PLANNER</strong><br><br>
+        Sigue estos <strong>7 pasos cronológicos</strong> para configurar, cotizar y operar cualquier boda de punta a punta:<br><br>
+        <strong>1️⃣ Registrar la Boda (+ Nueva Boda):</strong><br>
+        Haz clic en <strong>"+ Nueva Boda"</strong> (barra superior). Ingresa los nombres de la pareja, fecha, recinto y se generará su usuario y contraseña automáticamente.<br><br>
+        <strong>2️⃣ Personalizar Portal de Novios & Servicios Extra:</strong><br>
+        Entra a <strong>"⚙️ Configuración & Planes"</strong>. Ahí defines qué módulos verá la pareja en su portal, asignas tus precios de venta (ej: WhatsApp $1,000, Mesas $2,500) y copias la propuesta para WhatsApp con 1 clic.<br><br>
+        <strong>3️⃣ Carga de Invitados (Lista Maestra):</strong><br>
+        Ve a <strong>"👥 Lista de Invitados & Menú"</strong>. Da de alta comensales o importa tu Excel con teléfonos mexicanos (+52). Asigna pases individuales o dobles y restricciones alimentarias.<br><br>
         <strong>4️⃣ Envío de Invitaciones por WhatsApp:</strong><br>
-        Entra a <strong>"Control Envíos WhatsApp"</strong>. Selecciona la plantilla adecuada (Save the Date, Invitación Formal, Recordatorio) y presiona <em>"📲 Enviar WhatsApp"</em> para disparar mensajes personalizados con su pase digital único.<br><br>
-        <strong>5️⃣ Conciliación de Regalos y Proveedores:</strong><br>
-        En <strong>"Comprobantes & Regalos"</strong> valida transferencias SPEI recibidas. En <strong>"Proveedores & Pagos"</strong> registra los anticipos de banquete, flores y música para no perder de vista ningún vencimiento.<br><br>
-        <strong>6️⃣ Acomodo de Salón (Plano 2D & Mesas):</strong><br>
-        Entra a <strong>"Distribución de Mesas"</strong> para asignar comensales sentados y armar la vista arquitectónica 2D para el capitán de meseros. En <strong>"Álbum QR"</strong> imprime las tarjetas con QR para cada centro de mesa.<br><br>
-        <strong>7️⃣ Ejecución en Vivo Día D:</strong><br>
-        Usa <strong>"Control de Acceso (Hostess)"</strong> en la puerta para escanear pases QR con smartphone y <strong>"Cronograma Minuto a Minuto"</strong> para coordinar la entrada, vals, cena y barra libre.`,
+        Entra a <strong>"📲 Envíos WhatsApp"</strong>. Selecciona la plantilla (Save the Date, Invitación Formal, Recordatorio) y presiona <em>"📲 Enviar WhatsApp"</em> para disparar invitaciones personalizadas.<br><br>
+        <strong>5️⃣ Plano 2D y Tarjetas QR de Mesas:</strong><br>
+        En <strong>"🪑 Distribución de Mesas 2D"</strong> acomoda los invitados sentados. En <strong>"📸 Álbum Colaborativo (QR)"</strong> descarga e imprime las tarjetas QR para cada centro de mesa.<br><br>
+        <strong>6️⃣ Conciliación de Pagos y Proveedores:</strong><br>
+        En <strong>"💳 Comprobantes & SPEI"</strong> valida transferencias de regalos. En <strong>"🏢 Proveedores & Anticipos"</strong> controla pagos a fotógrafos, banquete y música.<br><br>
+        <strong>7️⃣ Operación en Vivo Día D:</strong><br>
+        Usa <strong>"📱 Control Acceso (Hostess)"</strong> para escanear pases QR en puerta y <strong>"⏱️ Cronograma Minuto a Minuto"</strong> para coordinar entrada, vals, cena y fiesta.`,
+        actionTab: 'dashboard'
+    },
+    {
+        keywords: ['novios', 'vista novios', 'que ven los novios', 'portal novios', 'pareja', 'proceso novios', 'como entran'],
+        answer: `👰🤵 <strong>PROCESO Y EXPERIENCIA PARA LOS NOVIOS</strong><br><br>
+        <strong>¿Cómo funciona su acceso?</strong><br>
+        1. La wedding planner les entrega su link exclusivo (<em>https://wedding-admin-portal.vercel.app</em>) con su usuario y contraseña personalizados.<br>
+        2. Al iniciar sesión, la pareja entra directamente a su <strong>Portal de Novios</strong> sin ver controles de administración.<br><br>
+        <strong>¿Qué pueden ver y hacer los novios?</strong><br>
+        ✓ Consultar su <strong>Lista de Invitados</strong> y ver quién ya confirmó en tiempo real.<br>
+        ✓ Ver o colaborar en la <strong>Distribución de Mesas 2D</strong> del banquete.<br>
+        ✓ Revisar su <strong>Mesa de Regalos / Cuenta SPEI</strong> con los depósitos recibidos.<br>
+        ✓ Entrar al <strong>Álbum QR</strong> para ver las fotos que van subiendo sus invitados.<br>
+        ✓ Sugerir y votar canciones en la <strong>Playlist para el DJ</strong>.<br><br>
+        🔒 <strong>Totalmente Blindado:</strong> Los novios <strong>NUNCA</strong> ven "Configuración & Planes", costos de proveedores, tarifas SaaS ni paneles internos de la planner.`,
+        actionTab: 'settings',
+        actionModal: 'openEditActiveWeddingModal',
+        actionLabel: '✏️ Ver Accesos de los Novios'
+    },
+    {
+        keywords: ['vender', 'cotizar', 'servicios digitales', 'cuanto cobrar', 'precios novios', 'servicios extra', 'empaquetar'],
+        answer: `💡 <strong>CÓMO VENDER Y COTIZAR SERVICIOS DIGITALES A LOS NOVIOS</strong><br><br>
+        Wedding OS te permite monetizar cada boda como un producto digital:<br><br>
+        1. Ve a <strong>"⚙️ Configuración & Planes"</strong> &rarr; sección <strong>"Personalizar Portal de Novios"</strong>.<br>
+        2. Configura los precios que cobrarás por cada servicio adicional (ej: WhatsApp masivo $1,000 MXN, Acomodo 2D $2,500 MXN, Álbum QR $1,000 MXN, o $0 si se lo incluyes de cortesía).<br>
+        3. El sistema calcula en vivo la <strong>Inversión Total Cotizada</strong>.<br>
+        4. Haz clic en <strong>"📲 Copiar Propuesta para WhatsApp"</strong> para generar un mensaje formal listo para enviar a la pareja.`,
+        actionTab: 'settings'
+    },
+    {
+        keywords: ['nombres', 'secciones', 'mapa', 'ventanas', 'pantallas', 'donde esta', 'menu'],
+        answer: `🧭 <strong>MAPA COMPLETO DE VENTANAS Y MÓDULOS DE WEDDING OS</strong><br><br>
+        • <strong>📊 Torre de Control (Dash):</strong> Resumen ejecutivo, métricas clave y botón para editar datos de la boda.<br><br>
+        <strong>Fase 1: Convocatoria & Mesas</strong><br>
+        • <strong>👥 Lista de Invitados & Menú:</strong> CRM de confirmaciones, platillos y dietas.<br>
+        • <strong>📲 Envíos WhatsApp:</strong> Disparador de invitaciones con pases digitales.<br>
+        • <strong>🪑 Distribución de Mesas 2D:</strong> Plano arquitectónico y sillas para banquete.<br><br>
+        <strong>Fase 2: Presupuesto & Contratos</strong><br>
+        • <strong>🏢 Proveedores & Anticipos:</strong> Directorio confidencial, contratos y saldos.<br>
+        • <strong>💳 Comprobantes & SPEI:</strong> Validación de transferencias y mesa de regalos.<br>
+        • <strong>🍾 Cálculo de Barra & Vinos:</strong> Estimador de botellas y remisiones de descorche.<br><br>
+        <strong>Fase 3: Operación Día D (Sábado)</strong><br>
+        • <strong>⏱️ Cronograma Minuto a Minuto:</strong> Minuta en vivo y cuenta regresiva de coordinación.<br>
+        • <strong>📱 Control Acceso (Hostess):</strong> Escáner QR en puerta para check-in de invitados.<br>
+        • <strong>✈️ Logística, Hoteles & Shuttles:</strong> Habitaciones y transporte para foráneos.<br><br>
+        <strong>Fase 4: Experiencia & Recuerdos</strong><br>
+        • <strong>📸 Álbum Colaborativo (QR):</strong> Galería en vivo y descarga de tarjetas QR para mesas.<br>
+        • <strong>🎵 Playlist para el DJ:</strong> Briefing musical, canciones clave y lista negra.<br><br>
+        • <strong>⚙️ Configuración & Planes:</strong> Credenciales de novios, precios de cotización y planes SaaS.`,
         actionTab: 'dashboard'
     },
     {
         keywords: ['boda nueva', 'nueva boda', 'crear boda', 'agregar boda', 'registrar boda', 'alta de boda'],
-        answer: '💍 <strong>¿Cómo dar de alta una nueva boda?</strong><br><br>1. Ve al encabezado superior (arriba a la derecha del selector de boda).<br>2. Haz clic en el botón dorado <strong>"+ Nueva Boda"</strong>.<br>3. Completa los nombres de la pareja, fecha, recinto y cantidad máxima de mesas.<br>4. Haz clic en <strong>"Guardar Boda"</strong> y el sistema la activará de inmediato en tu cartera.',
+        answer: '💍 <strong>¿Cómo dar de alta una nueva boda?</strong><br><br>1. Ve al encabezado superior (arriba a la derecha del selector de boda).<br>2. Haz clic en el botón dorado <strong>"+ Nueva Boda"</strong>.<br>3. Completa los nombres de la pareja, fecha, recinto y revisa el usuario y contraseña sugeridos para los novios.<br>4. Haz clic en <strong>"💍 Registrar & Activar Boda"</strong> y el sistema la activará de inmediato en tu cartera.',
         actionTab: null
     },
     {
         keywords: ['editar boda', 'cambiar fecha', 'cambiar lugar', 'cambiar nombres', 'modificar boda'],
-        answer: '✏️ <strong>¿Cómo editar la información o fecha de la boda activa?</strong><br><br>1. Ve a <strong>"Dashboard General"</strong>.<br>2. En la esquina superior derecha, haz clic en el botón <strong>"✏️ Editar Boda"</strong>.<br>3. Podrás cambiar nombres de los novios, fecha oficial, recinto sede, aforo proyectado y notas internas de coordinación.',
-        actionTab: 'dashboard'
+        answer: '✏️ <strong>¿Cómo editar los datos de la boda activa o accesos?</strong><br><br>Tienes dos formas directas:<br>1. En el menú lateral, debajo del nombre de la boda activa, haz clic en el botón <strong>"✏️ Datos & Accesos Novios"</strong>.<br>2. O en la esquina superior derecha de <strong>"Torre de Control"</strong>, haz clic en <strong>"✏️ Editar Boda"</strong>.<br><br>Podrás cambiar nombres, fecha, recinto, CLABE interbancaria y usuario/contraseña de los novios.',
+        actionTab: 'dashboard',
+        actionModal: 'openEditActiveWeddingModal',
+        actionLabel: '✏️ Abrir Ventana de Edición'
     },
     {
         keywords: ['quien confirmo', 'quién confirmó', 'confirmados', 'asistencia', 'lista de invitados', 'gente confirmo', 'confirmaron', 'rsvp'],
-        answer: '👥 <strong>¿Dónde ver quién ya confirmó asistencia?</strong><br><br>Toda la trazabilidad está en la <strong>Lista Maestra de Invitados (CRM)</strong>:<br>1. En el menú de la izquierda, entra a <strong>"CRM Invitados & Menú"</strong>.<br>2. Usa las píldoras de filtro en la parte superior para hacer clic en <strong>"✓ Confirmados"</strong>.<br>3. Allí verás el número de pases aprobados, acompañantes y el menú seleccionado por cada comensal.',
+        answer: '👥 <strong>¿Dónde ver quién ya confirmó asistencia?</strong><br><br>Toda la trazabilidad está en la <strong>Lista de Invitados & Menú</strong>:<br>1. En el menú de la izquierda, entra a <strong>"Lista de Invitados & Menú"</strong>.<br>2. Usa las píldoras de filtro en la parte superior para hacer clic en <strong>"✓ Confirmados"</strong>.<br>3. Allí verás el número de pases aprobados, acompañantes y el menú seleccionado por cada comensal.',
         actionTab: 'guests'
     },
     {
         keywords: ['excel', 'importar excel', 'subir lista', 'csv', 'cargar invitados'],
-        answer: '📊 <strong>¿Cómo importar invitados desde Excel / CSV?</strong><br><br>1. Dirígete a <strong>"CRM Invitados & Menú"</strong>.<br>2. Haz clic en el botón <strong>"📥 Importar Excel / CSV"</strong>.<br>3. Puedes descargar la plantilla modelo o pegar columnas: Nombre, Teléfono (+52), Pases, Menú y Alergias.<br>4. El sistema autovalida los números celulares y normaliza el formato internacional.',
+        answer: '📊 <strong>¿Cómo importar invitados desde Excel / CSV?</strong><br><br>1. Dirígete a <strong>"Lista de Invitados & Menú"</strong>.<br>2. Haz clic en el botón <strong>"📥 Importar Excel / CSV"</strong>.<br>3. Puedes descargar la plantilla modelo o pegar columnas: Nombre, Teléfono (+52), Pases, Menú y Alergias.<br>4. El sistema autovalida los números celulares y normaliza el formato internacional.',
         actionTab: 'guests'
     },
     {
         keywords: ['alergias', 'vegetariano', 'celiaco', 'intolerancia', 'menu especial', 'dietas'],
-        answer: '🥗 <strong>¿Dónde consultar dietas especiales y alergias para el banquete?</strong><br><br>1. En <strong>"CRM Invitados & Menú"</strong>, filtra por <em>"Alergias / Restricciones"</em>.<br>2. El sistema clasifica celíacos, vegetarianos, veganos y alérgicos a mariscos o frutos secos.<br>3. Puedes exportar este listado en PDF para entregarlo directamente al Chef del banquete.',
+        answer: '🥗 <strong>¿Dónde consultar dietas especiales y alergias para el banquete?</strong><br><br>1. En <strong>"Lista de Invitados & Menú"</strong>, filtra por <em>"Alergias / Restricciones"</em>.<br>2. El sistema clasifica celíacos, vegetarianos, veganos y alérgicos a mariscos o frutos secos.<br>3. Puedes exportar este listado en PDF para entregarlo directamente al Chef del banquete.',
         actionTab: 'guests'
     },
     {
@@ -55,58 +106,53 @@ const KNOWLEDGE_BASE = [
     },
     {
         keywords: ['mesas', 'acomodo', 'plano', '2d', 'sillas', 'invitados en mesas', 'sentar'],
-        answer: '🪑 <strong>¿Cómo acomodar a los invitados en las mesas?</strong><br><br>1. Dirígete a <strong>"Acomodo & Plano 2D"</strong> en el menú izquierdo.<br>2. En la subpestaña <strong>"1. Asignación & Sillas"</strong> puedes arrastrar invitados a cada mesa o hacer clic en <strong>"+ Nueva Mesa"</strong>.<br>3. En la subpestaña <strong>"2. Plano 2D & Capitán"</strong> puedes mover las mesas en el espacio métrico del salón y configurar luces y cuadrantes.',
+        answer: '🪑 <strong>¿Cómo acomodar a los invitados en las mesas?</strong><br><br>1. Dirígete a <strong>"Distribución de Mesas 2D"</strong> en el menú izquierdo.<br>2. En la subpestaña <strong>"1. Asignación & Sillas"</strong> puedes arrastrar invitados a cada mesa o hacer clic en <strong>"+ Nueva Mesa"</strong>.<br>3. En la subpestaña <strong>"2. Plano 2D & Capitán"</strong> puedes mover las mesas en el espacio métrico del salón, agrandar la pista de baile y ajustar decoraciones.',
         actionTab: 'seating'
     },
     {
         keywords: ['whatsapp', 'mandar invitacion', 'enviar invitacion', 'disparar', 'invitaciones'],
-        answer: '📲 <strong>¿Cómo enviar las invitaciones por WhatsApp?</strong><br><br>1. Entra a <strong>"Control Envíos WhatsApp"</strong> en el menú izquierdo.<br>2. Verás la lista de invitados con su número telefónico.<br>3. Haz clic en el botón verde <strong>"📲 Enviar WhatsApp"</strong> en cada fila. El sistema abrirá WhatsApp con el mensaje personalizado y marcará con fecha y hora exacta que ya fue enviado con un checkbox verde.',
+        answer: '📲 <strong>¿Cómo enviar las invitaciones por WhatsApp?</strong><br><br>1. Entra a <strong>"Envíos WhatsApp"</strong> en el menú izquierdo.<br>2. Verás la lista de invitados con su número telefónico.<br>3. Haz clic en el botón verde <strong>"📲 Enviar WhatsApp"</strong> en cada fila. El sistema abrirá WhatsApp con el mensaje personalizado y marcará con fecha y hora exacta que ya fue enviado con un checkbox verde.',
         actionTab: 'dispatch'
     },
     {
         keywords: ['hostess', 'puerta', 'escaner', 'scanner', 'entrada', 'check in', 'check-in'],
-        answer: '📱 <strong>¿Cómo opera el Check-in de Hostess en puerta el Día D?</strong><br><br>1. En el menú de la izquierda, entra a <strong>"Check-in Hostess Día D"</strong>.<br>2. La hostess en la entrada del salón presiona <strong>"📸 Simular Escáner QR"</strong> (o apunta su cámara).<br>3. Al escanear el pase del invitado, la pantalla muestra de inmediato su nombre, número de mesa asignada y alertas de alergias, marcando su entrada en tiempo real.',
+        answer: '📱 <strong>¿Cómo opera el Check-in de Hostess en puerta el Día D?</strong><br><br>1. En el menú de la izquierda, entra a <strong>"Control Acceso (Hostess)"</strong>.<br>2. La hostess en la entrada del salón presiona <strong>"📸 Simular Escáner QR"</strong> (o apunta su cámara).<br>3. Al escanear el pase del invitado, la pantalla muestra de inmediato su nombre, número de mesa asignada y alertas de alergias, marcando su entrada en tiempo real.',
         actionTab: 'hostess'
     },
     {
         keywords: ['barra', 'alcohol', 'botellas', 'descorche', 'vino', 'licor', 'tequila'],
-        answer: '🍾 <strong>¿Cómo calcular las botellas de alcohol en la barra?</strong><br><br>1. Entra a <strong>"Barra & Descorche"</strong>.<br>2. Ajusta el número de invitados y la temporada (cálida o fría).<br>3. La calculadora te indicará cuántas botellas de tequila, whisky, ron, vino y champaña necesitas, y podrás registrar remisiones para conciliar botellas abiertas vs devueltas.',
+        answer: '🍾 <strong>¿Cómo calcular las botellas de alcohol en la barra?</strong><br><br>1. Entra a <strong>"Cálculo de Barra & Vinos"</strong>.<br>2. Ajusta el número de invitados y la temporada (cálida o fría).<br>3. La calculadora te indicará cuántas botellas de tequila, whisky, ron, vino y champaña necesitas, y podrás registrar remisiones para conciliar botellas abiertas vs devueltas.',
         actionTab: 'barcalc'
     },
     {
         keywords: ['escaleta', 'minuta', 'horarios', 'cronograma', 'vals', 'dia d'],
-        answer: '⏱️ <strong>¿Cómo organizar el cronograma minuto a minuto (Run of Show)?</strong><br><br>1. Entra a <strong>"Run of Show & Escaleta"</strong>.<br>2. Verás cada momento del evento con su hora exacta (Getting Ready, Ceremonia, Vals, Cena).<br>3. Tienes una cuenta regresiva en vivo para el staff y puedes imprimir o compartir la minuta con el DJ, fotógrafo y banquetera.',
+        answer: '⏱️ <strong>¿Cómo organizar el cronograma minuto a minuto (Run of Show)?</strong><br><br>1. Entra a <strong>"Cronograma Minuto a Minuto"</strong>.<br>2. Verás cada momento del evento con su hora exacta (Getting Ready, Ceremonia, Vals, Cena).<br>3. Tienes una cuenta regresiva en vivo para el staff y puedes imprimir o compartir la minuta con el DJ, fotógrafo y banquetera.',
         actionTab: 'dayof'
     },
     {
         keywords: ['dj', 'musica', 'playlist', 'canciones', 'primer vals', 'vals', 'prohibidas'],
-        answer: '🎵 <strong>¿Cómo gestionar el Briefing Musical para el DJ?</strong><br><br>1. Entra a <strong>"Briefing DJ & Playlist"</strong>.<br>2. Define las canciones icónicas (Entrada al Salón, Primer Baile, Brindis, Corte de Pastel).<br>3. Agrega la <em>Lista Negra (Do Not Play)</em> para garantizar que el DJ no toque géneros o pistas vetadas por la pareja.<br>4. Genera el PDF ejecutivo exclusivo para la cabina de audio.',
+        answer: '🎵 <strong>¿Cómo gestionar el Briefing Musical para el DJ?</strong><br><br>1. Entra a <strong>"Playlist para el DJ"</strong>.<br>2. Define las canciones icónicas (Entrada al Salón, Primer Baile, Brindis, Corte de Pastel).<br>3. Agrega la <em>Lista Negra (Do Not Play)</em> para garantizar que el DJ no toque géneros vetados por la pareja.<br>4. Genera el PDF ejecutivo exclusivo para la cabina de audio.',
         actionTab: 'playlist'
     },
     {
         keywords: ['pdf', 'reporte pdf', 'imprimir reporte', 'descargar informe', 'exportar'],
-        answer: '📄 <strong>¿Cómo generar el Reporte Ejecutivo en PDF?</strong><br><br>1. Haz clic en el botón <strong>"📄 Reporte PDF"</strong> en la esquina superior del Dashboard.<br>2. Se compilará al instante un dossier ejecutivo con métricas de confirmados, desglose presupuestal, mapa de mesas y contactos de emergencia para proveedores.',
+        answer: '📄 <strong>¿Cómo generar el Reporte Ejecutivo en PDF?</strong><br><br>1. Haz clic en el botón <strong>"📄 Reporte PDF"</strong> en la esquina superior de Torre de Control.<br>2. Se compilará al instante un dossier ejecutivo con métricas de confirmados, desglose presupuestal, mapa de mesas y contactos de emergencia para proveedores.',
         actionTab: 'dashboard'
     },
     {
-        keywords: ['planes', 'essential', 'signature', 'atelier', 'precios', 'upgrade', 'costo'],
+        keywords: ['planes', 'essential', 'signature', 'atelier', 'precios', 'upgrade', 'costo', 'stripe'],
         answer: '⚙️ <strong>¿Cuáles son los 3 planes de Wedding OS?</strong><br><br>• <strong>🥉 Essential ($800 MXN/mes):</strong> 1-3 bodas · Hasta 50 invitados por boda · CRM, regalos y confirmaciones manuales.<br>• <strong>🥈 Signature Pro ($1,500 MXN/mes):</strong> 1-10 bodas · Hasta 100 invitados · WhatsApp masivo, Plano 2D, Check-in QR Hostess y Playlist.<br>• <strong>👑 Atelier Elite ($2,800 MXN/mes):</strong> Hasta 15 bodas · Invitados ilimitados · Minuta Día D, Barra, Proveedores y Marca Blanca.',
         actionTab: 'settings'
     },
     {
         keywords: ['regalos', 'comprobantes', 'spei', 'dinero', 'luna de miel'],
-        answer: '💳 <strong>¿Cómo validar las aportaciones de la mesa de regalos?</strong><br><br>1. Entra a <strong>"Comprobantes & Regalos"</strong>.<br>2. Verás las transferencias bancarias SPEI reportadas por los invitados con su comprobante adjunto.<br>3. Haz clic en <strong>"Aprobar"</strong> para validar el depósito y sumar los fondos a la cuenta de luna de miel de los novios.',
+        answer: '💳 <strong>¿Cómo validar las aportaciones de la mesa de regalos?</strong><br><br>1. Entra a <strong>"Comprobantes & SPEI"</strong>.<br>2. Verás las transferencias bancarias SPEI reportadas por los invitados con su comprobante adjunto.<br>3. Haz clic en <strong>"Aprobar"</strong> para validar el depósito y sumar los fondos a la cuenta de luna de miel de los novios.',
         actionTab: 'finance'
     },
     {
         keywords: ['proveedores', 'anticipos', 'contratos', 'pagos', 'deudas'],
         answer: '🏢 <strong>¿Dónde controlo los anticipos de proveedores?</strong><br><br>1. Entra a <strong>"Proveedores & Anticipos"</strong> en el menú lateral.<br>2. Puedes dar de alta fotógrafos, flores, música, banquete con sus costos pactados.<br>3. Registra cada abono y el sistema te alertará automáticamente qué saldo queda pendiente antes del evento.',
         actionTab: 'vendors'
-    },
-    {
-        keywords: ['novios', 'vista novios', 'que ven los novios', 'portal novios', 'pareja'],
-        answer: '👰 <strong>¿Cómo funciona la Vista de los Novios?</strong><br><br>1. En la barra superior, haz clic en el botón de rol <strong>"👰 Vista Novios"</strong>.<br>2. Verás exactamente la interfaz pulida que tienen ellos: acceso a ver sus confirmados, acomodo de mesas y regalos, manteniendo ocultos los paneles internos y costos operativos de la agencia.',
-        actionTab: null
     }
 ];
 
@@ -140,16 +186,43 @@ function handleCopilotSubmit(e) {
         showCopilotTyping(false);
         const match = findBestKnowledgeMatch(query);
         if (match) {
-            appendCopilotMessage('bot', match.answer, match.actionTab);
+            appendCopilotMessage('bot', match.answer, match.actionTab, match.actionModal, match.actionLabel);
         } else {
-            const defaultReply = `Entendido. Para ayudarte mejor con esa duda sobre <strong>"${escapeHtml(query)}"</strong>:<br><br>• Si buscas personas que confirmaron, ve a <strong>"CRM Invitados"</strong>.<br>• Si quieres registrar una boda, haz clic en el botón dorado superior <strong>"+ Nueva Boda"</strong>.<br>• Si buscas descargar el QR de mesas, ve a <strong>"Álbum Colaborativo (QR)"</strong>.<br><br>¿Te gustaría que te dirija a alguno de estos módulos?`;
+            const defaultReply = `Entendido. Para ayudarte mejor con esa duda sobre <strong>"${escapeHtml(query)}"</strong>:<br><br>• Si buscas accesos o usuario de novios, ve a <strong>"⚙️ Configuración & Planes"</strong>.<br>• Si buscas personas que confirmaron, ve a <strong>"👥 Lista de Invitados & Menú"</strong>.<br>• Si quieres registrar una boda, haz clic en el botón dorado superior <strong>"+ Nueva Boda"</strong>.<br>• Si buscas el plano del salón, ve a <strong>"🪑 Distribución de Mesas 2D"</strong>.<br><br>¿Te gustaría que te dirija a alguno de estos módulos?`;
             appendCopilotMessage('bot', defaultReply);
         }
-    }, 450);
+    }, 400);
 }
 
 function findBestKnowledgeMatch(userText) {
     const textNorm = userText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // 1. Detección Inteligente Dinámica: Credenciales, Usuario y Contraseña de los Novios
+    const credKeywords = ['usuario', 'contrasena', 'contrasenia', 'password', 'clave', 'login novio', 'como entran', 'acceso novio', 'credencial', 'como ingresan', 'acceso pareja', 'claves'];
+    const isAskingCreds = credKeywords.some(k => textNorm.includes(k));
+
+    if (isAskingCreds) {
+        const state = (typeof getWeddingState === 'function' && typeof currentWeddingId !== 'undefined' && currentWeddingId) ? getWeddingState(currentWeddingId) : (window.currentData || {});
+        const couple = state && state.couple ? state.couple : 'tu boda activa';
+        const user = (state && state.coupleUser) ? state.coupleUser : (currentWeddingId === 'aura' ? 'sofia-y-alejandro' : 'novios');
+        const pass = (state && state.couplePass) ? state.couplePass : (currentWeddingId === 'aura' ? 'boda2027' : 'boda2027');
+
+        return {
+            answer: `🔑 <strong>ACCESO AL PORTAL PARA LOS NOVIOS</strong><br><br>` +
+                    `Para la boda activa de <strong>${escapeHtml(couple)}</strong>, las credenciales son:<br>` +
+                    `• <strong>Usuario:</strong> <code style="background:#e2e8f0; padding:2px 8px; border-radius:6px; font-weight:800; color:#0f172a;">${escapeHtml(user)}</code><br>` +
+                    `• <strong>Contraseña:</strong> <code style="background:#e2e8f0; padding:2px 8px; border-radius:6px; font-weight:800; color:#0f172a;">${escapeHtml(pass)}</code><br><br>` +
+                    `📍 <strong>¿Dónde cambiarlas o configurarlas?</strong><br>` +
+                    `1. En <strong>"⚙️ Configuración & Planes"</strong> (tarjeta <em>Credenciales de Acceso</em>).<br>` +
+                    `2. O en el menú lateral haciendo clic en <strong>"✏️ Datos & Accesos Novios"</strong>.<br><br>` +
+                    `📲 Los novios ingresan desde cualquier celular o PC en: <em>https://wedding-admin-portal.vercel.app</em>.`,
+            actionTab: 'settings',
+            actionModal: 'openEditActiveWeddingModal',
+            actionLabel: '✏️ Abrir Ventana de Accesos'
+        };
+    }
+
+    // 2. Búsqueda en Base de Conocimientos Estándar
     let bestMatch = null;
     let maxHits = 0;
 
@@ -170,7 +243,7 @@ function findBestKnowledgeMatch(userText) {
     return maxHits > 0 ? bestMatch : null;
 }
 
-function appendCopilotMessage(sender, htmlText, actionTab = null) {
+function appendCopilotMessage(sender, htmlText, actionTab = null, actionModal = null, actionLabel = null) {
     const messagesBox = document.getElementById('copilotMessagesBox');
     if (!messagesBox) return;
 
@@ -181,7 +254,7 @@ function appendCopilotMessage(sender, htmlText, actionTab = null) {
     const bubble = document.createElement('div');
     bubble.className = `copilot-bubble ${sender}`;
     bubble.style.cssText = `
-        max-width: 85%;
+        max-width: 88%;
         padding: 10px 14px;
         border-radius: ${sender === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px'};
         background: ${sender === 'user' ? '#0f172a' : '#f1f5f9'};
@@ -192,16 +265,39 @@ function appendCopilotMessage(sender, htmlText, actionTab = null) {
     `;
     bubble.innerHTML = htmlText;
 
+    const actionsContainer = document.createElement('div');
+    actionsContainer.style.cssText = 'margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;';
+
+    let hasActions = false;
+
+    if (actionModal && typeof window[actionModal] === 'function') {
+        const btnModal = document.createElement('button');
+        btnModal.type = 'button';
+        btnModal.style.cssText = 'background: #059669; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(5,150,105,0.25);';
+        btnModal.innerHTML = actionLabel || `✏️ Abrir Ventana &rarr;`;
+        btnModal.onclick = () => {
+            window[actionModal]();
+            togglePlannerCopilot();
+        };
+        actionsContainer.appendChild(btnModal);
+        hasActions = true;
+    }
+
     if (actionTab && typeof showTab === 'function') {
         const btnNav = document.createElement('button');
-        btnNav.style.cssText = 'margin-top: 8px; background: #d97706; color: #fff; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;';
+        btnNav.type = 'button';
+        btnNav.style.cssText = 'background: #d97706; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(217,119,6,0.25);';
         btnNav.innerHTML = `Ir a esa pantalla &rarr;`;
         btnNav.onclick = () => {
             showTab(actionTab);
             togglePlannerCopilot();
         };
-        bubble.appendChild(document.createElement('br'));
-        bubble.appendChild(btnNav);
+        actionsContainer.appendChild(btnNav);
+        hasActions = true;
+    }
+
+    if (hasActions) {
+        bubble.appendChild(actionsContainer);
     }
 
     row.appendChild(bubble);

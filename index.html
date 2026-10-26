@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261025_couple_services_v2">
+    <link rel="stylesheet" href="styles/admin.css?v=20261025_planner_copilot_v3">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -130,6 +130,11 @@
                 <span class="card-tag" id="sidebarThemeTag">🌿 Haute Editorial</span>
                 <h3 class="card-names" id="sidebarCoupleNames">Sofía &amp; Alejandro</h3>
                 <p class="card-date" id="sidebarWeddingDate">📍 Valldemossa, Mallorca · 24 Oct 2027</p>
+                <div style="margin-top:10px; display:flex; gap:6px;">
+                    <button type="button" class="btn-sidebar-quick-edit planner-only" onclick="openEditActiveWeddingModal()" title="Editar datos del evento, recinto y accesos de los novios">
+                        ✏️ Datos &amp; Accesos Novios
+                    </button>
+                </div>
             </div>
 
             <nav class="sidebar-menu">
@@ -865,6 +870,41 @@
                             <strong id="settingsActiveWeddingName" style="color:#0f172a; font-size:0.95rem;">Sofía &amp; Alejandro</strong>
                         </div>
                         <span style="font-size:0.75rem; color:#059669; background:#dcfce7; padding:4px 10px; border-radius:20px; font-weight:700;">⚙️ Configuración Única para esta Boda</span>
+                    </div>
+
+                    <!-- TARJETA: CREDENCIALES DE ACCESO DIRECTO NOVIOS -->
+                    <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:14px; padding:18px 20px; margin-bottom:20px; box-shadow:0 2px 10px rgba(15,23,42,0.03);">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.3rem;">🔑</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:0.95rem; display:block;">Credenciales de Acceso para la Pareja</strong>
+                                    <p class="text-xs text-muted" style="margin:2px 0 0;">Estas son las claves con las que los novios inician sesión en su portal para ver sus invitados, mesas y servicios.</p>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" class="btn-action secondary" onclick="copyCoupleCredentialsForWhatsApp()" style="font-size:0.78rem; padding:6px 12px; font-weight:700; border-color:#22c55e; color:#15803d;">
+                                    📲 Copiar Accesos WhatsApp
+                                </button>
+                                <button type="button" class="btn-action primary" onclick="saveCoupleCredentialsFromSettings()" style="font-size:0.78rem; padding:6px 14px; font-weight:700;">
+                                    💾 Guardar Accesos
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; align-items:flex-end;">
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Usuario de los Novios</label>
+                                <input type="text" id="settingsWCoupleUser" placeholder="ej. sofia-y-alejandro" style="width:100%; padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; color:#0f172a;" autocomplete="off">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.78rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Contraseña de los Novios</label>
+                                <div style="display:flex; align-items:center; border:1.5px solid #cbd5e1; border-radius:8px; background:#ffffff; overflow:hidden;">
+                                    <input type="password" id="settingsWCouplePass" placeholder="ej. boda2027" style="flex:1; border:none; padding:8px 12px; font-size:0.86rem; font-weight:600; color:#0f172a; outline:none;" autocomplete="new-password">
+                                    <button type="button" onclick="togglePasswordVisibility('settingsWCouplePass', this)" style="border:none; background:transparent; padding:0 10px; cursor:pointer; color:#64748b;" title="Ver/Ocultar contraseña">👁️</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- RESUMEN DE COTIZACIÓN PARA LA PAREJA -->
@@ -3083,6 +3123,25 @@
                     <label>Presupuesto Total Estimado ($ MXN)</label>
                     <input type="number" id="newWBudget" value="850000">
                 </div>
+
+                <!-- ACCESO AL PORTAL PARA LOS NOVIOS -->
+                <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px 14px; margin-bottom:14px;">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                        <span>👰🤵</span>
+                        <strong style="color:#0f172a; font-size:0.82rem;">Acceso Directo al Portal para los Novios</strong>
+                    </div>
+                    <div class="form-row" style="margin-bottom:0;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.75rem;">Usuario sugerido (Login)</label>
+                            <input type="text" id="newWCoupleUser" required placeholder="ej. camila-y-sebastian">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.75rem;">Contraseña sugerida</label>
+                            <input type="text" id="newWCouplePass" required value="boda2027" placeholder="ej. boda2027">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn-action secondary" onclick="closeModal('modalNewWedding')">Cancelar</button>
                     <button type="submit" class="btn-action primary">💍 Registrar & Activar Boda</button>
@@ -3293,17 +3352,17 @@
     <div id="toastNotification" class="toast-notification"></div>
 
             <!-- APP ENGINE SCRIPTS -->
-    <script src="scripts/admin-data.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-settings.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-album-playlist.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-seating.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-dayof.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-barcalc.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-finance.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-pdf-reports.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-app.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-data.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-dispatch.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-settings.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-album-playlist.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-seating.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-dayof.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-barcalc.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-vendors.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-finance.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-pdf-reports.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-app.js?v=20261025_login_fix_v4"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -4462,8 +4521,8 @@
 
                 <form onsubmit="submitFullLogin(event)">
                     <div class="auth-form-group">
-                        <label class="auth-form-label">Correo Electrónico:</label>
-                        <input type="email" id="loginUserInput" class="auth-form-input" placeholder="tu-correo@agencia.com" required autocomplete="email">
+                        <label class="auth-form-label">Correo Electrónico o Usuario:</label>
+                        <input type="text" id="loginUserInput" class="auth-form-input" placeholder="tu-correo@agencia.com o usuario-novios" required autocomplete="username">
                     </div>
 
                     <div class="auth-form-group">
@@ -5731,11 +5790,11 @@
     </div>
 
     <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/admin-auth.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_couple_services_v2"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_couple_services_v2"></script>
+    <script src="scripts/admin-clients.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/admin-auth.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_login_fix_v4"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_login_fix_v4"></script>
 
 </body>
 </html>

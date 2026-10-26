@@ -7,6 +7,24 @@ let activeFilter = "all";
 
 document.addEventListener('DOMContentLoaded', () => {
     populateWeddingSelectorForUser();
+
+    // Auto-generate couple username slug when typing wedding couple names
+    const newNamesInput = document.getElementById('newWNames');
+    const newCoupleUserInput = document.getElementById('newWCoupleUser');
+    if (newNamesInput && newCoupleUserInput) {
+        newNamesInput.addEventListener('input', (e) => {
+            if (!newCoupleUserInput.dataset.userEdited || newCoupleUserInput.dataset.userEdited === 'false') {
+                const slug = e.target.value.toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                newCoupleUserInput.value = slug;
+            }
+        });
+        newCoupleUserInput.addEventListener('input', () => {
+            newCoupleUserInput.dataset.userEdited = 'true';
+        });
+    }
 });
 
 /**
@@ -1244,7 +1262,11 @@ function saveNewWeddingForm(e) {
             { id: "t3", name: "Mesa 3 - Amigos", shape: "round", capacity: 10 }
         ],
         vouchers: [],
-        vendors: []
+        vendors: [],
+        coupleUser: (document.getElementById('newWCoupleUser')?.value.trim().toLowerCase()) || 
+                    (names.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')) || 
+                    ('novios-' + Date.now().toString().slice(-4)),
+        couplePass: (document.getElementById('newWCouplePass')?.value.trim()) || 'boda2027'
     };
 
     const authUserKey = (typeof AUTH_CONFIG !== 'undefined' && AUTH_CONFIG.USER_KEY) ? AUTH_CONFIG.USER_KEY : 'antigravity_logged_user';
