@@ -7,8 +7,8 @@ const STRIPE_CONFIG = {
     PUBLISHABLE_KEY: 'pk_test_51UNz29AKkeuI6eHKGuy4tzROd1CqKrAAd7XVHjJdRfodX4RTsUufZ3cKfKtCIntfz012dYiih9lckumK6AaOSRXQ00rEE1Oo87',
     PLANS: {
         basic: { id: 'price_essential', name: 'Plan Essential (1-3 Bodas · 50 Pax)', amount: 800, currency: 'mxn', maxWeddings: 3 },
-        intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · 100 Pax)', amount: 1500, currency: 'mxn', maxWeddings: 10 },
-        elite: { id: 'price_atelier', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca)', amount: 2800, currency: 'mxn', maxWeddings: 15 }
+        intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · Invitaciones Web)', amount: 1990, currency: 'mxn', maxWeddings: 10 },
+        elite: { id: 'price_atelier', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca)', amount: 3290, currency: 'mxn', maxWeddings: 15 }
     }
 };
 

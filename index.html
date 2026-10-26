@@ -836,21 +836,21 @@
                     </div>
 
                     <div class="plan-preset-card featured" id="cardPlan_intermediate" onclick="applyPlanPreset('intermediate')">
-                        <div class="preset-badge gold">1 a 10 Bodas · Hasta 100 Invitados c/u</div>
-                        <h3 class="preset-title">🥈 Plan Signature Pro (Logística)</h3>
-                        <strong style="display:block; font-size:1.35rem; color:#d97706; margin:4px 0;">$1,500 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
-                        <p class="preset-desc"><strong>Capacidad:</strong> 1-10 bodas simultáneas · Hasta 100 invitados por boda. WhatsApp Masivo con Blindaje, Acomodo 2D, Check-in QR Hostess y Playlist DJ.</p>
+                        <div class="preset-badge gold">1 a 10 Bodas · Invitaciones Web Incluidas</div>
+                        <h3 class="preset-title">🥈 Plan Signature Pro (Logística &amp; Web)</h3>
+                        <strong style="display:block; font-size:1.35rem; color:#d97706; margin:4px 0;">$1,990 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
+                        <p class="preset-desc"><strong>Capacidad:</strong> 1-10 bodas simultáneas · Incluye Invitaciones Web Interactivas, WhatsApp Masivo con Blindaje, Acomodo 2D, Check-in QR Hostess y Playlist DJ.</p>
                         <button class="plan-preset-btn active" data-plan="intermediate" onclick="applyPlanPreset('intermediate'); event.stopPropagation();">Aplicar Plan Signature Pro</button>
-                        <button type="button" class="btn-action primary" onclick="openStripeCheckoutModal('intermediate'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border:none; box-shadow:0 4px 12px rgba(79,70,229,0.35);">💳 Pagar $1,500 MXN (Stripe)</button>
+                        <button type="button" class="btn-action primary" onclick="openStripeCheckoutModal('intermediate'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border:none; box-shadow:0 4px 12px rgba(79,70,229,0.35);">💳 Pagar $1,990 MXN (Stripe)</button>
                     </div>
 
                     <div class="plan-preset-card" id="cardPlan_elite" onclick="applyPlanPreset('elite')">
-                        <div class="preset-badge">Hasta 15 Bodas · Invitados Ilimitados</div>
+                        <div class="preset-badge">Hasta 15 Bodas · Marca Blanca Total</div>
                         <h3 class="preset-title">👑 Plan Atelier Elite (Full Experience)</h3>
-                        <strong style="display:block; font-size:1.35rem; color:#7c3aed; margin:4px 0;">$2,800 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
-                        <p class="preset-desc"><strong>Capacidad:</strong> Hasta 15 bodas · Todo lo anterior + WhatsApp Ilimitado, Calculadora de Barra, Minuta D-Day y Marca Blanca.</p>
+                        <strong style="display:block; font-size:1.35rem; color:#7c3aed; margin:4px 0;">$3,290 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
+                        <p class="preset-desc"><strong>Capacidad:</strong> Hasta 15 bodas · Invitaciones Web Ilimitadas + Marca Blanca, Calculadora de Barra Libre, Dossier Técnico y Soporte VIP.</p>
                         <button class="plan-preset-btn" data-plan="elite" onclick="applyPlanPreset('elite'); event.stopPropagation();">Aplicar Plan Atelier Elite</button>
-                        <button type="button" class="btn-action secondary" onclick="openStripeCheckoutModal('elite'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; border-color:#7c3aed; color:#7c3aed;">💳 Pagar con Stripe ($2,800)</button>
+                        <button type="button" class="btn-action secondary" onclick="openStripeCheckoutModal('elite'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; border-color:#7c3aed; color:#7c3aed;">💳 Pagar con Stripe ($3,290)</button>
                     </div>
                 </div>
 
@@ -1467,7 +1467,7 @@
                             <h1 class="tab-title">📈 Métricas &amp; Crecimiento SaaS</h1>
                             <span class="badge-accent" style="background:#4f46e5; color:#fff; font-weight:800; border:none;">Torre de Control SaaS</span>
                         </div>
-                        <p class="tab-subtitle">Monitoreo histórico de altas de agencias, distribución de planes ($800 / $1,500 / $2,800), ingresos acumulados (MRR) y tasa de retención.</p>
+                        <p class="tab-subtitle">Monitoreo histórico de altas de agencias, distribución de planes ($800 / $1,990 / $3,290), ingresos acumulados (MRR) y tasa de retención.</p>
                     </div>
                     <div class="tab-actions dev-analytics-actions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                         <!-- Date Filter Pills -->
@@ -1510,7 +1510,7 @@
                         <div class="kpi-info">
                             <span class="kpi-label">Plan Más Popular</span>
                             <h2 class="kpi-value" id="analyticsTopPlan" style="font-size:1.35rem; color:#d97706;">Signature Pro</h2>
-                            <span class="text-xs text-muted" id="analyticsTopPlanPct">$1,500 MXN / mes</span>
+                            <span class="text-xs text-muted" id="analyticsTopPlanPct">$1,990 MXN / mes</span>
                         </div>
                     </div>
 
@@ -5106,7 +5106,7 @@
                     <div style="display:flex; justify-content:flex-end; gap:10px; width:100%;">
                         <button type="button" class="btn-modal secondary" onclick="closeStripeCheckoutModal()">Cancelar</button>
                         <button type="submit" id="btnSubmitStripePay" class="btn-modal primary" style="background:linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border-color:#4338ca;">
-                            <span id="stripePayBtnText">Pagar $1,500 MXN y Activar</span>
+                            <span id="stripePayBtnText">Pagar $1,990 MXN y Activar</span>
                         </button>
                     </div>
                     <div style="font-size:0.72rem; color:#64748b; text-align:center; line-height:1.45; border-top:1px solid #f1f5f9; padding-top:8px; width:100%;">

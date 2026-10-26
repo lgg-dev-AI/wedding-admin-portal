@@ -17,7 +17,7 @@ const INITIAL_CLIENTS_DATA = [
         phone: '+52 81 8990 1122',
         planTier: 'intermediate', // Signature Pro (1-10 bodas)
         maxWeddings: 10,
-        monthlyFee: 1500,
+        monthlyFee: 1990,
         billingCycleDay: 15,
         lastPaymentDate: '2026-09-15',
         nextDueDate: '2026-10-15',
@@ -39,7 +39,7 @@ const INITIAL_CLIENTS_DATA = [
         phone: '+52 55 4433 2211',
         planTier: 'elite', // Atelier Elite (hasta 15 bodas)
         maxWeddings: 15,
-        monthlyFee: 2800,
+        monthlyFee: 3290,
         billingCycleDay: 10,
         lastPaymentDate: '2026-09-10',
         nextDueDate: '2026-10-10',
@@ -83,7 +83,7 @@ const INITIAL_CLIENTS_DATA = [
         phone: '+52 81 1928 3400',
         planTier: 'intermediate', // Signature Pro (1-10 bodas)
         maxWeddings: 10,
-        monthlyFee: 1500,
+        monthlyFee: 1990,
         billingCycleDay: 20,
         lastPaymentDate: '2026-10-20',
         nextDueDate: '2026-11-20',
@@ -811,7 +811,7 @@ function openNewClientModal() {
         document.getElementById('devClientEmail').value = '';
         document.getElementById('devClientPhone').value = '';
         document.getElementById('devClientPlan').value = 'intermediate';
-        document.getElementById('devClientFee').value = '1500';
+        document.getElementById('devClientFee').value = '1990';
         document.getElementById('devClientTempPass').value = generateRandomTempPass('WP');
         modal.classList.add('active');
         modal.style.display = 'flex';
@@ -825,8 +825,8 @@ function updateFeeByPlan(planTier) {
     const feeInput = document.getElementById('devClientFee');
     if (!feeInput) return;
     if (planTier === 'basic') feeInput.value = '800';
-    if (planTier === 'intermediate') feeInput.value = '2000';
-    if (planTier === 'elite') feeInput.value = '3500';
+    if (planTier === 'intermediate') feeInput.value = '1990';
+    if (planTier === 'elite') feeInput.value = '3290';
 }
 
 function closeNewClientModal() {
@@ -1108,7 +1108,7 @@ function renderDevAnalyticsDashboard() {
     // MRR (Monthly Recurring Revenue)
     const mrr = clients
         .filter(c => !c.isSuspended)
-        .reduce((sum, c) => sum + (Number(c.monthlyFee) || (c.planTier === 'elite' ? 2800 : c.planTier === 'basic' ? 800 : 1500)), 0);
+        .reduce((sum, c) => sum + (Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : c.planTier === 'basic' ? 800 : 1990)), 0);
     
     const revEl = document.getElementById('analyticsMonthlyRevenue');
     if (revEl) revEl.innerText = `$${mrr.toLocaleString('es-MX')} MXN`;
@@ -1137,8 +1137,8 @@ function renderDevAnalyticsDashboard() {
 
     const planNames = {
         basic: 'Essential ($800)',
-        intermediate: 'Signature Pro ($1,500)',
-        elite: 'Atelier Elite ($2,800)'
+        intermediate: 'Signature Pro ($1,990)',
+        elite: 'Atelier Elite ($3,290)'
     };
     const topPlanEl = document.getElementById('analyticsTopPlan');
     if (topPlanEl) topPlanEl.innerText = planNames[topPlanKey] || 'Signature Pro';
@@ -1154,8 +1154,8 @@ function renderDevAnalyticsDashboard() {
     if (distContainer) {
         const tiers = [
             { key: 'basic', name: '🥉 Plan Essential ($800 MXN · 1-3 Bodas)', price: 800, color: '#3b82f6', count: planCounts.basic },
-            { key: 'intermediate', name: '🥈 Plan Signature Pro ($2,000 MXN · 1-10 Bodas)', price: 2000, color: '#6366f1', count: planCounts.intermediate },
-            { key: 'elite', name: '👑 Plan Atelier Elite ($3,500 MXN · Hasta 15 Bodas)', price: 3500, color: '#d97706', count: planCounts.elite }
+            { key: 'intermediate', name: '🥈 Plan Signature Pro ($1,990 MXN · 1-10 Bodas)', price: 1990, color: '#6366f1', count: planCounts.intermediate },
+            { key: 'elite', name: '👑 Plan Atelier Elite ($3,290 MXN · Hasta 15 Bodas)', price: 3290, color: '#d97706', count: planCounts.elite }
         ];
 
         distContainer.innerHTML = tiers.map(t => {
@@ -1197,7 +1197,7 @@ function renderDevAnalyticsDashboard() {
                 : c.planTier === 'basic'
                 ? '<span class="badge-tag" style="background:#e0f2fe; color:#0369a1; font-weight:700;">🥉 Essential</span>'
                 : '<span class="badge-tag" style="background:#ede9fe; color:#6d28d9; font-weight:700;">🥈 Signature Pro</span>';
-            const fee = Number(c.monthlyFee) || (c.planTier === 'elite' ? 2800 : c.planTier === 'basic' ? 800 : 1500);
+            const fee = Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : c.planTier === 'basic' ? 800 : 1990);
 
             tr.innerHTML = `
                 <td><strong style="color:#334155;">${d}</strong></td>
