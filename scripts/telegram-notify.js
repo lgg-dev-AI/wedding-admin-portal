@@ -5,6 +5,7 @@
 
 const TELEGRAM_CONFIG_STORAGE_KEY = 'antigravity_telegram_config';
 const DEFAULT_TELEGRAM_BOT_TOKEN = '8805191453:AAEMzlCf11tzcD8PK6OL7UtEzIY-UZeWZ0A';
+const DEFAULT_TELEGRAM_CHAT_ID = '1374411558';
 
 /**
  * Obtener configuración actual de Telegram desde localStorage
@@ -17,6 +18,9 @@ function getTelegramConfig() {
             if (!parsed.botToken) {
                 parsed.botToken = DEFAULT_TELEGRAM_BOT_TOKEN;
             }
+            if (!parsed.chatId) {
+                parsed.chatId = DEFAULT_TELEGRAM_CHAT_ID;
+            }
             return parsed;
         }
     } catch (e) {
@@ -24,7 +28,7 @@ function getTelegramConfig() {
     }
     return {
         botToken: DEFAULT_TELEGRAM_BOT_TOKEN,
-        chatId: '',
+        chatId: DEFAULT_TELEGRAM_CHAT_ID,
         enabled: true,
         notifyOnPayment: true,
         notifyOnNewAgency: true
