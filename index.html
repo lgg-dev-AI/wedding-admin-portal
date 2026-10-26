@@ -1385,7 +1385,13 @@
                                 <p class="text-xs text-muted" style="margin:2px 0 0 0;">Recibe una notificación push instantánea a tu celular cada vez que una Wedding Planner se suscriba, pague un plan en Stripe o se dé de alta.</p>
                             </div>
                         </div>
-                        <div style="display:flex; gap:8px;">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <a href="https://t.me/WeddingOs_bot" target="_blank" class="btn-action secondary" style="font-size:0.8rem; text-decoration:none; display:flex; align-items:center; gap:6px;">
+                                <span>💬 Abrir @WeddingOs_bot</span>
+                            </a>
+                            <button type="button" class="btn-action secondary" onclick="autoDetectTelegramChatId()" style="font-size:0.8rem; display:flex; align-items:center; gap:6px; background:#f0fdf4; border-color:#86efac; color:#15803d; font-weight:700;">
+                                <span>🔍 Detectar mi Chat ID</span>
+                            </button>
                             <button type="button" class="btn-action secondary" onclick="testTelegramNotification()" style="font-size:0.8rem; display:flex; align-items:center; gap:6px;">
                                 <span>📲 Enviar Alerta de Prueba</span>
                             </button>
@@ -1402,17 +1408,22 @@
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
                         <div class="form-group" style="margin:0;">
                             <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:6px;">
-                                🔑 Telegram Bot Token (Proporcionado por @BotFather)
+                                🔑 Telegram Bot Token (Por defecto @WeddingOs_bot)
                             </label>
-                            <input type="password" id="telegramBotTokenInput" placeholder="Ej: 7123456789:AAFlkB4m2Q..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
-                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Token secreto de la API HTTP de Telegram.</span>
+                            <input type="password" id="telegramBotTokenInput" placeholder="8805191453:AAEMzlCf11tzcD8PK6OL7UtEzIY-UZeWZ0A" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
+                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Token configurado para tu bot <b>@WeddingOs_bot</b>.</span>
                         </div>
                         <div class="form-group" style="margin:0;">
-                            <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin-bottom:6px;">
-                                🆔 Tu Chat ID de Telegram (Personal o Canal)
-                            </label>
-                            <input type="text" id="telegramChatIdInput" placeholder="Ej: 987654321 o -1001234567890" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
-                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Tu número de usuario personal o el ID del canal donde quieres los avisos.</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <label style="display:block; font-size:0.8rem; font-weight:700; color:#334155; margin:0;">
+                                    🆔 Tu Chat ID de Telegram
+                                </label>
+                                <button type="button" onclick="autoDetectTelegramChatId()" style="background:none; border:none; color:#0284c7; font-size:0.75rem; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">
+                                    Auto-detectar con 1 clic
+                                </button>
+                            </div>
+                            <input type="text" id="telegramChatIdInput" placeholder="Presiona 'Detectar mi Chat ID' o ingresa tu ID" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-family:monospace; font-size:0.85rem;" autocomplete="off">
+                            <span class="text-xs text-muted" style="display:block; margin-top:4px;">Inicia conversación con <a href="https://t.me/WeddingOs_bot" target="_blank">@WeddingOs_bot</a> y presiona <b>Detectar mi Chat ID</b>.</span>
                         </div>
                     </div>
 
