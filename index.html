@@ -1488,8 +1488,8 @@
                     <div class="tab-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
                         <input type="file" id="portalRealPhotoUploadInput" accept="image/*" multiple style="display:none;" onchange="handlePortalPhotoUpload(this)">
                         <button type="button" class="btn-action secondary" onclick="document.getElementById('portalRealPhotoUploadInput').click()">📸 Subir Fotos (Máx. 5)</button>
-                        <button type="button" class="btn-action secondary" onclick="openLiveTableQrPage()">📱 Probar App Móvil QR</button>
-                        <button type="button" class="btn-action secondary" onclick="openTableQrModal()">🖨️ QR para Mesas</button>
+                        <button type="button" class="btn-action secondary planner-only" onclick="openLiveTableQrPage()">📱 Probar App Móvil QR</button>
+                        <button type="button" class="btn-action secondary planner-only" onclick="openTableQrModal()">🖨️ QR para Mesas</button>
                         <button type="button" class="btn-action primary" id="btnBulkDownloadAllZip" onclick="downloadBulkPhotosByTableZip('ALL')" style="background:linear-gradient(135deg, #059669 0%, #047857 100%); border-color:#047857;">
                             📦 Descargar Todo por Mesas (.ZIP)
                         </button>
@@ -1497,7 +1497,7 @@
                 </div>
 
                 <!-- SELECTOR DE VENTANA DE TIEMPO / REPOSICIÓN DE FOTOS QR EN VIVO -->
-                <div class="section-card mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 18px 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+                <div class="section-card mb-4 planner-only" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 18px 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
                         <div>
                             <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
@@ -3352,17 +3352,17 @@
     <div id="toastNotification" class="toast-notification"></div>
 
             <!-- APP ENGINE SCRIPTS -->
-    <script src="scripts/admin-data.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-settings.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-album-playlist.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-seating.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-dayof.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-barcalc.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-finance.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-pdf-reports.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-app.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-data.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-dispatch.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-settings.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-album-playlist.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-seating.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-dayof.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-barcalc.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-vendors.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-finance.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-pdf-reports.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-app.js?v=20261025_album_qr_planner_v8"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -5790,11 +5790,11 @@
     </div>
 
     <!-- CLIENTS, AUTH, DAY-OF & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/admin-auth.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/dayof-hostess.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/stripe-billing.js?v=20261025_couple_shield_v7"></script>
-    <script src="scripts/planner-copilot.js?v=20261025_couple_shield_v7"></script>
+    <script src="scripts/admin-clients.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/admin-auth.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/dayof-hostess.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/stripe-billing.js?v=20261025_album_qr_planner_v8"></script>
+    <script src="scripts/planner-copilot.js?v=20261025_album_qr_planner_v8"></script>
 
 </body>
 </html>

@@ -341,6 +341,12 @@ function escapeHtml(string) {
 let activeSelectedQrTable = null;
 
 function openTableQrModal() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        if (typeof showToast === 'function') {
+            showToast('🔒 La generación e impresión de códigos QR para mesas es exclusiva de tu Wedding Planner.');
+        }
+        return;
+    }
     const modal = document.getElementById('modalTableQrViewer');
     if (!modal) return;
 
@@ -417,6 +423,12 @@ function buildLiveTableQrUrl(tableObj) {
 }
 
 function openLiveTableQrPage() {
+    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
+        if (typeof showToast === 'function') {
+            showToast('🔒 El simulador de pruebas QR es exclusivo de tu Wedding Planner.');
+        }
+        return;
+    }
     const url = buildLiveTableQrUrl(activeSelectedQrTable || { id: 't1', name: 'Mesa 1 - Mesa de Honor' });
     window.open(url, '_blank');
 }
