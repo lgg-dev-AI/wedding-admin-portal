@@ -324,6 +324,43 @@ const WEDDINGS_DB = {
         timeline: [],
         auditLogs: []
     },
+    aleypablo: {
+        id: "aleypablo",
+        couple: "Alejandra Carrasco & Pablo López",
+        themeTag: "🌿 Boho Floral & Romance",
+        date: "16 de Octubre, 2027",
+        venue: "Hacienda San Antonio el Puente · Morelos",
+        liveUrl: "https://vintage-editorial-wedding.vercel.app",
+        targetGuests: 160,
+        budget: 820000,
+        honeymoonGoal: 150000,
+        costPerGuestCatering: 1750,
+        plannerNote: "¡Hola Alejandra y Pablo! Su invitación estilo Boho Floral Editorial ya está publicada. Enlaces a Google Maps, Waze, Mesa Liverpool y música activa.",
+        isDestination: true,
+        deadlineMonth: "Septiembre 2027",
+        bankName: "BBVA",
+        beneficiary: "Alejandra Carrasco López",
+        clabe: "012180015489201944",
+        coupleUser: "ale-y-pablo",
+        couplePass: "sanantonio2027",
+        planner: "Valeria Sotomayor",
+        plannerPhone: "+52 55 4433 2211",
+        isBriefingCompleted: true,
+        tables: [
+            { id: "at1", name: "Mesa 1 - Mesa de Novios", capacity: 6, shape: "rect", guests: ["ag1", "ag2"] },
+            { id: "at2", name: "Mesa 2 - Familia Carrasco", capacity: 10, shape: "round", guests: [] },
+            { id: "at3", name: "Mesa 3 - Familia López Anchondo", capacity: 10, shape: "round", guests: [] }
+        ],
+        guests: [
+            { id: "ag1", name: "Alejandra Carrasco", phone: "+52 55 1234 5678", email: "ale@boda.mx", passes: 1, companion: "", menu: "filete", allergies: "Ninguna", status: "confirmed", tableId: "at1" },
+            { id: "ag2", name: "Pablo López", phone: "+52 55 9876 5432", email: "pablo@boda.mx", passes: 1, companion: "", menu: "filete", allergies: "Ninguna", status: "confirmed", tableId: "at1" }
+        ],
+        vouchers: [],
+        vendors: [],
+        milestones: [],
+        timeline: [],
+        auditLogs: []
+    },
     valeria: {
         id: "valeria",
         couple: "Valeria Garza & Fernando Treviño",
