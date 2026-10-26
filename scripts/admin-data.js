@@ -323,6 +323,62 @@ const WEDDINGS_DB = {
         milestones: [],
         timeline: [],
         auditLogs: []
+    },
+    valeria: {
+        id: "valeria",
+        couple: "Valeria Garza & Fernando Treviño",
+        themeTag: "🍷 Hacienda & Viñedos",
+        date: "20 de Noviembre, 2027",
+        venue: "Hacienda San José Lavista • San Miguel de Allende",
+        liveUrl: "https://tuscany-vineyard-wedding.vercel.app",
+        targetGuests: 180,
+        budget: 950000,
+        honeymoonGoal: 200000,
+        costPerGuestCatering: 1850,
+        plannerNote: "¡Hola Valeria y Fernando! Su invitación web interactiva está publicada y activa. Ya pueden monitorear las confirmaciones en tiempo real.",
+        isDestination: true,
+        guestCost: 1850,
+        deadlineMonth: "Octubre 2027",
+        bankName: "BBVA Bancomer",
+        beneficiary: "Valeria Garza Sada",
+        clabe: "012580015489632147",
+        coupleUser: "valeria-y-fernando",
+        couplePass: "sanmiguel2027",
+        planner: "Mariana Elizondo",
+        plannerPhone: "+52 81 1928 3400",
+        isBriefingCompleted: true,
+        tables: [
+            { id: "vt1", name: "Mesa 1 - Mesa de Honor (Viñedos)", capacity: 8, shape: "rect", guests: ["vg1", "vg2"] },
+            { id: "vt2", name: "Mesa 2 - Familia Garza Sada", capacity: 10, shape: "round", guests: ["vg3"] },
+            { id: "vt3", name: "Mesa 3 - Familia Treviño", capacity: 10, shape: "round", guests: [] },
+            { id: "vt4", name: "Mesa 4 - Amigos San Pedro", capacity: 10, shape: "round", guests: [] }
+        ],
+        guests: [
+            { id: "vg1", name: "Valeria Garza Sada (Novia)", phone: "+52 81 1290 8877", email: "valeria@garza.mx", passes: 1, menu: "Filete de Res en Costra de Hierbas", allergies: "Ninguna", status: "confirmed", tableId: "vt1" },
+            { id: "vg2", name: "Fernando Treviño (Novio)", phone: "+52 81 8877 6655", email: "fernando@trevino.mx", passes: 1, menu: "Filete de Res en Costra de Hierbas", allergies: "Ninguna", status: "confirmed", tableId: "vt1" },
+            { id: "vg3", name: "Lic. Roberto Elizondo", phone: "+52 81 1928 3400", email: "roberto@atelier-nupcial.mx", passes: 2, companion: "Sra. Marcela de Elizondo", menu: "Robalo en Costra de Pistache", allergies: "Ninguna", status: "confirmed", tableId: "vt2" }
+        ],
+        vouchers: [
+            { id: "vv1", donor: "Lic. Roberto Elizondo", amount: 15000, concept: "Cena Omakase en Ginza (Tokio)", date: "24 Oct 2026", status: "approved", proofImg: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400" }
+        ],
+        vendors: [
+            { id: "vven1", name: "Hacienda San José Lavista Banquets", category: "Banquete & Vinos", contactName: "Chef Ejecutivo Lavista", phone: "+52 415 155 8899", email: "eventos@sanjoselavista.com", rfc: "HSL140810ABC", bank: "BBVA Bancomer", clabe: "012580015489632147", contractTotal: 330000, paidTotal: 165000, status: "active", notes: "Menú de 4 tiempos maridado con vinos de la bodega Lavista." }
+        ],
+        milestones: [
+            { id: "vm1", vendorId: "vven1", vendorName: "Hacienda San José Lavista", title: "Segundo Anticipo Banquete", amount: 82500, dueDate: "15 Ago 2027", daysBefore: 90, status: "pending", urgency: "medium", clabe: "012580015489632147", bank: "BBVA" }
+        ],
+        rentals: [],
+        securityDeposit: 25000,
+        timeline: [],
+        auditLogs: [
+            {
+                timestamp: "2026-10-25 20:45:00",
+                user: "Mariana Elizondo (Wedding Planner)",
+                role: "planner",
+                action: "Recepción de Briefing Oficial y Maquetación de Invitación Web completada.",
+                ip: "187.190.24.11"
+            }
+        ]
     }
 };
 

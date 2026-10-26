@@ -74,6 +74,28 @@ const INITIAL_CLIENTS_DATA = [
         permanentPassword: 'Password2026*',
         createdAt: '2026-09-01',
         status: 'active'
+    },
+    {
+        id: 'client_mariana_atelier',
+        agencyName: 'Atelier Nupcial México',
+        plannerName: 'Mariana Elizondo',
+        email: 'mariana@atelier-nupcial.mx',
+        phone: '+52 81 1928 3400',
+        planTier: 'intermediate', // Signature Pro (1-10 bodas)
+        maxWeddings: 10,
+        monthlyFee: 1500,
+        billingCycleDay: 20,
+        lastPaymentDate: '2026-10-20',
+        nextDueDate: '2026-11-20',
+        paymentStatus: 'paid',
+        isSuspended: false,
+        suspensionNotice: '',
+        tempPassword: 'ATELIER-2027',
+        tempPassUsesLeft: 3,
+        hasPermanentPassword: true,
+        permanentPassword: 'Mariana2027*',
+        createdAt: '2026-10-20',
+        status: 'active'
     }
 ];
 
