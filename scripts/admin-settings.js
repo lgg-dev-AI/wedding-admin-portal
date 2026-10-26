@@ -86,7 +86,7 @@ function getActiveSubscriptionTier() {
     }
 
     const tier = localStorage.getItem('wedding_subscription_tier');
-    if (tier && ['basic', 'intermediate', 'elite'].includes(tier)) {
+    if (tier && ['intermediate', 'elite'].includes(tier)) {
         return tier;
     }
     return null;
@@ -94,8 +94,8 @@ function getActiveSubscriptionTier() {
 
 function renderSettingsTab() {
     const activeSubTier = getActiveSubscriptionTier();
-    const planNames = { basic: 'Essential', intermediate: 'Signature Pro', elite: 'Atelier Elite' };
-    const allTiers = ['basic', 'intermediate', 'elite'];
+    const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
+    const allTiers = ['intermediate', 'elite'];
 
     // 1. Antigravity SaaS Subscription Preset Cards
     allTiers.forEach(tier => {

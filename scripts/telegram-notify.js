@@ -156,9 +156,7 @@ async function sendTelegramNewAgencyAlert(clientData) {
         monthlyFee = 0
     } = clientData;
 
-    let tierLabel = 'Essential ($800/mes)';
-    if (planTier === 'intermediate') tierLabel = 'Signature Pro ($1,990/mes)';
-    if (planTier === 'elite') tierLabel = 'Atelier Elite ($3,290/mes)';
+    let tierLabel = (planTier === 'elite') ? 'Atelier Elite ($3,290/mes)' : 'Signature Pro ($1,990/mes)';
 
     const timestamp = new Date().toLocaleString('es-MX', {
         dateStyle: 'medium',

@@ -59,9 +59,9 @@ const INITIAL_CLIENTS_DATA = [
         plannerName: 'Camila Rivas',
         email: 'contacto@boutiqueweddings.lat',
         phone: '+52 33 1122 3344',
-        planTier: 'basic', // Essential (1-3 bodas)
-        maxWeddings: 3,
-        monthlyFee: 800,
+        planTier: 'intermediate', // Signature Pro (1-10 bodas)
+        maxWeddings: 10,
+        monthlyFee: 1990,
         billingCycleDay: 8,
         lastPaymentDate: '2026-09-08',
         nextDueDate: '2026-10-08',
@@ -325,9 +325,9 @@ function renderClientsDashboard() {
         const tr = document.createElement('tr');
         tr.className = `dev-client-row ${c.isSuspended ? 'row-suspended' : ''}`;
         
-        let planBadge = '<span class="badge-plan-tier basic">🥉 Essential · 1-3</span>';
-        if (c.planTier === 'intermediate') planBadge = '<span class="badge-plan-tier intermediate">🥈 Signature · 1-10</span>';
-        if (c.planTier === 'elite') planBadge = '<span class="badge-plan-tier elite">🥇 Atelier · 1-15</span>';
+        let planBadge = (c.planTier === 'elite') 
+            ? '<span class="badge-plan-tier elite">👑 Atelier · 1-15</span>'
+            : '<span class="badge-plan-tier intermediate">🥈 Signature · 1-10</span>';
 
         // Payment status badge with 3-stage cadence & Grace Period
         let billingBadge = '';
@@ -824,9 +824,8 @@ function openNewClientModal() {
 function updateFeeByPlan(planTier) {
     const feeInput = document.getElementById('devClientFee');
     if (!feeInput) return;
-    if (planTier === 'basic') feeInput.value = '800';
-    if (planTier === 'intermediate') feeInput.value = '1990';
     if (planTier === 'elite') feeInput.value = '3290';
+    else feeInput.value = '1990';
 }
 
 function closeNewClientModal() {
@@ -1108,21 +1107,20 @@ function renderDevAnalyticsDashboard() {
     // MRR (Monthly Recurring Revenue)
     const mrr = clients
         .filter(c => !c.isSuspended)
-        .reduce((sum, c) => sum + (Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : c.planTier === 'basic' ? 800 : 1990)), 0);
+        .reduce((sum, c) => sum + (Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : 1990)), 0);
     
     const revEl = document.getElementById('analyticsMonthlyRevenue');
     if (revEl) revEl.innerText = `$${mrr.toLocaleString('es-MX')} MXN`;
 
     // Capacity (managed weddings)
-    const totalWeddings = clients.reduce((sum, c) => sum + (Number(c.maxWeddings) || (c.planTier === 'elite' ? 15 : c.planTier === 'basic' ? 3 : 10)), 0);
+    const totalWeddings = clients.reduce((sum, c) => sum + (Number(c.maxWeddings) || (c.planTier === 'elite' ? 15 : 10)), 0);
     const weddingsEl = document.getElementById('analyticsTotalManagedWeddings');
     if (weddingsEl) weddingsEl.innerText = `${totalWeddings} bodas`;
 
     // Plan count
-    let planCounts = { basic: 0, intermediate: 0, elite: 0 };
+    let planCounts = { intermediate: 0, elite: 0 };
     clients.forEach(c => {
-        if (c.planTier === 'basic') planCounts.basic++;
-        else if (c.planTier === 'elite') planCounts.elite++;
+        if (c.planTier === 'elite') planCounts.elite++;
         else planCounts.intermediate++;
     });
 
@@ -1136,7 +1134,6 @@ function renderDevAnalyticsDashboard() {
     }
 
     const planNames = {
-        basic: 'Essential ($800)',
         intermediate: 'Signature Pro ($1,990)',
         elite: 'Atelier Elite ($3,290)'
     };
@@ -1149,11 +1146,10 @@ function renderDevAnalyticsDashboard() {
         topPlanPctEl.innerText = `${maxCount} agencias (${pct}%)`;
     }
 
-    // 2. Plan Distribution Progress Bars
+    // 2. Plan Distribution Progress Bars (2 Planes Premium)
     const distContainer = document.getElementById('analyticsPlanDistributionList');
     if (distContainer) {
         const tiers = [
-            { key: 'basic', name: '🥉 Plan Essential ($800 MXN · 1-3 Bodas)', price: 800, color: '#3b82f6', count: planCounts.basic },
             { key: 'intermediate', name: '🥈 Plan Signature Pro ($1,990 MXN · 1-10 Bodas)', price: 1990, color: '#6366f1', count: planCounts.intermediate },
             { key: 'elite', name: '👑 Plan Atelier Elite ($3,290 MXN · Hasta 15 Bodas)', price: 3290, color: '#d97706', count: planCounts.elite }
         ];
@@ -1171,7 +1167,7 @@ function renderDevAnalyticsDashboard() {
                         <div style="background:${t.color}; width:${pct}%; height:100%; border-radius:6px; transition:width 0.4s ease;"></div>
                     </div>
                     <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px; font-size:0.75rem; color:#64748b;">
-                        <span>Capacidad: ${t.key === 'basic' ? '1-3' : t.key === 'intermediate' ? '1-10' : 'Hasta 15'} bodas</span>
+                        <span>Capacidad: ${t.key === 'intermediate' ? '1-10' : 'Hasta 15'} bodas</span>
                         <strong style="color:#0f172a;">$${subtotal.toLocaleString('es-MX')} MXN / mes</strong>
                     </div>
                 </div>
@@ -1192,12 +1188,10 @@ function renderDevAnalyticsDashboard() {
         sorted.forEach(c => {
             const tr = document.createElement('tr');
             const d = c.createdAt ? new Date(c.createdAt + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Reciente';
-            const tierBadge = c.planTier === 'elite' 
+            const tierBadge = (c.planTier === 'elite') 
                 ? '<span class="badge-tag" style="background:#fef3c7; color:#b45309; font-weight:700;">👑 Atelier Elite</span>'
-                : c.planTier === 'basic'
-                ? '<span class="badge-tag" style="background:#e0f2fe; color:#0369a1; font-weight:700;">🥉 Essential</span>'
                 : '<span class="badge-tag" style="background:#ede9fe; color:#6d28d9; font-weight:700;">🥈 Signature Pro</span>';
-            const fee = Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : c.planTier === 'basic' ? 800 : 1990);
+            const fee = Number(c.monthlyFee) || (c.planTier === 'elite' ? 3290 : 1990);
 
             tr.innerHTML = `
                 <td><strong style="color:#334155;">${d}</strong></td>

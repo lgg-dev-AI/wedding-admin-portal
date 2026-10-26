@@ -431,14 +431,11 @@ function selectUpgradePlan(tier) {
     const targetCard = document.getElementById(`speiCard_${tier}`);
     if (targetCard) targetCard.classList.add('active');
 
-    let amount = 1500;
-    let planName = 'Signature Pro (1-10 Bodas)';
-    if (tier === 'basic') {
-        amount = 800;
-        planName = 'Essential (1-3 Bodas)';
-    } else if (tier === 'elite') {
-        amount = 2800;
-        planName = 'Atelier Elite (1-15 Bodas · Marca Blanca)';
+    let amount = 1990;
+    let planName = 'Signature Pro (1-10 Bodas · Invitaciones Web)';
+    if (tier === 'elite') {
+        amount = 3290;
+        planName = 'Atelier Elite (1-15 Bodas · Marca Blanca Total)';
     }
 
     const amountEl = document.getElementById('speiSelectedAmount');
