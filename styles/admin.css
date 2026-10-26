@@ -2433,6 +2433,8 @@ input:checked + .slider {
 }
 input:checked + .slider:before {
   transform: translateX(20px);
+}
+
 /* SIDEBAR QUICK EDIT WEDDING BUTTON */
 .btn-sidebar-quick-edit {
   background: rgba(255, 255, 255, 0.95);
