@@ -284,6 +284,40 @@ const WEDDINGS_DB = {
         plannerNote: "Boda toscana al aire libre entre cipreses y cata de vino Chianti.",
         tables: [{ id: "tt1", name: "Tavolo d'Onore", capacity: 8, shape: "rect", guests: [] }],
         guests: [{ id: "tg1", name: "Giulia Rossi (Novia)", phone: "+39 055 123 4567", email: "giulia@firenze.it", passes: 1, menu: "salmon", status: "confirmed" }],
+        vendors: [],
+        milestones: [],
+        timeline: [],
+        auditLogs: []
+    },
+    camila: {
+        id: "camila",
+        couple: "Camila & Sebastián",
+        themeTag: "💍 Romántico & Elegante",
+        date: "14 de Noviembre, 2027",
+        venue: "Hacienda San José · Cancún",
+        liveUrl: "",
+        targetGuests: 150,
+        budget: 750000,
+        honeymoonGoal: 100000,
+        costPerGuestCatering: 1300,
+        plannerNote: "¡Hola Camila y Sebastián! Bienvenidos a su portal oficial de seguimiento.",
+        isDestination: true,
+        guestCost: 18000,
+        deadlineMonth: "Agosto 2027",
+        bankName: "BBVA México",
+        beneficiary: "Camila Gómez",
+        clabe: "012180015899234410",
+        coupleUser: "camila-y-sebastian",
+        couplePass: "boda2027",
+        tables: [
+            { id: "t1", name: "Mesa 1 - Mesa de Honor", capacity: 8, shape: "rect", guests: ["g1", "g2"] },
+            { id: "t2", name: "Mesa 2 - Familia", capacity: 10, shape: "round", guests: [] },
+            { id: "t3", name: "Mesa 3 - Amigos", capacity: 10, shape: "round", guests: [] }
+        ],
+        guests: [
+            { id: "g1", name: "Camila Gómez (Novia)", phone: "+52 81 1234 5678", email: "camila@novios.com", passes: 1, menu: "filete", allergies: "Ninguna", status: "confirmed", tableId: "t1" },
+            { id: "g2", name: "Sebastián Garza (Novio)", phone: "+52 81 8765 4321", email: "sebastian@novios.com", passes: 1, menu: "filete", allergies: "Ninguna", status: "confirmed", tableId: "t1" }
+        ],
         vouchers: [],
         vendors: [],
         milestones: [],
@@ -350,6 +384,13 @@ function getWeddingState(weddingId) {
     }
     if (state.budget === undefined) state.budget = 850000;
     if (state.targetGuests === undefined) state.targetGuests = 180;
+    if (!state.coupleUser && state.couple) {
+        state.coupleUser = state.couple.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+    if (!state.couplePass) state.couplePass = 'boda2027';
     if (!state.guests) state.guests = [];
     if (!state.tables) state.tables = [];
     if (!state.vouchers) state.vouchers = [];

@@ -293,14 +293,59 @@ function submitFullLogin(e) {
     }
 
     // 2. COUPLE DIRECT ACCESS LOGIN (ACCESO PARA LOS NOVIOS)
-    if (typeof WEDDINGS_DB !== 'undefined') {
-        const weddingKeys = Object.keys(WEDDINGS_DB);
-        for (const wId of weddingKeys) {
-            const wState = typeof getWeddingState === 'function' ? getWeddingState(wId) : WEDDINGS_DB[wId];
-            const coupleExpectedUser = (wState.coupleUser || (wId === 'aura' ? 'sofia-y-alejandro' : '')).toLowerCase();
-            const coupleExpectedPass = wState.couplePass || (wId === 'aura' ? 'boda2027' : '');
+    const cleanUserInput = userInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const slugUserInput = cleanUserInput.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-            if (coupleExpectedUser && coupleExpectedPass && userInput === coupleExpectedUser && pinInput === coupleExpectedPass) {
+    // Recopilar todas las bodas del sistema: integradas y creadas en localStorage
+    const allWeddingIds = new Set(typeof WEDDINGS_DB !== 'undefined' ? Object.keys(WEDDINGS_DB) : []);
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k) {
+                if (k.startsWith('wp_enterprise_os_')) {
+                    allWeddingIds.add(k.replace('wp_enterprise_os_', ''));
+                } else if (k.startsWith('wp_weddings_by_planner_')) {
+                    try {
+                        const list = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(list)) list.forEach(id => allWeddingIds.add(id));
+                    } catch(e) {}
+                }
+            }
+        }
+    } catch(e) {}
+
+    let coupleCandidateMatch = null;
+
+    for (const wId of allWeddingIds) {
+        const wState = typeof getWeddingState === 'function' ? getWeddingState(wId) : (typeof WEDDINGS_DB !== 'undefined' ? WEDDINGS_DB[wId] : null);
+        if (!wState) continue;
+
+        const validUsernames = new Set();
+        if (wState.coupleUser) {
+            const u = wState.coupleUser.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            validUsernames.add(u);
+            validUsernames.add(u.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+        }
+        if (wState.couple) {
+            const c = wState.couple.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            validUsernames.add(c.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+            validUsernames.add(c.replace(/\s*&\s*/g, ' y ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+            validUsernames.add(c.replace(/\s*y\s*/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
+        }
+        if (wId === 'aura') {
+            validUsernames.add('sofia-y-alejandro');
+            validUsernames.add('sofia-alejandro');
+        }
+        if (wId === 'camila') {
+            validUsernames.add('camila-y-sebastian');
+            validUsernames.add('camila-sebastian');
+        }
+
+        const isUserMatch = validUsernames.has(cleanUserInput) || validUsernames.has(slugUserInput) || validUsernames.has(userInput);
+        if (isUserMatch) {
+            coupleCandidateMatch = { wId, wState };
+            const expectedPass = wState.couplePass || 'boda2027';
+            if (pinInput === expectedPass) {
                 sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
                 sessionStorage.setItem(AUTH_CONFIG.USER_KEY, userInput);
                 sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'couple');
@@ -323,6 +368,11 @@ function submitFullLogin(e) {
                 return;
             }
         }
+    }
+
+    if (coupleCandidateMatch) {
+        showLoginError('❌ Contraseña incorrecta para el acceso de los novios. (Por defecto: boda2027)');
+        return;
     }
 
     // 3. WEDDING PLANNER CLIENT LOGIN

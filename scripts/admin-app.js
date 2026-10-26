@@ -55,6 +55,15 @@ function getWeddingsForActiveUser() {
         return [...demoWeddings, ...devWeddings];
     }
 
+    // 1.5. Couple View: The couple should ONLY see their assigned wedding!
+    if (activeRoleAuth === 'couple') {
+        const activeWId = localStorage.getItem('wp_active_wedding_id') || 'camila';
+        const coupleState = typeof getWeddingState === 'function' ? getWeddingState(activeWId) : (WEDDINGS_DB[activeWId] || WEDDINGS_DB.camila || WEDDINGS_DB.aura);
+        if (coupleState) {
+            return [{ id: activeWId, ...coupleState }];
+        }
+    }
+
     // 2. Unauthenticated explorer or pure public demo (no planner email logged in)
     if (!activeEmail) {
         return Object.keys(WEDDINGS_DB).map(k => ({ id: k, ...WEDDINGS_DB[k] }));
@@ -279,8 +288,13 @@ function setRole(role) {
 
     // Planner-only controls
     document.querySelectorAll('.planner-only').forEach(el => {
-        el.style.display = (role === 'planner') ? 'flex' : 'none';
+        el.style.display = (role === 'planner') ? '' : 'none';
     });
+
+    const weddingSelect = document.getElementById('weddingSelect');
+    if (weddingSelect) {
+        weddingSelect.disabled = (role === 'couple');
+    }
 
     // El botón Modo Día D del header está disponible tanto para Wedding Planner como para Master Developer
     const triggerDayD = document.getElementById('btnTriggerDayD');
@@ -358,6 +372,7 @@ function setRole(role) {
         // =========================================================================
         sessionStorage.setItem('antigravity_user_role', 'couple');
         refreshSidebarWeddingInfo();
+        populateWeddingSelectorForUser();
 
         if (typeof applyVisibilityToCoupleView === 'function') {
             applyVisibilityToCoupleView();
