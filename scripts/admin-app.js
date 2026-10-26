@@ -459,7 +459,10 @@ function showTab(tabName) {
     if (tabName === 'hostess') { if (typeof renderHostessDashboard === 'function') renderHostessDashboard(); }
     if (tabName === 'barcalc') { if (typeof recalcBar === 'function') recalcBar(); }
     if (tabName === 'vendors') { if (typeof renderVendorsTab === 'function') renderVendorsTab(); }
-    if (tabName === 'guests') { if (typeof renderGuestTable === 'function') renderGuestTable(); }
+    if (tabName === 'guests') { 
+        if (typeof renderGuestTable === 'function') renderGuestTable(); 
+        if (typeof syncLiveWebRsvps === 'function') syncLiveWebRsvps(false);
+    }
     if (tabName === 'finance') { 
         if (typeof renderFinanceTab === 'function') renderFinanceTab(); 
         if (typeof renderDestinationPaymentsSuite === 'function') renderDestinationPaymentsSuite();

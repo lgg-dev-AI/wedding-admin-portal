@@ -2300,6 +2300,9 @@
                         <p class="tab-subtitle">Control de confirmación de asistencia, acompañantes, platillos y pases VIP con QR.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn-action" id="btnSyncWebRsvp" onclick="syncLiveWebRsvps(true)" style="background:#0f766e; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(15,118,110,0.25);" title="Sincronizar confirmaciones recibidas en las invitaciones web">
+                            <span id="syncRsvpIcon">🔄</span> Sincronizar RSVPs Web
+                        </button>
                         <button type="button" class="btn-action secondary" onclick="openImportGuestsModal()" style="border-color:#3b82f6; color:#1d4ed8; font-weight:700;">📥 Importar Excel / CSV</button>
                         <button class="btn-action secondary" onclick="printGuestsMasterReport()">🖨️ Imprimir Lista Maestra (PDF)</button>
                         <button class="btn-action primary" onclick="showQuickAddModal()">+ Agregar Invitado</button>
@@ -5901,6 +5904,7 @@
     <script src="scripts/telegram-notify.js?v=20261025_telegram_v1"></script>
     <script src="scripts/stripe-billing.js?v=20261025_telegram_v1"></script>
     <script src="scripts/planner-copilot.js?v=20261025_telegram_v1"></script>
+    <script src="scripts/admin-rsvp-sync.js?v=20261025_telegram_v1"></script>
 
 </body>
 </html>
