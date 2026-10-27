@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261026_timeline_v1">
+    <link rel="stylesheet" href="styles/admin.css?v=20261027_showroom_v1">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -604,8 +604,17 @@
                         </div>
                         <p class="tab-subtitle" style="margin:4px 0 0;">Elige la plantilla según la etapa de tu boda, revisa cómo le llegará el mensaje a cada familia con sus pases exactos y lleva el control de a quién ya se le envió y quién falta.</p>
                     </div>
-                    <div class="tab-actions" style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                        <button class="btn-action secondary" onclick="printGuestsMasterReport()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
+                    <div class="tab-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex-shrink:0;">
+                        <!-- SUBVIEW TOGGLE FOR PLANNER / DEV -->
+                        <div id="dispatchViewToggleWrap" class="planner-only" style="display:inline-flex; background:#e2e8f0; padding:3px; border-radius:10px; gap:4px;">
+                            <button type="button" id="btnSubViewDispatchPlanner" class="btn-subview-pill active" onclick="switchDispatchView('planner')" style="padding:6px 14px; font-size:0.78rem; font-weight:700; border:none; border-radius:7px; cursor:pointer; background:#ffffff; color:#0f172a; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:all 0.2s;">
+                                ⚙️ Consola Planner
+                            </button>
+                            <button type="button" id="btnSubViewDispatchShowroom" class="btn-subview-pill" onclick="switchDispatchView('showroom')" style="padding:6px 14px; font-size:0.78rem; font-weight:700; border:none; border-radius:7px; cursor:pointer; background:transparent; color:#64748b; transition:all 0.2s;">
+                                👁️ Showroom Novios
+                            </button>
+                        </div>
+                        <button class="btn-action secondary planner-only" onclick="printGuestsMasterReport()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
                             <span>🖨️ Imprimir Bitácora (PDF)</span>
                         </button>
                         <button class="btn-action primary planner-only" id="btnBatchDispatch" onclick="openBatchDispatchModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
@@ -614,213 +623,473 @@
                     </div>
                 </div>
 
-                <!-- MASTER METRIC STRIP (CONTEO REAL DE INVITACIONES Y RECORDATORIOS) -->
-                <div class="metrics-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                    <div class="metric-card" style="padding: 16px 20px;">
-                        <span style="font-size: 0.72rem; color: #000000; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Total Familias</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #0f172a; margin: 6px 0;" id="statDispatchTotal">10</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchTotalPax">15 pases asignados</span>
+                <!-- CONSOLA TÉCNICA WEDDING PLANNER -->
+                <div id="dispatchPlannerConsole">
+                    <!-- MASTER METRIC STRIP (CONTEO REAL DE INVITACIONES Y RECORDATORIOS) -->
+                    <div class="metrics-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                        <div class="metric-card" style="padding: 16px 20px;">
+                            <span style="font-size: 0.72rem; color: #000000; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Total Familias</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #0f172a; margin: 6px 0;" id="statDispatchTotal">10</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchTotalPax">15 pases asignados</span>
+                        </div>
+
+                        <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #10b981;">
+                            <span style="font-size: 0.72rem; color: #166534; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Enviadas</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #10b981; margin: 6px 0;" id="statDispatchSent">10</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchSentPct">100% de la lista</span>
+                        </div>
+
+                        <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #ef4444;">
+                            <span style="font-size: 0.72rem; color: #991b1b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Por Mandar</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #ef4444; margin: 6px 0;" id="statDispatchPending">0</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchPendingHint">Faltan de primer contacto</span>
+                        </div>
+
+                        <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #0284c7;">
+                            <span style="font-size: 0.72rem; color: #0369a1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Confirmadas</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #0284c7; margin: 6px 0;" id="statDispatchConfirmed">9</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchConfirmedPax">14 pases confirmados</span>
+                        </div>
+
+                        <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #f59e0b;">
+                            <span style="font-size: 0.72rem; color: #b45309; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Canceladas / Declinaron</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #d97706; margin: 6px 0;" id="statDispatchDeclined">0</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchDeclinedHint">Pases liberados</span>
+                        </div>
+
+                        <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #8b5cf6;">
+                            <span style="font-size: 0.72rem; color: #6d28d9; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Tasa de Respuesta</span>
+                            <div class="metric-value" style="font-size: 1.7rem; color: #8b5cf6; margin: 6px 0;" id="statDispatchResponseRate">90%</div>
+                            <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchResponseHint">1 pendiente por responder</span>
+                        </div>
                     </div>
 
-                    <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #10b981;">
-                        <span style="font-size: 0.72rem; color: #166534; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Enviadas</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #10b981; margin: 6px 0;" id="statDispatchSent">10</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchSentPct">100% de la lista</span>
-                    </div>
-
-                    <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #ef4444;">
-                        <span style="font-size: 0.72rem; color: #991b1b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Por Mandar</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #ef4444; margin: 6px 0;" id="statDispatchPending">0</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchPendingHint">Faltan de primer contacto</span>
-                    </div>
-
-                    <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #0284c7;">
-                        <span style="font-size: 0.72rem; color: #0369a1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Confirmadas</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #0284c7; margin: 6px 0;" id="statDispatchConfirmed">9</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchConfirmedPax">14 pases confirmados</span>
-                    </div>
-
-                    <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #f59e0b;">
-                        <span style="font-size: 0.72rem; color: #b45309; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Canceladas / Declinaron</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #d97706; margin: 6px 0;" id="statDispatchDeclined">0</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchDeclinedHint">Pases liberados</span>
-                    </div>
-
-                    <div class="metric-card" style="padding: 16px 20px; border-left: 4px solid #8b5cf6;">
-                        <span style="font-size: 0.72rem; color: #6d28d9; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: block;">Tasa de Respuesta</span>
-                        <div class="metric-value" style="font-size: 1.7rem; color: #8b5cf6; margin: 6px 0;" id="statDispatchResponseRate">90%</div>
-                        <span style="font-size: 0.75rem; color: #000000; font-weight: 600;" id="statDispatchResponseHint">1 pendiente por responder</span>
-                    </div>
-                </div>
-
-                <!-- SELECTOR DE PLANTILLA Y ETAPA CON TEXTO Y BOTONES ULTRA CLAROS -->
-                <div class="section-card mb-4" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 14px; padding: 22px 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.04);">
-                    <div style="margin-bottom: 16px;">
-                        <span style="font-size:0.75rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px;">
-                            Paso 1 · Selecciona la Etapa del Evento
-                        </span>
-                        <h3 style="margin:0; font-size:1.25rem; font-weight:900; color:#0f172a; font-family:'Playfair Display', serif;">
-                            ¿Qué mensaje deseas enviar a tus invitados?
-                        </h3>
-                        <p style="margin:4px 0 0; font-size:0.82rem; color:#64748b;">
-                            Elige la etapa de comunicación para cargar automáticamente los textos correspondientes.
-                        </p>
-                    </div>
-
-                    <!-- 4 GRANDES TARJETAS INTERACTIVAS DE ETAPA -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px;">
-                        <!-- ETAPA 1 -->
-                        <div class="gateway-mode-card active" id="card_mode_meta_api" onclick="setGatewayMode('meta_api')" style="cursor:pointer; border:2.5px solid #10b981; background:#f0fdf4; border-radius:12px; padding:16px 18px; transition:all 0.2s ease; box-shadow:0 4px 14px rgba(16,185,129,0.15);">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                                <span style="font-size:1.8rem;">💌</span>
-                                <span class="badge-stage-status" style="background:#10b981; color:#ffffff; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Activa</span>
-                            </div>
-                            <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">1. Invitación Oficial &amp; Pases</strong>
-                            <p style="margin:0; font-size:0.76rem; color:#334155; line-height:1.4;">
-                                Saludo cordial, número de pases asignados y link interactivo para confirmar asistencia y platillo.
+                    <!-- SELECTOR DE PLANTILLA Y ETAPA CON TEXTO Y BOTONES ULTRA CLAROS -->
+                    <div class="section-card mb-4" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 14px; padding: 22px 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.04);">
+                        <div style="margin-bottom: 16px;">
+                            <span style="font-size:0.75rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px;">
+                                Paso 1 · Selecciona la Etapa del Evento
+                            </span>
+                            <h3 style="margin:0; font-size:1.25rem; font-weight:900; color:#0f172a; font-family:'Playfair Display', serif;">
+                                ¿Qué mensaje deseas enviar a tus invitados?
+                            </h3>
+                            <p style="margin:4px 0 0; font-size:0.82rem; color:#64748b;">
+                                Elige la etapa de comunicación para cargar automáticamente los textos correspondientes.
                             </p>
-                            <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#059669;">
-                                📅 Momento: 60 a 30 días antes
-                            </div>
                         </div>
 
-                        <!-- ETAPA 2 -->
-                        <div class="gateway-mode-card" id="card_mode_qr_gateway" onclick="setGatewayMode('qr_gateway')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                                <span style="font-size:1.8rem;">🔔</span>
-                                <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Seleccionar</span>
-                            </div>
-                            <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">2. Recordatorio RSVP</strong>
-                            <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
-                                Recordatorio amable antes del corte de cocina y banquete para las familias que aún no confirman.
-                            </p>
-                            <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#b45309;">
-                                📅 Momento: 20 a 15 días antes
-                            </div>
-                        </div>
-
-                        <!-- ETAPA 3 -->
-                        <div class="gateway-mode-card" id="card_mode_destination_payment" onclick="setGatewayMode('destination_payment')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                                <span style="font-size:1.8rem;">🏖️</span>
-                                <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Boda Destino</span>
-                            </div>
-                            <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">3. Abono de Estancia &amp; SPEI</strong>
-                            <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
-                                Mensualidades sugeridas, CLABE interbancaria del hotel/resort y botón amistoso de desconfirmación.
-                            </p>
-                            <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#0369a1;">
-                                📅 Momento: Mes con mes hasta corte
-                            </div>
-                        </div>
-
-                        <!-- ETAPA 4 -->
-                        <div class="gateway-mode-card" id="card_mode_manual" onclick="setGatewayMode('manual')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                                <span style="font-size:1.8rem;">🎟️</span>
-                                <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Seleccionar</span>
-                            </div>
-                            <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">4. Pase QR &amp; Mesa Asignada</strong>
-                            <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
-                                Acreditación oficial del evento: número de mesa en el salón y código QR personal para filtro de hostess.
-                            </p>
-                            <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#6d28d9;">
-                                📅 Momento: 48h antes / Día del evento
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SELECTOR DE LAS 3 VARIANTES DE REDACCIÓN (COMPATIBLES CON META) -->
-                    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:12px 14px; margin-bottom:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:0.85rem; font-weight:800; color:#0f172a;">✨ Elige el estilo de redacción para los novios:</span>
-                                <span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:4px;">🛡️ Norma Meta Cloud API</span>
-                            </div>
-                            <span style="font-size:0.75rem; color:#64748b;">3 estilos pre-redactados y aprobables</span>
-                        </div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button type="button" class="tpl-opt-pill active" data-opt="opt1" onclick="selectTemplateOption('opt1')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1.5px solid #059669; background:#ecfdf5; color:#065f46;">
-                                🛡️ Opción 1: Utilidad Estricta (Aprobación Garantizada)
-                            </button>
-                            <button type="button" class="tpl-opt-pill" data-opt="opt2" onclick="selectTemplateOption('opt2')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1px solid #cbd5e1; background:#f8fafc; color:#334155;">
-                                🎩 Opción 2: Formal &amp; Protocolario
-                            </button>
-                            <button type="button" class="tpl-opt-pill" data-opt="opt3" onclick="selectTemplateOption('opt3')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1px solid #cbd5e1; background:#f8fafc; color:#334155;">
-                                ❤️ Opción 3: Cálido &amp; Emotivo
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- VISUALIZADOR DEL MENSAJE COMPLETO (SÓLO LECTURA / NORMA META) -->
-                    <div style="border-top: 1px dashed #cbd5e1; padding-top: 16px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:1.1rem;">📄</span>
-                                <div>
-                                    <strong style="font-size:0.92rem; color:#0f172a; font-weight:800; display:block;">Mensaje Oficial Seleccionado para Envío</strong>
-                                    <small style="color:#64748b; font-size:0.75rem;">Texto estandarizado y blindado ante Meta Cloud API (las variables se completan en automático por invitado).</small>
+                        <!-- 4 GRANDES TARJETAS INTERACTIVAS DE ETAPA -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                            <!-- ETAPA 1 -->
+                            <div class="gateway-mode-card active" id="card_mode_meta_api" onclick="setGatewayMode('meta_api')" style="cursor:pointer; border:2.5px solid #10b981; background:#f0fdf4; border-radius:12px; padding:16px 18px; transition:all 0.2s ease; box-shadow:0 4px 14px rgba(16,185,129,0.15);">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <span style="font-size:1.8rem;">💌</span>
+                                    <span class="badge-stage-status" style="background:#10b981; color:#ffffff; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Activa</span>
+                                </div>
+                                <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">1. Invitación Oficial &amp; Pases</strong>
+                                <p style="margin:0; font-size:0.76rem; color:#334155; line-height:1.4;">
+                                    Saludo cordial, número de pases asignados y link interactivo para confirmar asistencia y platillo.
+                                </p>
+                                <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#059669;">
+                                    📅 Momento: 60 a 30 días antes
                                 </div>
                             </div>
-                            <span style="font-size:0.72rem; background:#ecfdf5; color:#065f46; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #a7f3d0;">
-                                🔒 Plantilla Protegida (No modificable)
-                            </span>
+
+                            <!-- ETAPA 2 -->
+                            <div class="gateway-mode-card" id="card_mode_qr_gateway" onclick="setGatewayMode('qr_gateway')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <span style="font-size:1.8rem;">🔔</span>
+                                    <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Seleccionar</span>
+                                </div>
+                                <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">2. Recordatorio RSVP</strong>
+                                <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
+                                    Recordatorio amable antes del corte de cocina y banquete para las familias que aún no confirman.
+                                </p>
+                                <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#b45309;">
+                                    📅 Momento: 20 a 15 días antes
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 3 -->
+                            <div class="gateway-mode-card" id="card_mode_destination_payment" onclick="setGatewayMode('destination_payment')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <span style="font-size:1.8rem;">🏖️</span>
+                                    <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Boda Destino</span>
+                                </div>
+                                <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">3. Abono de Estancia &amp; SPEI</strong>
+                                <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
+                                    Mensualidades sugeridas, CLABE interbancaria del hotel/resort y botón amistoso de desconfirmación.
+                                </p>
+                                <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#0369a1;">
+                                    📅 Momento: Mes con mes hasta corte
+                                </div>
+                            </div>
+
+                            <!-- ETAPA 4 -->
+                            <div class="gateway-mode-card" id="card_mode_manual" onclick="setGatewayMode('manual')" style="cursor:pointer; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:16px 18px; transition:all 0.2s ease;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <span style="font-size:1.8rem;">🎟️</span>
+                                    <span class="badge-stage-status" style="background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">Seleccionar</span>
+                                </div>
+                                <strong style="display:block; font-size:0.95rem; font-weight:900; color:#0f172a; margin-bottom:4px;">4. Pase QR &amp; Mesa Asignada</strong>
+                                <p style="margin:0; font-size:0.76rem; color:#475569; line-height:1.4;">
+                                    Acreditación oficial del evento: número de mesa en el salón y código QR personal para filtro de hostess.
+                                </p>
+                                <div style="margin-top:10px; font-size:0.7rem; font-weight:700; color:#6d28d9;">
+                                    📅 Momento: 48h antes / Día del evento
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- TEXTBOX AMPLIO Y DE SÓLO LECTURA -->
-                        <div style="position:relative;">
-                            <textarea id="customTemplateTextarea" rows="7" readonly style="width:100%; padding:14px 16px; border:2px solid #cbd5e1; border-radius:10px; font-size:0.9rem; font-family:inherit; color:#0f172a; outline:none; resize:none; line-height:1.6; background:#f8fafc; cursor:default; font-weight:500; box-shadow:inset 0 1px 3px rgba(0,0,0,0.03);"></textarea>
+                        <!-- SELECTOR DE LAS 3 VARIANTES DE REDACCIÓN (COMPATIBLES CON META) -->
+                        <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:12px 14px; margin-bottom:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:0.85rem; font-weight:800; color:#0f172a;">✨ Elige el estilo de redacción para los novios:</span>
+                                    <span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:4px;">🛡️ Norma Meta Cloud API</span>
+                                </div>
+                                <span style="font-size:0.75rem; color:#64748b;">3 estilos pre-redactados y aprobables</span>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button type="button" class="tpl-opt-pill active" data-opt="opt1" onclick="selectTemplateOption('opt1')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1.5px solid #059669; background:#ecfdf5; color:#065f46;">
+                                    🛡️ Opción 1: Utilidad Estricta (Aprobación Garantizada)
+                                </button>
+                                <button type="button" class="tpl-opt-pill" data-opt="opt2" onclick="selectTemplateOption('opt2')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1px solid #cbd5e1; background:#f8fafc; color:#334155;">
+                                    🎩 Opción 2: Formal &amp; Protocolario
+                                </button>
+                                <button type="button" class="tpl-opt-pill" data-opt="opt3" onclick="selectTemplateOption('opt3')" style="padding:6px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; border:1px solid #cbd5e1; background:#f8fafc; color:#334155;">
+                                    ❤️ Opción 3: Cálido &amp; Emotivo
+                                </button>
+                            </div>
                         </div>
-                        
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.76rem; color:#475569;">
-                            <span>ℹ️ Este mensaje se adapta dinámicamente con el nombre, pases ({pases}) y mesa ({mesa}) de cada familia.</span>
-                            <span id="customTemplateCharCount" style="font-weight:700; color:#0f172a;">0 caracteres</span>
+
+                        <!-- VISUALIZADOR DEL MENSAJE COMPLETO (SÓLO LECTURA / NORMA META) -->
+                        <div style="border-top: 1px dashed #cbd5e1; padding-top: 16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:1.1rem;">📄</span>
+                                    <div>
+                                        <strong style="font-size:0.92rem; color:#0f172a; font-weight:800; display:block;">Mensaje Oficial Seleccionado para Envío</strong>
+                                        <small style="color:#64748b; font-size:0.75rem;">Texto estandarizado y blindado ante Meta Cloud API (las variables se completan en automático por invitado).</small>
+                                    </div>
+                                </div>
+                                <span style="font-size:0.72rem; background:#ecfdf5; color:#065f46; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #a7f3d0;">
+                                    🔒 Plantilla Protegida (No modificable)
+                                </span>
+                            </div>
+
+                            <!-- TEXTBOX AMPLIO Y DE SÓLO LECTURA -->
+                            <div style="position:relative;">
+                                <textarea id="customTemplateTextarea" rows="7" readonly style="width:100%; padding:14px 16px; border:2px solid #cbd5e1; border-radius:10px; font-size:0.9rem; font-family:inherit; color:#0f172a; outline:none; resize:none; line-height:1.6; background:#f8fafc; cursor:default; font-weight:500; box-shadow:inset 0 1px 3px rgba(0,0,0,0.03);"></textarea>
+                            </div>
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.76rem; color:#475569;">
+                                <span>ℹ️ Este mensaje se adapta dinámicamente con el nombre, pases ({pases}) y mesa ({mesa}) de cada familia.</span>
+                                <span id="customTemplateCharCount" style="font-weight:700; color:#0f172a;">0 caracteres</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- DATA-GRID MAESTRO DE INVITACIONES & RECORDATORIOS -->
-                <div class="section-card" style="background:#ffffff; border:1.5px solid #e2e8f0; padding:0; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-                    <!-- TOOLBAR & FILTERS -->
-                    <div style="padding:16px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                            <button class="dispatch-filter-pill active" onclick="filterDispatch('all')">📋 Todos (<span id="filterCountAll">10</span>)</button>
-                            <button class="dispatch-filter-pill" onclick="filterDispatch('pending')">🚨 Por Mandar (<span id="filterCountPending">0</span>)</button>
-                            <button class="dispatch-filter-pill" onclick="filterDispatch('sent')">⏳ Enviados sin RSVP (<span id="filterCountSent">1</span>)</button>
-                            <button class="dispatch-filter-pill" onclick="filterDispatch('confirmed')">✅ Confirmados (<span id="filterCountConfirmed">9</span>)</button>
-                            <button class="dispatch-filter-pill" onclick="filterDispatch('declined')">❌ Declinaron (<span id="filterCountDeclined">0</span>)</button>
+                    <!-- DATA-GRID MAESTRO DE INVITACIONES & RECORDATORIOS -->
+                    <div class="section-card" style="background:#ffffff; border:1.5px solid #e2e8f0; padding:0; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+                        <!-- TOOLBAR & FILTERS -->
+                        <div style="padding:16px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                <button class="dispatch-filter-pill active" onclick="filterDispatch('all')">📋 Todos (<span id="filterCountAll">10</span>)</button>
+                                <button class="dispatch-filter-pill" onclick="filterDispatch('pending')">🚨 Por Mandar (<span id="filterCountPending">0</span>)</button>
+                                <button class="dispatch-filter-pill" onclick="filterDispatch('sent')">⏳ Enviados sin RSVP (<span id="filterCountSent">1</span>)</button>
+                                <button class="dispatch-filter-pill" onclick="filterDispatch('confirmed')">✅ Confirmados (<span id="filterCountConfirmed">9</span>)</button>
+                                <button class="dispatch-filter-pill" onclick="filterDispatch('declined')">❌ Declinaron (<span id="filterCountDeclined">0</span>)</button>
+                            </div>
+
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="text" id="dispatchSearchInput" placeholder="🔍 Buscar por nombre o teléfono..." onkeyup="searchDispatchGuests(this.value)" style="padding:8px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.82rem; min-width:240px; color:#0f172a; outline:none;">
+                                <button class="btn-action primary" onclick="showQuickAddModal()" style="font-size:0.8rem; padding:8px 14px;">+ Agregar Familia</button>
+                            </div>
                         </div>
 
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="text" id="dispatchSearchInput" placeholder="🔍 Buscar por nombre o teléfono..." onkeyup="searchDispatchGuests(this.value)" style="padding:8px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.82rem; min-width:240px; color:#0f172a; outline:none;">
-                            <button class="btn-action primary" onclick="showQuickAddModal()" style="font-size:0.8rem; padding:8px 14px;">+ Agregar Familia</button>
+                        <!-- DATA TABLE -->
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.84rem;">
+                                <thead>
+                                    <tr style="background:#f1f5f9; border-bottom:1.5px solid #cbd5e1; color:#000000; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:800;">
+                                        <th style="padding:12px 18px; width:45px; text-align:center;">
+                                            <input type="checkbox" id="selectAllDispatch" onchange="toggleSelectAllDispatch(this.checked)" title="Seleccionar todos">
+                                        </th>
+                                        <th style="padding:12px 18px;">Invitado / Familia</th>
+                                        <th style="padding:12px 16px;">Teléfono</th>
+                                        <th style="padding:12px 16px; text-align:center;">Pases</th>
+                                        <th style="padding:12px 16px;">Mesa</th>
+                                        <th style="padding:12px 16px;">Menú &amp; Alergias</th>
+                                        <th style="padding:12px 16px;">Estado de Envío</th>
+                                        <th style="padding:12px 16px;">Estado RSVP</th>
+                                        <th style="padding:12px 18px; text-align:right;">Acción WhatsApp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dispatchGuestsTableBody">
+                                    <!-- Filas generadas dinámicamente por admin-dispatch.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /dispatchPlannerConsole -->
+
+                <!-- SHOWROOM VISTA NOVIOS (EXPERIENCIA VISUAL & PREVIEW REALISTA DE MENSAJES WHATSAPP) -->
+                <div id="dispatchCoupleShowroom" style="display:none;">
+                    <!-- EXECUTIVE PROGRESS BANNER NOVIOS -->
+                    <div class="couple-showroom-hero mb-4">
+                        <div class="couple-hero-content">
+                            <span class="couple-hero-eyebrow">💍 Centro de Envíos &amp; Notificaciones WhatsApp</span>
+                            <h2 class="couple-hero-title">Tus Mensajes Oficiales en el Celular de Cada Invitado</h2>
+                            <p class="couple-hero-desc">
+                                Tu Wedding Planner coordina el envío de los mensajes oficiales a cada familia con sus pases exactos y mesa asignada. 
+                                Aquí puedes previsualizar en tiempo real el diseño y redacción que recibirán en su teléfono según la etapa de tu boda.
+                            </p>
+                        </div>
+                        <div class="couple-hero-stats">
+                            <div class="couple-stat-item">
+                                <span class="couple-stat-label">Progreso de Envíos</span>
+                                <div class="couple-stat-val" id="cShowroomSentPct">100%</div>
+                                <span class="couple-stat-sub" id="cShowroomSentCount">10 de 10 familias</span>
+                            </div>
+                            <div class="couple-stat-divider"></div>
+                            <div class="couple-stat-item">
+                                <span class="couple-stat-label">Pases Confirmados</span>
+                                <div class="couple-stat-val" id="cShowroomPaxCount">14 pases</div>
+                                <span class="couple-stat-sub" id="cShowroomPaxSub">de 15 asignados</span>
+                            </div>
+                            <div class="couple-stat-divider"></div>
+                            <div class="couple-stat-item">
+                                <span class="couple-stat-label">Estatus de Campaña</span>
+                                <div class="couple-stat-badge">🟢 Al día</div>
+                                <span class="couple-stat-sub">Coordinado por tu Planner</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- DATA TABLE -->
-                    <div style="overflow-x:auto;">
-                        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.84rem;">
-                            <thead>
-                                <tr style="background:#f1f5f9; border-bottom:1.5px solid #cbd5e1; color:#000000; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:800;">
-                                    <th style="padding:12px 18px; width:45px; text-align:center;">
-                                        <input type="checkbox" id="selectAllDispatch" onchange="toggleSelectAllDispatch(this.checked)" title="Seleccionar todos">
-                                    </th>
-                                    <th style="padding:12px 18px;">Invitado / Familia</th>
-                                    <th style="padding:12px 16px;">Teléfono</th>
-                                    <th style="padding:12px 16px; text-align:center;">Pases</th>
-                                    <th style="padding:12px 16px;">Mesa</th>
-                                    <th style="padding:12px 16px;">Menú &amp; Alergias</th>
-                                    <th style="padding:12px 16px;">Estado de Envío</th>
-                                    <th style="padding:12px 16px;">Estado RSVP</th>
-                                    <th style="padding:12px 18px; text-align:right;">Acción WhatsApp</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dispatchGuestsTableBody">
-                                <!-- Filas generadas dinámicamente por admin-dispatch.js -->
-                            </tbody>
-                        </table>
+                    <!-- SHOWROOM MAIN WORKSPACE (2 COLUMNS: CONTROLS & SMARTPHONE MOCKUP) -->
+                    <div class="couple-showroom-workspace mb-4">
+                        <!-- LEFT COLUMN: STAGES & TONES SELECTOR -->
+                        <div class="couple-showroom-controls">
+                            <!-- ETAPAS DEL EVENTO -->
+                            <div class="showroom-card mb-4">
+                                <div class="d-flex align-center justify-between mb-2">
+                                    <h4 class="showroom-section-title">
+                                        <span class="title-step">1</span> Elige la Etapa del Evento
+                                    </h4>
+                                    <span class="badge-accent" style="font-size:0.7rem;">4 Momentos Clave</span>
+                                </div>
+                                <p class="showroom-section-desc">Selecciona el momento de la boda para ver el mensaje que recibirán tus familiares y amigos:</p>
+                                
+                                <div class="couple-stages-grid">
+                                    <!-- ETAPA 1 -->
+                                    <button type="button" class="btn-couple-stage active" id="btnCStage-meta_api" onclick="selectCoupleShowroomStage('meta_api')">
+                                        <div class="stage-icon-wrap">💌</div>
+                                        <div class="stage-info">
+                                            <div class="stage-title">1. Invitación Oficial &amp; Pases</div>
+                                            <div class="stage-timing">📅 60 a 30 días antes</div>
+                                            <div class="stage-summary">Saludo cordial, pases asignados y link interactivo para confirmar asistencia.</div>
+                                        </div>
+                                    </button>
+
+                                    <!-- ETAPA 2 -->
+                                    <button type="button" class="btn-couple-stage" id="btnCStage-qr_gateway" onclick="selectCoupleShowroomStage('qr_gateway')">
+                                        <div class="stage-icon-wrap">🔔</div>
+                                        <div class="stage-info">
+                                            <div class="stage-title">2. Recordatorio RSVP &amp; Banquete</div>
+                                            <div class="stage-timing">📅 20 a 15 días antes</div>
+                                            <div class="stage-summary">Recordatorio amable antes del corte de cocina para las familias pendientes.</div>
+                                        </div>
+                                    </button>
+
+                                    <!-- ETAPA 3 -->
+                                    <button type="button" class="btn-couple-stage" id="btnCStage-destination_payment" onclick="selectCoupleShowroomStage('destination_payment')">
+                                        <div class="stage-icon-wrap">🏖️</div>
+                                        <div class="stage-info">
+                                            <div class="stage-title">3. Abono Estancia &amp; SPEI</div>
+                                            <div class="stage-timing">📅 Boda Destino / Hotel</div>
+                                            <div class="stage-summary">Abonos sugeridos mes con mes y CLABE bancaria para su hospedaje.</div>
+                                        </div>
+                                    </button>
+
+                                    <!-- ETAPA 4 -->
+                                    <button type="button" class="btn-couple-stage" id="btnCStage-manual" onclick="selectCoupleShowroomStage('manual')">
+                                        <div class="stage-icon-wrap">🎟️</div>
+                                        <div class="stage-info">
+                                            <div class="stage-title">4. Pase QR &amp; Mesa Asignada</div>
+                                            <div class="stage-timing">📅 48h antes / Día del Evento</div>
+                                            <div class="stage-summary">Número de mesa en salón y código QR personal para acceso ágil en puerta.</div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ESTILOS Y TONOS DE REDACCIÓN -->
+                            <div class="showroom-card mb-4">
+                                <div class="d-flex align-center justify-between mb-2">
+                                    <h4 class="showroom-section-title">
+                                        <span class="title-step">2</span> Estilo y Tono del Mensaje
+                                    </h4>
+                                    <span class="badge-stage-status" style="background:#ecfdf5; color:#065f46; font-size:0.7rem; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #a7f3d0;">Norma Meta Verified</span>
+                                </div>
+                                <p class="showroom-section-desc">Selecciona el tono de redacción con el que te sientas más cómodo para tus invitados:</p>
+                                
+                                <div class="couple-tones-grid">
+                                    <button type="button" class="btn-couple-tone active" id="btnCTone-opt1" onclick="selectCoupleShowroomTone('opt1')">
+                                        <div class="tone-header">
+                                            <span class="tone-badge">Opción 1</span>
+                                            <span class="tone-icon">🛡️</span>
+                                        </div>
+                                        <div class="tone-title">Formal &amp; Protocolario</div>
+                                        <div class="tone-desc">Elegante, sobrio y de etiqueta rigurosa. Ideal para tíos y abuelos.</div>
+                                    </button>
+
+                                    <button type="button" class="btn-couple-tone" id="btnCTone-opt2" onclick="selectCoupleShowroomTone('opt2')">
+                                        <div class="tone-header">
+                                            <span class="tone-badge">Opción 2</span>
+                                            <span class="tone-icon">🎩</span>
+                                        </div>
+                                        <div class="tone-title">Cálido &amp; Distinguido</div>
+                                        <div class="tone-desc">Cercano, afectuoso y refinado. El equilibrio favorito de las parejas.</div>
+                                    </button>
+
+                                    <button type="button" class="btn-couple-tone" id="btnCTone-opt3" onclick="selectCoupleShowroomTone('opt3')">
+                                        <div class="tone-header">
+                                            <span class="tone-badge">Opción 3</span>
+                                            <span class="tone-icon">❤️</span>
+                                        </div>
+                                        <div class="tone-title">Festivo &amp; Emotivo</div>
+                                        <div class="tone-desc">Alegre, con emoción, emojis sutiles y vibra de celebración total.</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- TARJETA EXPLICATIVA PARA NOVIOS -->
+                            <div class="showroom-tip-card">
+                                <div class="tip-icon">💡</div>
+                                <div class="tip-content">
+                                    <strong>¿Cómo funciona el envío automatizado?</strong>
+                                    <p>
+                                        Cada invitado recibe el mensaje con sus datos 100% personalizados: su nombre de familia, la cantidad exacta de pases asignados y su mesa. No tienes que preocuparte por escribir a mano a cada persona ni revelar el número de mesa de otros invitados.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: SMARTPHONE CHAT SIMULATOR -->
+                        <div class="couple-showroom-preview">
+                            <div class="phone-mockup-wrapper">
+                                <div class="phone-mockup-speaker"></div>
+                                <div class="phone-mockup-camera"></div>
+                                
+                                <!-- WHATSAPP APP INTERFACE -->
+                                <div class="wa-phone-screen">
+                                    <!-- WA TOP STATUS BAR -->
+                                    <div class="wa-status-bar">
+                                        <span>9:41</span>
+                                        <div style="display:flex; align-items:center; gap:4px;">
+                                            <span>📶</span>
+                                            <span>5G</span>
+                                            <span>🔋</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- WA CHAT HEADER -->
+                                    <div class="wa-chat-header">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <span style="font-size:1.1rem; color:#ffffff; cursor:pointer;">‹</span>
+                                            <div class="wa-avatar">🤵</div>
+                                            <div>
+                                                <div class="wa-contact-name" id="waSimContactName">Tío Ramón Garza</div>
+                                                <div class="wa-contact-status">en línea</div>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:14px; color:#ffffff; font-size:1rem;">
+                                            <span>📹</span>
+                                            <span>📞</span>
+                                            <span>⋮</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- WA CHAT CONVERSATION VIEW -->
+                                    <div class="wa-chat-body">
+                                        <div class="wa-date-divider">
+                                            <span>HOY</span>
+                                        </div>
+
+                                        <div class="wa-encryption-pill">
+                                            🔒 Los mensajes y llamadas están cifrados de extremo a extremo.
+                                        </div>
+
+                                        <!-- INCOMING WEDDING BUBBLE -->
+                                        <div class="wa-bubble-container">
+                                            <div class="wa-speech-bubble">
+                                                <div class="wa-bubble-text" id="waSimMessageBody">
+                                                    <!-- Dynamic formatted sample will be rendered here -->
+                                                </div>
+                                                <div class="wa-bubble-meta">
+                                                    <span id="waSimTimestamp">11:42 a. m.</span>
+                                                    <span class="wa-double-check">✓✓</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- WA CHAT FOOTER (INPUT BAR REALISM) -->
+                                    <div class="wa-chat-footer">
+                                        <span class="wa-footer-icon">😊</span>
+                                        <div class="wa-fake-input">Escribe un mensaje...</div>
+                                        <span class="wa-footer-icon">📎</span>
+                                        <span class="wa-footer-icon">📷</span>
+                                        <div class="wa-mic-btn">🎤</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACTIONS UNDER SMARTPHONE -->
+                            <div class="phone-actions-tray mt-3">
+                                <button type="button" class="btn-wa-live-test" onclick="sendSampleToCoupleWhatsApp()">
+                                    <span>🟢 Enviar Mensaje de Prueba a mi WhatsApp</span>
+                                </button>
+                                <button type="button" class="btn-wa-copy-sample" onclick="copyCoupleSampleWhatsApp()">
+                                    <span>📋 Copiar Texto de Muestra</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- RESUMEN AMIGABLE DE INVITADOS PARA LOS NOVIOS -->
+                    <div class="section-card" style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; padding:20px 24px; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+                        <div class="d-flex align-center justify-between mb-3" style="flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.1rem; font-weight:800; color:#0f172a; font-family:'Playfair Display', serif;">
+                                    👥 Estatus de Entrega a tus Familias Invitadas
+                                </h3>
+                                <p style="margin:4px 0 0; font-size:0.78rem; color:#64748b;">
+                                    Consulta rápida de quiénes ya recibieron su mensaje y su estado de confirmación:
+                                </p>
+                            </div>
+                            <span class="badge-accent" id="cShowroomGuestCountBadge">10 Familias Registradas</span>
+                        </div>
+
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:0.83rem;">
+                                <thead>
+                                    <tr style="background:#f8fafc; border-bottom:1.5px solid #e2e8f0; color:#475569; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:800;">
+                                        <th style="padding:10px 16px; text-align:left;">Familia / Invitado</th>
+                                        <th style="padding:10px 14px; text-align:center;">Pases Reservados</th>
+                                        <th style="padding:10px 14px; text-align:left;">Mesa Asignada</th>
+                                        <th style="padding:10px 14px; text-align:center;">Mensaje Enviado</th>
+                                        <th style="padding:10px 16px; text-align:center;">Confirmación RSVP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="coupleGuestsTableBody">
+                                    <!-- Dynamic rows for couple -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /dispatchCoupleShowroom -->
             </section>
 
 
@@ -3600,7 +3869,7 @@
 
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-dispatch.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-dispatch.js?v=20261027_showroom_v1"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261025_planner_shield_v9"></script>
@@ -3613,7 +3882,7 @@
     <script src="scripts/admin-budget-estimator.js?v=20261026_print_fix_v1"></script>
     <script src="scripts/admin-contracts.js?v=20261026_widescreen_v9"></script>
     <script src="scripts/admin-design-studio.js?v=20261026_print_fix_v1"></script>
-    <script src="scripts/admin-app.js?v=20261026_timeline_v1"></script>
+    <script src="scripts/admin-app.js?v=20261027_showroom_v1"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">

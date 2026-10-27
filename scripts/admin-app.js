@@ -473,6 +473,12 @@ function setRole(role) {
         showToast('👰 Vista Novios: Simulando exactamente lo que ve la pareja.');
     }
 
+    try {
+        if (typeof syncDispatchVisibility === 'function') {
+            syncDispatchVisibility();
+        }
+    } catch(e) {}
+
     // Actualizar visibilidad del botón de Formulario según el rol seleccionado y el plan contratado
     updateHeaderBriefingButton();
 }

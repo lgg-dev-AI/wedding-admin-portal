@@ -8,6 +8,12 @@ let currentGatewayMode = 'meta_api'; // 'meta_api' = Stage 1 Invite, 'qr_gateway
 let previewedGuestId = null;
 let isDispatchingBatch = false;
 
+// PASO 3: Showroom State for Couple & Planner View
+let currentDispatchDisplayMode = 'planner'; // 'planner' or 'showroom'
+let coupleShowroomStage = 'meta_api'; // 'meta_api', 'qr_gateway', 'destination_payment', 'manual'
+let coupleShowroomTone = 'opt1'; // 'opt1', 'opt2', 'opt3'
+
+
 function getGuestTableName(guest, data) {
     if (!guest || !guest.tableId || !data || !Array.isArray(data.tables)) {
         return 'Mesa por asignar en recepción';
@@ -538,7 +544,286 @@ function renderDispatchTab() {
             </tr>
         `;
     }).join('');
+
+    // Sync View Visibility (Planner Console vs Couple Showroom)
+    syncDispatchVisibility();
 }
+
+// ==========================================================================
+// PASO 3: WHATSAPP SHOWROOM CONTROLLERS (COUPLE SIMULATOR & PLANNER TOGGLE)
+// ==========================================================================
+
+function switchDispatchView(mode) {
+    currentDispatchDisplayMode = mode;
+    const btnPlanner = document.getElementById('btnSubViewDispatchPlanner');
+    const btnShowroom = document.getElementById('btnSubViewDispatchShowroom');
+    if (btnPlanner) {
+        btnPlanner.classList.toggle('active', mode === 'planner');
+        btnPlanner.style.background = mode === 'planner' ? '#ffffff' : 'transparent';
+        btnPlanner.style.color = mode === 'planner' ? '#0f172a' : '#64748b';
+        btnPlanner.style.boxShadow = mode === 'planner' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    }
+    if (btnShowroom) {
+        btnShowroom.classList.toggle('active', mode === 'showroom');
+        btnShowroom.style.background = mode === 'showroom' ? '#ffffff' : 'transparent';
+        btnShowroom.style.color = mode === 'showroom' ? '#0f172a' : '#64748b';
+        btnShowroom.style.boxShadow = mode === 'showroom' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+    }
+    syncDispatchVisibility();
+}
+
+function selectCoupleShowroomStage(stage) {
+    coupleShowroomStage = stage;
+    const stageIds = ['meta_api', 'qr_gateway', 'destination_payment', 'manual'];
+    stageIds.forEach(id => {
+        const btn = document.getElementById(`btnCStage-${id}`);
+        if (btn) btn.classList.toggle('active', id === stage);
+    });
+    renderCoupleWhatsAppSimulator();
+}
+
+function selectCoupleShowroomTone(tone) {
+    coupleShowroomTone = tone;
+    const toneIds = ['opt1', 'opt2', 'opt3'];
+    toneIds.forEach(id => {
+        const btn = document.getElementById(`btnCTone-${id}`);
+        if (btn) btn.classList.toggle('active', id === tone);
+    });
+    renderCoupleWhatsAppSimulator();
+}
+
+function syncDispatchVisibility() {
+    const plannerConsole = document.getElementById('dispatchPlannerConsole');
+    const coupleShowroom = document.getElementById('dispatchCoupleShowroom');
+    const toggleWrap = document.getElementById('dispatchViewToggleWrap');
+    
+    // Check global role (from admin-app.js or sessionStorage)
+    const isCoupleRole = (typeof activeRole !== 'undefined' && activeRole === 'couple') || 
+                         (sessionStorage.getItem('antigravity_user_role') === 'couple');
+
+    if (isCoupleRole) {
+        if (plannerConsole) plannerConsole.style.display = 'none';
+        if (coupleShowroom) coupleShowroom.style.display = 'block';
+        if (toggleWrap) toggleWrap.style.display = 'none';
+        renderCoupleWhatsAppSimulator();
+        renderCoupleShowroomData();
+    } else {
+        if (toggleWrap) toggleWrap.style.display = 'inline-flex';
+        if (currentDispatchDisplayMode === 'showroom') {
+            if (plannerConsole) plannerConsole.style.display = 'none';
+            if (coupleShowroom) coupleShowroom.style.display = 'block';
+            renderCoupleWhatsAppSimulator();
+            renderCoupleShowroomData();
+        } else {
+            if (plannerConsole) plannerConsole.style.display = 'block';
+            if (coupleShowroom) coupleShowroom.style.display = 'none';
+        }
+    }
+}
+
+function renderCoupleWhatsAppSimulator() {
+    currentData = getWeddingState(currentWeddingId);
+    const msgEl = document.getElementById('waSimMessageBody');
+    if (!msgEl) return;
+
+    const coupleNames = (currentData && currentData.couple) ? currentData.couple : 'Sofía & Alejandro';
+    const venueName = (currentData && currentData.venue) ? currentData.venue : 'Hacienda San Gabriel';
+    const dateText = (currentData && currentData.date) ? currentData.date : '24 de Octubre, 2026';
+    const liveUrl = (currentData && currentData.liveUrl && currentData.liveUrl.trim()) ? currentData.liveUrl.trim() : 'https://aura-wedding-experience.vercel.app';
+    const guestWebUrl = `${liveUrl.replace(/\/+$/, '')}/?guest=ramon-garza`;
+    const paymentsWebUrl = `https://wedding-admin-portal.vercel.app?pago=ramon-garza`;
+
+    // Retrieve template from DEFAULT_WHATSAPP_TEMPLATES or custom
+    const stageTemplates = DEFAULT_WHATSAPP_TEMPLATES[coupleShowroomStage] || DEFAULT_WHATSAPP_TEMPLATES.meta_api;
+    let templateText = stageTemplates[coupleShowroomTone] || stageTemplates.opt1;
+
+    // Check if custom was saved for this stage and tone
+    if (currentData && currentData.customTemplates && currentData.customTemplates[`${coupleShowroomStage}_${coupleShowroomTone}`]) {
+        templateText = currentData.customTemplates[`${coupleShowroomStage}_${coupleShowroomTone}`];
+    }
+
+    // Build sample values with realistic finished data
+    const sampleReplacements = {
+        '{nombre_familia}': 'Tío Ramón Garza',
+        '{novios}': coupleNames,
+        '{fecha}': dateText,
+        '{lugar}': venueName,
+        '{pases}': '2 pases de honor',
+        '{mesa}': 'Mesa 10 - Imperial Oro',
+        '{link_invitacion}': guestWebUrl,
+        '{costo_total}': '$8,500 MXN',
+        '{abono_sugerido}': '$1,700 MXN',
+        '{fecha_limite}': '15 de Septiembre, 2026',
+        '{link_pagos}': paymentsWebUrl
+    };
+
+    let rendered = templateText;
+    for (const [key, val] of Object.entries(sampleReplacements)) {
+        rendered = rendered.split(key).join(val);
+    }
+
+    // Convert WhatsApp markdown to styled HTML for realistic chat preview
+    // *bold* -> <strong>bold</strong>
+    // _italic_ -> <em>italic</em>
+    // \n -> <br>
+    // URLs -> clickable blue link
+    let formattedHtml = rendered
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+        .replace(/_(.*?)_/g, '<em>$1</em>')
+        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+        .replace(/\n/g, '<br>');
+
+    msgEl.innerHTML = formattedHtml;
+
+    // Update timestamp
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'p. m.' : 'a. m.';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const timeStr = `${hours}:${minutes} ${ampm}`;
+    const timeEl = document.getElementById('waSimTimestamp');
+    if (timeEl) timeEl.innerText = timeStr;
+}
+
+function getFinishedCoupleSampleRawText() {
+    currentData = getWeddingState(currentWeddingId);
+    const coupleNames = (currentData && currentData.couple) ? currentData.couple : 'Sofía & Alejandro';
+    const venueName = (currentData && currentData.venue) ? currentData.venue : 'Hacienda San Gabriel';
+    const dateText = (currentData && currentData.date) ? currentData.date : '24 de Octubre, 2026';
+    const liveUrl = (currentData && currentData.liveUrl && currentData.liveUrl.trim()) ? currentData.liveUrl.trim() : 'https://aura-wedding-experience.vercel.app';
+    const guestWebUrl = `${liveUrl.replace(/\/+$/, '')}/?guest=ramon-garza`;
+    const paymentsWebUrl = `https://wedding-admin-portal.vercel.app?pago=ramon-garza`;
+
+    const stageTemplates = DEFAULT_WHATSAPP_TEMPLATES[coupleShowroomStage] || DEFAULT_WHATSAPP_TEMPLATES.meta_api;
+    let templateText = stageTemplates[coupleShowroomTone] || stageTemplates.opt1;
+
+    const sampleReplacements = {
+        '{nombre_familia}': 'Tío Ramón Garza',
+        '{novios}': coupleNames,
+        '{fecha}': dateText,
+        '{lugar}': venueName,
+        '{pases}': '2 pases de honor',
+        '{mesa}': 'Mesa 10 - Imperial Oro',
+        '{link_invitacion}': guestWebUrl,
+        '{costo_total}': '$8,500 MXN',
+        '{abono_sugerido}': '$1,700 MXN',
+        '{fecha_limite}': '15 de Septiembre, 2026',
+        '{link_pagos}': paymentsWebUrl
+    };
+
+    let rendered = templateText;
+    for (const [key, val] of Object.entries(sampleReplacements)) {
+        rendered = rendered.split(key).join(val);
+    }
+    return rendered;
+}
+
+function sendSampleToCoupleWhatsApp() {
+    const rawText = getFinishedCoupleSampleRawText();
+    const encoded = encodeURIComponent(`[PRUEBA DE INVITACIÓN OFICIAL]\n\n${rawText}`);
+    const waUrl = `https://api.whatsapp.com/send?text=${encoded}`;
+    window.open(waUrl, '_blank');
+    if (typeof showToast === 'function') {
+        showToast('📲 Abriendo WhatsApp para enviar la prueba...');
+    }
+}
+
+function copyCoupleSampleWhatsApp() {
+    const rawText = getFinishedCoupleSampleRawText();
+    navigator.clipboard.writeText(rawText).then(() => {
+        if (typeof showToast === 'function') {
+            showToast('📋 ¡Mensaje de prueba copiado al portapapeles!');
+        }
+    }).catch(() => {
+        if (typeof showToast === 'function') {
+            showToast('✓ Mensaje listo para compartir.');
+        }
+    });
+}
+
+function renderCoupleShowroomData() {
+    currentData = getWeddingState(currentWeddingId);
+    const guests = (currentData && currentData.guests) ? currentData.guests : [];
+    const totalFamilies = guests.length;
+    const totalPax = guests.reduce((sum, g) => sum + (g.passes || 1), 0);
+    const sentGuests = guests.filter(g => g.dispatchStatus === 'sent' || g.sentDate).length;
+    const sentRate = totalFamilies > 0 ? Math.round((sentGuests / totalFamilies) * 100) : 0;
+    
+    const confirmedGuests = guests.filter(g => g.status === 'confirmed');
+    const confirmedPax = confirmedGuests.reduce((sum, g) => sum + (g.passes || 1), 0);
+
+    // Update Novios Hero Stats
+    const pctEl = document.getElementById('cShowroomSentPct');
+    const sentCountEl = document.getElementById('cShowroomSentCount');
+    const paxCountEl = document.getElementById('cShowroomPaxCount');
+    const paxSubEl = document.getElementById('cShowroomPaxSub');
+    const badgeEl = document.getElementById('cShowroomGuestCountBadge');
+
+    if (pctEl) pctEl.innerText = `${sentRate}%`;
+    if (sentCountEl) sentCountEl.innerText = `${sentGuests} de ${totalFamilies} familias`;
+    if (paxCountEl) paxCountEl.innerText = `${confirmedPax} pases`;
+    if (paxSubEl) paxSubEl.innerText = `de ${totalPax} asignados`;
+    if (badgeEl) badgeEl.innerText = `${totalFamilies} Familias Registradas`;
+
+    // Render Clean Couple Guests Table
+    const cTbody = document.getElementById('coupleGuestsTableBody');
+    if (!cTbody) return;
+
+    if (guests.length === 0) {
+        cTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:#64748b;">No hay familias registradas todavía.</td></tr>`;
+        return;
+    }
+
+    cTbody.innerHTML = guests.map(g => {
+        const isSent = g.dispatchStatus === 'sent' || g.sentDate;
+        const tableName = getGuestTableName(g, currentData);
+        const passCount = g.passes || 1;
+
+        let rsvpStatusHtml = '';
+        if (g.status === 'confirmed') {
+            rsvpStatusHtml = `<span style="background:#dcfce7; color:#15803d; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #86efac; display:inline-flex; align-items:center; gap:4px;">✅ Confirmado</span>`;
+        } else if (g.status === 'declined') {
+            rsvpStatusHtml = `<span style="background:#fee2e2; color:#991b1b; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #fca5a5; display:inline-flex; align-items:center; gap:4px;">❌ Declinó</span>`;
+        } else {
+            rsvpStatusHtml = `<span style="background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #fde68a; display:inline-flex; align-items:center; gap:4px;">⏳ Pendiente</span>`;
+        }
+
+        let sentStatusHtml = isSent 
+            ? `<span style="color:#166534; font-weight:800; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;"><span style="color:#10b981;">✓✓</span> Enviado</span>`
+            : `<span style="color:#d97706; font-weight:700; font-size:0.75rem; background:#fef3c7; padding:2px 8px; border-radius:4px;">Programado</span>`;
+
+        return `
+            <tr style="border-bottom:1px solid #f1f5f9; transition:background 0.15s;">
+                <td style="padding:12px 16px;">
+                    <strong style="color:#0f172a; font-size:0.88rem; display:block;">${g.name}</strong>
+                    <small style="color:#64748b; font-size:0.75rem;">${g.phone || 'Sin teléfono'}</small>
+                </td>
+                <td style="padding:12px 14px; text-align:center;">
+                    <span style="background:#e0f2fe; color:#0369a1; font-weight:800; font-size:0.78rem; padding:3px 10px; border-radius:12px;">
+                        ${passCount} ${passCount === 1 ? 'pase' : 'pases'}
+                    </span>
+                </td>
+                <td style="padding:12px 14px;">
+                    <span style="color:#334155; font-weight:600; font-size:0.8rem;">
+                        🪑 ${tableName}
+                    </span>
+                </td>
+                <td style="padding:12px 14px; text-align:center;">
+                    ${sentStatusHtml}
+                </td>
+                <td style="padding:12px 16px; text-align:center;">
+                    ${rsvpStatusHtml}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
 
 function filterDispatch(filter) {
     activeDispatchFilter = filter;
