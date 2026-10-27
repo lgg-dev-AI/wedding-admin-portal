@@ -18,11 +18,11 @@ const vendorsDataMaster = [
         setupTime: '12:00 hrs',
         powerReq: 'Trifásica 220V / 40kW (Zona de Cocina)',
         notes: 'Requiere acceso a agua potable y área techada para emplatado.',
-        dueDate: '2027-10-10',
+        dueDate: '2026-11-09',
         milestones: [
             { desc: '30% Anticipo de Firma de Contrato', amount: 102000, dueDate: 'Completado', status: 'paid', paidAt: '2026-05-14', method: 'SPEI' },
             { desc: '40% Degustación de Menú & Prueba de Montaje', amount: 136000, dueDate: 'Completado', status: 'paid', paidAt: '2026-09-28', method: 'SPEI' },
-            { desc: '30% Finiquito / Liquidación previa al Día D', amount: 102000, dueDate: '10 Oct 2027', status: 'pending' }
+            { desc: '30% Finiquito / Liquidación previa al Día D', amount: 102000, dueDate: '2026-11-09', status: 'pending' }
         ]
     },
     {
@@ -40,10 +40,10 @@ const vendorsDataMaster = [
         setupTime: '09:00 hrs',
         powerReq: 'Planta de Luz 60kVA Dedicada con neutro aterrizado',
         notes: 'Estructura truss de 12x12m y 16 cabezas móviles beam.',
-        dueDate: '2027-10-24',
+        dueDate: '2026-11-23',
         milestones: [
             { desc: '50% Anticipo de Bloqueo de Fecha', amount: 72500, dueDate: 'Completado', status: 'paid', paidAt: '2026-06-10', method: 'SPEI' },
-            { desc: '50% Saldo a la Llegada del Camión', amount: 72500, dueDate: '24 Oct 2027 (Día D)', status: 'pending' }
+            { desc: '50% Saldo a la Llegada del Camión', amount: 72500, dueDate: '2026-11-23', status: 'pending' }
         ]
     },
     {
@@ -61,11 +61,11 @@ const vendorsDataMaster = [
         setupTime: '11:00 hrs',
         powerReq: 'Acceso a agua corriente y cuarto frío climatizado',
         notes: 'Arreglos colgantes en carpa y arco floral de ceremonia.',
-        dueDate: '2027-10-22',
+        dueDate: '2026-12-10',
         milestones: [
             { desc: '30% Reserva de Flores Importadas Holandesas', amount: 54000, dueDate: 'Completado', status: 'paid', paidAt: '2026-05-20', method: 'SPEI' },
             { desc: '35% Pago Intermedio a 60 días', amount: 66000, dueDate: 'Completado', status: 'paid', paidAt: '2026-10-02', method: 'SPEI' },
-            { desc: '35% Liquidación en Montaje Floral', amount: 60000, dueDate: '22 Oct 2027', status: 'pending' }
+            { desc: '35% Liquidación en Montaje Floral', amount: 60000, dueDate: '2026-12-10', status: 'pending' }
         ]
     },
     {
@@ -83,15 +83,39 @@ const vendorsDataMaster = [
         setupTime: '13:30 hrs',
         powerReq: 'Mesa técnica para respaldo y estación de carga de baterías',
         notes: 'Incluye 2 cámaras principales, 1 operador de dron y drone permisado.',
-        dueDate: '2027-09-15',
+        dueDate: '2026-10-08',
         milestones: [
             { desc: '50% Anticipo de Contratación', amount: 47500, dueDate: 'Completado', status: 'paid', paidAt: '2026-04-18', method: 'SPEI' },
-            { desc: '50% Liquidación 30 días antes del Evento', amount: 47500, dueDate: 'Completado', status: 'paid', paidAt: '2026-10-08', method: 'Transferencia' }
+            { desc: '50% Liquidación previa al Evento', amount: 47500, dueDate: 'Completado', status: 'paid', paidAt: '2026-10-08', method: 'Transferencia' }
+        ]
+    },
+    {
+        id: 'v5',
+        name: 'Mariachi Sinfónico & Ensamble Nupcial',
+        category: 'av',
+        contactName: 'Mtro. José Luis Almonte',
+        phone: '525544332211',
+        email: 'contacto@mariachisinfonico.mx',
+        rfc: 'MAL850614PT1',
+        bank: 'BBVA Bancomer',
+        clabe: '012180019988776655',
+        contractTotal: 28000,
+        paidTotal: 14000,
+        setupTime: '16:00 hrs',
+        powerReq: '2 micrófonos inalámbricos y 1 toma de 110V',
+        notes: 'Acompañamiento en salida de templo y coctel de bienvenida.',
+        dueDate: '2026-10-30',
+        milestones: [
+            { desc: '50% Anticipo de Bloqueo de Fecha', amount: 14000, dueDate: 'Completado', status: 'paid', paidAt: '2026-07-12', method: 'SPEI' },
+            { desc: '50% Finiquito al término del servicio', amount: 14000, dueDate: '2026-10-30', status: 'pending' }
         ]
     }
 ];
 
 let activeVendorPaymentId = null;
+let currentVendorsSubView = 'timeline';
+let currentTimelineFilter = 'all';
+let activeReminderData = null;
 
 function getActiveVendorsList() {
     const wId = (typeof currentWeddingId !== 'undefined') ? currentWeddingId : null;
@@ -115,7 +139,7 @@ function getActiveVendorsList() {
         } catch(e) {}
     }
 
-    // Default for demo wedding 'aura' only
+    // Default for demo wedding 'aura'
     if (wId === 'aura') {
         if (state) state.vendors = [...vendorsDataMaster];
         return vendorsDataMaster;
@@ -138,14 +162,494 @@ function saveActiveVendorsList(vendors) {
     }
 }
 
+// ==========================================================================
+// SUB-VIEW SWITCHER (TIMELINE VS CARDS)
+// ==========================================================================
+function switchVendorsSubView(view) {
+    currentVendorsSubView = view;
+    const btnTimeline = document.getElementById('btnSubViewTimeline');
+    const btnCards = document.getElementById('btnSubViewCards');
+    const viewTimeline = document.getElementById('vendorTimelineView');
+    const viewCards = document.getElementById('vendorCardsView');
+
+    if (btnTimeline) btnTimeline.classList.toggle('active', view === 'timeline');
+    if (btnCards) btnCards.classList.toggle('active', view === 'cards');
+
+    if (viewTimeline) viewTimeline.style.display = (view === 'timeline') ? 'block' : 'none';
+    if (viewCards) viewCards.style.display = (view === 'cards') ? 'block' : 'none';
+}
+
+function setTimelineFilter(filter) {
+    currentTimelineFilter = filter;
+    document.querySelectorAll('.timeline-filter-pills .filter-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `tFilter-${filter}`);
+    });
+    renderPaymentTimeline();
+}
+
+function scrollPaymentTimeline(dir) {
+    const wrap = document.getElementById('vendorTimelineTrackWrap');
+    if (wrap) {
+        wrap.scrollBy({ left: dir * 340, behavior: 'smooth' });
+    }
+}
+
+// ==========================================================================
+// DATE & COUNTDOWN PARSER
+// ==========================================================================
+function parseMilestoneDateObj(dueDateStr) {
+    if (!dueDateStr) return null;
+    const lower = String(dueDateStr).toLowerCase().trim();
+    if (lower.includes('completado') || lower.includes('pagado')) return null;
+
+    // ISO format: YYYY-MM-DD
+    const isoMatch = dueDateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+        return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
+    }
+
+    // Spanish format: DD Mes YYYY (e.g. "10 Oct 2027", "9 Nov 2026")
+    const months = {
+        'ene': 0, 'feb': 1, 'mar': 2, 'abr': 3, 'may': 4, 'jun': 5,
+        'jul': 6, 'ago': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dic': 11
+    };
+    const parts = lower.split(/[\s,]+/);
+    if (parts.length >= 3) {
+        const day = parseInt(parts[0]);
+        const mKey = parts[1].substring(0, 3);
+        const year = parseInt(parts[2]);
+        if (!isNaN(day) && months[mKey] !== undefined && !isNaN(year)) {
+            return new Date(year, months[mKey], day);
+        }
+    }
+
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 15);
+}
+
+function getAllPaymentMilestones(vendors) {
+    const list = [];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    vendors.forEach(v => {
+        if (!Array.isArray(v.milestones)) return;
+        v.milestones.forEach((m, idx) => {
+            const isPaid = m.status === 'paid';
+            let dateObj = null;
+            let diffDays = 999;
+            let urgency = 'future';
+            let countdownLabel = '';
+
+            if (isPaid) {
+                urgency = 'paid';
+                countdownLabel = m.paidAt ? `✓ Pagado (${formatVendorExactDate(m.paidAt)})` : '✓ Liquidado';
+            } else {
+                dateObj = parseMilestoneDateObj(m.dueDate);
+                if (dateObj) {
+                    const diffMs = dateObj.getTime() - now.getTime();
+                    diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+                    if (diffDays < 0) {
+                        urgency = 'overdue';
+                        countdownLabel = `🚨 Vencido hace ${Math.abs(diffDays)} días`;
+                    } else if (diffDays === 0) {
+                        urgency = 'urgent-2w';
+                        countdownLabel = `⚡ ¡Vence Hoy!`;
+                    } else if (diffDays === 1) {
+                        urgency = 'urgent-2w';
+                        countdownLabel = `⚡ Vence Mañana`;
+                    } else if (diffDays <= 7) {
+                        urgency = 'urgent-2w';
+                        countdownLabel = `🔴 Vence en ${diffDays} días (esta semana)`;
+                    } else if (diffDays <= 15) {
+                        urgency = 'urgent-2w';
+                        countdownLabel = `🔴 Vence en ${diffDays} días (~2 sem)`;
+                    } else if (diffDays <= 30) {
+                        urgency = 'month-1';
+                        countdownLabel = `🟡 Vence en ${diffDays} días (~1 mes)`;
+                    } else {
+                        urgency = 'future';
+                        countdownLabel = `📅 En ${diffDays} días`;
+                    }
+                } else {
+                    countdownLabel = `📅 ${m.dueDate || 'Por programar'}`;
+                }
+            }
+
+            list.push({
+                vendorId: v.id,
+                vendorName: v.name,
+                vendorCategory: v.category,
+                vendorContact: v.contactName || '',
+                vendorPhone: v.phone || '',
+                vendorBank: v.bank || 'Banco n/d',
+                vendorClabe: v.clabe || '',
+                milestoneIndex: idx,
+                desc: m.desc,
+                amount: m.amount || 0,
+                dueDate: m.dueDate,
+                dateObj: dateObj,
+                diffDays: diffDays,
+                status: m.status,
+                urgency: urgency,
+                countdownLabel: countdownLabel,
+                paidAt: m.paidAt,
+                method: m.method
+            });
+        });
+    });
+
+    // Sort: pending first by closest diffDays, then paid by paidAt
+    list.sort((a, b) => {
+        if (a.status !== 'paid' && b.status === 'paid') return -1;
+        if (a.status === 'paid' && b.status !== 'paid') return 1;
+        if (a.status !== 'paid' && b.status !== 'paid') {
+            return a.diffDays - b.diffDays;
+        }
+        return 0;
+    });
+
+    return list;
+}
+
+// ==========================================================================
+// RENDER PAYMENT TIMELINE & CALENDAR
+// ==========================================================================
+function renderPaymentTimeline() {
+    const track = document.getElementById('vendorTimelineTrack');
+    const banner = document.getElementById('vendorNextPaymentBanner');
+    const badgePending = document.getElementById('badgePendingPaymentMilestones');
+    if (!track) return;
+
+    const vendors = getActiveVendorsList();
+    const allMilestones = getAllPaymentMilestones(vendors);
+
+    const pendingMilestones = allMilestones.filter(m => m.status !== 'paid');
+    if (badgePending) {
+        badgePending.innerText = `${pendingMilestones.length} próximos`;
+    }
+
+    // Critical Next Payment Alert Banner
+    if (banner) {
+        const closest = pendingMilestones[0];
+        if (closest) {
+            banner.style.display = 'flex';
+            banner.innerHTML = `
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:1.8rem; flex-shrink:0;">⏰</span>
+                    <div>
+                        <strong style="color:#b45309; font-size:0.92rem; display:block;">
+                            Próximo Vencimiento Crítico: ${closest.vendorName}
+                        </strong>
+                        <span style="color:#78350f; font-size:0.82rem;">
+                            $${closest.amount.toLocaleString('es-MX')} MXN (${closest.desc}) · <strong>${closest.countdownLabel}</strong> (${formatVendorExactDate(closest.dueDate)})
+                        </span>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn-action primary" onclick="openPaymentReminderModal('${closest.vendorId}', ${closest.milestoneIndex}, '2w')" style="background:#25d366; border-color:#25d366; color:#ffffff; font-weight:700; font-size:0.8rem; padding:8px 14px;">
+                        💬 Recordar en WhatsApp
+                    </button>
+                    <button class="btn-action secondary" onclick="openPaymentModal('${closest.vendorId}')" style="font-size:0.8rem; padding:8px 14px;">
+                        💳 Abonar Saldo
+                    </button>
+                </div>
+            `;
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
+    // Filter milestones
+    let filtered = allMilestones;
+    if (currentTimelineFilter === 'urgent-2w') {
+        filtered = allMilestones.filter(m => m.urgency === 'urgent-2w' || m.urgency === 'overdue');
+    } else if (currentTimelineFilter === 'month-1') {
+        filtered = allMilestones.filter(m => m.urgency === 'urgent-2w' || m.urgency === 'overdue' || m.urgency === 'month-1');
+    } else if (currentTimelineFilter === 'pending') {
+        filtered = allMilestones.filter(m => m.status !== 'paid');
+    } else if (currentTimelineFilter === 'paid') {
+        filtered = allMilestones.filter(m => m.status === 'paid');
+    }
+
+    if (filtered.length === 0) {
+        track.innerHTML = `
+            <div style="text-align:center; padding:2.5rem 1rem; width:100%; color:#64748b; font-size:0.88rem;">
+                <div style="font-size:2rem; margin-bottom:6px;">✨</div>
+                <strong>No hay vencimientos de pagos en este filtro.</strong>
+                <p style="margin-top:4px; font-size:0.8rem;">Selecciona "Todos los Pagos" para ver el cronograma completo.</p>
+            </div>
+        `;
+        return;
+    }
+
+    track.innerHTML = filtered.map(item => {
+        const isPaid = item.status === 'paid';
+        const prettyDate = formatVendorExactDate(item.dueDate || item.paidAt);
+        const cardClass = `timeline-node-card is-${item.urgency}`;
+
+        return `
+            <div class="${cardClass}">
+                <div>
+                    <!-- TIMELINE HEADER BADGE -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="timeline-urgency-badge ${item.urgency}">
+                            ${item.countdownLabel}
+                        </span>
+                        <span class="badge-tag uppercase ${item.vendorCategory}" style="font-size:0.68rem; margin:0;">
+                            ${getVendorCategoryLabel(item.vendorCategory)}
+                        </span>
+                    </div>
+
+                    <!-- VENDOR NAME & CONCEPT -->
+                    <h4 style="font-size:0.96rem; font-weight:800; color:#0f172a; margin:0 0 4px; line-height:1.3;">
+                        ${item.vendorName}
+                    </h4>
+                    <p style="font-size:0.78rem; color:#475569; margin:0 0 10px; line-height:1.4;">
+                        📑 <strong>${item.desc}</strong>
+                    </p>
+
+                    <!-- AMOUNT -->
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; margin-bottom:12px;">
+                        <span style="font-size:0.7rem; color:#64748b; font-weight:700; text-transform:uppercase; display:block;">Monto a Liquidar:</span>
+                        <div class="timeline-card-amount">$${item.amount.toLocaleString('es-MX')} <span style="font-size:0.75rem; color:#64748b; font-weight:600;">MXN</span></div>
+                        <div style="font-size:0.72rem; color:#0f172a; margin-top:2px;">
+                            📅 Fecha programada: <strong>${prettyDate}</strong>
+                        </div>
+                    </div>
+
+                    <!-- BANK & CLABE SNIPPET -->
+                    <div style="font-size:0.74rem; color:#475569; margin-bottom:12px; background:#ffffff; border:1px dashed #cbd5e1; border-radius:6px; padding:6px 10px;">
+                        <div>🏦 ${item.vendorBank}</div>
+                        ${item.vendorClabe ? `
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px;">
+                                <span style="font-family:monospace; font-weight:700; color:#0f172a;">${item.vendorClabe}</span>
+                                <button type="button" class="btn-copy-mini" onclick="copyClabe('${item.vendorClabe}')" title="Copiar CLABE">📋</button>
+                            </div>
+                        ` : '<div style="color:#94a3b8; font-style:italic;">Sin CLABE registrada</div>'}
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+                    ${!isPaid ? `
+                        <button type="button" class="btn-action primary" onclick="openPaymentReminderModal('${item.vendorId}', ${item.milestoneIndex}, '${item.urgency === 'urgent-2w' ? '2w' : '1m'}')" style="width:100%; justify-content:center; background:#25d366; border-color:#25d366; color:#ffffff; font-weight:700; font-size:0.78rem; padding:7px;">
+                            💬 Recordatorio WhatsApp
+                        </button>
+                        <button type="button" class="btn-action secondary" onclick="openPaymentModal('${item.vendorId}')" style="width:100%; justify-content:center; font-size:0.78rem; padding:6px;">
+                            💳 Abonar / Liquidar
+                        </button>
+                    ` : `
+                        <div style="text-align:center; padding:6px; background:#dcfce7; border-radius:6px; color:#15803d; font-size:0.75rem; font-weight:700;">
+                            ✓ Hito Cubierto al 100%
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ==========================================================================
+// WHATSAPP PAYMENT REMINDER MODAL ENGINE (1-CLIC)
+// ==========================================================================
+function openPaymentReminderModal(vendorId, milestoneIndex, noticeType) {
+    const vendors = getActiveVendorsList();
+    const v = vendors.find(item => item.id === vendorId);
+    if (!v || !v.milestones || !v.milestones[milestoneIndex]) return;
+
+    const m = v.milestones[milestoneIndex];
+    const coupleName = (typeof currentData !== 'undefined' && currentData.couple) ? currentData.couple : 'Novios';
+
+    activeReminderData = {
+        vendorId: v.id,
+        vendorName: v.name,
+        contactName: v.contactName || '',
+        vendorPhone: v.phone || '',
+        vendorBank: v.bank || 'Banco por definir',
+        vendorClabe: v.clabe || 'Consultar con Wedding Planner',
+        milestoneIndex: milestoneIndex,
+        concept: m.desc,
+        amount: m.amount || 0,
+        dueDate: m.dueDate,
+        formattedDate: formatVendorExactDate(m.dueDate),
+        couple: coupleName,
+        recipient: 'novios',
+        noticeType: noticeType || '2w'
+    };
+
+    const noviosLabel = document.getElementById('recipientNoviosNames');
+    if (noviosLabel) noviosLabel.innerText = `${coupleName} (fondear)`;
+    const vendorLabel = document.getElementById('recipientVendorName');
+    if (vendorLabel) vendorLabel.innerText = `${v.name}`;
+
+    setReminderRecipient('novios');
+    setReminderNotice(noticeType || '2w');
+
+    const modal = document.getElementById('modalVendorPaymentReminder');
+    if (modal) modal.classList.add('active');
+}
+
+function setReminderRecipient(recipient) {
+    if (!activeReminderData) return;
+    activeReminderData.recipient = recipient;
+
+    const btnNovios = document.getElementById('btnChoiceNovios');
+    const btnVendor = document.getElementById('btnChoiceVendor');
+    if (btnNovios) btnNovios.classList.toggle('active', recipient === 'novios');
+    if (btnVendor) btnVendor.classList.toggle('active', recipient === 'vendor');
+
+    const phoneInput = document.getElementById('reminderPhoneInput');
+    if (phoneInput) {
+        if (recipient === 'vendor') {
+            phoneInput.value = activeReminderData.vendorPhone || '';
+        } else {
+            phoneInput.value = (typeof currentData !== 'undefined' && currentData.couplePhone) ? currentData.couplePhone : '';
+        }
+    }
+
+    rebuildReminderMessage();
+}
+
+function setReminderNotice(notice) {
+    if (!activeReminderData) return;
+    activeReminderData.noticeType = notice;
+
+    ['2w', '1m', 'urgent', 'custom'].forEach(n => {
+        const pill = document.getElementById(`pillNotice${n === '2w' ? '2W' : n === '1m' ? '1M' : n === 'urgent' ? 'Urgent' : 'Custom'}`);
+        if (pill) pill.classList.toggle('active', notice === n);
+    });
+
+    rebuildReminderMessage();
+}
+
+function rebuildReminderMessage() {
+    if (!activeReminderData) return;
+
+    let daysText = 'en las próximas semanas';
+    let urgencyIntro = 'Les comparto su próximo vencimiento de pago programado:';
+
+    if (activeReminderData.noticeType === '2w') {
+        daysText = 'en 2 semanas (~15 días)';
+        urgencyIntro = 'Les recuerdo con tiempo que en 2 semanas vence el siguiente pago:';
+    } else if (activeReminderData.noticeType === '1m') {
+        daysText = 'en 1 mes (~30 días)';
+        urgencyIntro = 'Les comparto la proyección de pagos para el próximo mes:';
+    } else if (activeReminderData.noticeType === 'urgent') {
+        daysText = '¡esta misma semana!';
+        urgencyIntro = '⚠️ Les recordamos de manera urgente que el siguiente pago vence esta semana:';
+    }
+
+    let msg = '';
+    if (activeReminderData.recipient === 'novios') {
+        msg = `💍 *Recordatorio de Pago · Boda ${activeReminderData.couple}*\n` +
+              `Hola chicos! Les saluda su Wedding Planner 📋\n\n` +
+              `${urgencyIntro}\n\n` +
+              `🏢 *Proveedor:* ${activeReminderData.vendorName}\n` +
+              `📑 *Concepto:* ${activeReminderData.concept}\n` +
+              `💰 *Monto a liquidar:* $${activeReminderData.amount.toLocaleString('es-MX')} MXN\n` +
+              `📅 *Fecha límite:* ${activeReminderData.formattedDate} (${daysText})\n\n` +
+              `🏦 *Datos para Transferencia / SPEI:*\n` +
+              `• Banco: ${activeReminderData.vendorBank}\n` +
+              `• CLABE: ${activeReminderData.vendorClabe}\n` +
+              `• Beneficiario: ${activeReminderData.vendorName}\n\n` +
+              `Por favor ayúdenme compartiéndome su comprobante en cuanto realicen la transferencia para conciliarlo en Wedding Planner OS. ¡Muchas gracias! ✨`;
+    } else {
+        msg = `🏢 *Coordinación de Pagos · Boda ${activeReminderData.couple}*\n` +
+              `Hola ${activeReminderData.contactName || activeReminderData.vendorName}! Te saluda la coordinación de Wedding Planner de la boda de ${activeReminderData.couple} 💍\n\n` +
+              `Te escribimos para dar seguimiento a tu próximo pago programado:\n\n` +
+              `📑 *Concepto:* ${activeReminderData.concept}\n` +
+              `💰 *Monto:* $${activeReminderData.amount.toLocaleString('es-MX')} MXN\n` +
+              `📅 *Fecha de Vencimiento:* ${activeReminderData.formattedDate} (${daysText})\n` +
+              `🏦 *Cuenta destino registrada:* ${activeReminderData.vendorBank} (CLABE: ${activeReminderData.vendorClabe})\n\n` +
+              `Estamos preparando la dispersión para la fecha programada. Si requieres enviar factura previa o confirmar algún dato, avísanos con gusto por aquí. ¡Saludos cordiales! 📋`;
+    }
+
+    const textArea = document.getElementById('reminderMessageText');
+    const bubble = document.getElementById('reminderBubblePreview');
+    if (textArea) textArea.value = msg;
+    if (bubble) bubble.innerText = msg;
+}
+
+function syncReminderTextFromArea() {
+    const textArea = document.getElementById('reminderMessageText');
+    const bubble = document.getElementById('reminderBubblePreview');
+    if (textArea && bubble) {
+        bubble.innerText = textArea.value;
+    }
+}
+
+function updateReminderWhatsAppLink() {
+    // Dynamic refresh if needed
+}
+
+function closePaymentReminderModal() {
+    activeReminderData = null;
+    const modal = document.getElementById('modalVendorPaymentReminder');
+    if (modal) modal.classList.remove('active');
+}
+
+function sendReminderWhatsApp() {
+    const phoneInput = document.getElementById('reminderPhoneInput');
+    const textArea = document.getElementById('reminderMessageText');
+    const phone = phoneInput ? phoneInput.value.replace(/\D/g, '') : '';
+    const text = textArea ? textArea.value : '';
+
+    if (!text.trim()) {
+        alert('Por favor redacta el mensaje a enviar.');
+        return;
+    }
+
+    const encodedText = encodeURIComponent(text);
+    const url = phone ? `https://wa.me/${phone}?text=${encodedText}` : `https://api.whatsapp.com/send?text=${encodedText}`;
+
+    window.open(url, '_blank');
+    if (typeof showToast === 'function') {
+        showToast('💬 Abriendo WhatsApp con el recordatorio listo...');
+    }
+    closePaymentReminderModal();
+}
+
+function copyReminderText() {
+    const textArea = document.getElementById('reminderMessageText');
+    if (!textArea) return;
+    navigator.clipboard.writeText(textArea.value).then(() => {
+        if (typeof showToast === 'function') {
+            showToast('📋 Mensaje de recordatorio copiado al portapapeles.');
+        }
+    }).catch(() => {
+        textArea.select();
+        document.execCommand('copy');
+        if (typeof showToast === 'function') {
+            showToast('📋 Mensaje copiado.');
+        }
+    });
+}
+
+// ==========================================================================
+// RENDER VENDORS TAB MASTER
+// ==========================================================================
 function renderVendorsTab() {
+    const vendors = getActiveVendorsList();
+
+    // Render count badge in subview pill
+    const countCards = document.getElementById('countVendorCards');
+    if (countCards) countCards.innerText = vendors.length;
+
+    // Render payment timeline
+    renderPaymentTimeline();
+
+    // Render cards view
+    renderVendorCards(vendors);
+}
+
+function renderVendorCards(vendors) {
     const list = document.getElementById('vendorsCardsList');
     if (!list) return;
 
     let totalContracted = 0;
     let totalPaid = 0;
-
-    const vendors = getActiveVendorsList();
 
     if (vendors.length === 0) {
         list.innerHTML = `
@@ -228,7 +732,7 @@ function renderVendorsTab() {
                         <button class="btn-sm-action" onclick="openPaymentModal('${v.id}')">➕ Abonar / Liquidar Saldo</button>
                     </div>
                     <div class="milestones-grid">
-                        ${v.milestones.map(m => {
+                        ${v.milestones.map((m, mIdx) => {
                             const isPaid = m.status === 'paid';
                             let dateHtml = '';
                             if (isPaid && m.paidAt) {
@@ -244,7 +748,12 @@ function renderVendorsTab() {
                                     </div>
                                 `;
                             } else {
-                                dateHtml = `<div class="ms-date">📅 Vence: ${m.dueDate}</div>`;
+                                dateHtml = `
+                                    <div class="ms-date">📅 Vence: ${formatVendorExactDate(m.dueDate)}</div>
+                                    <button type="button" class="btn-action primary" onclick="openPaymentReminderModal('${v.id}', ${mIdx}, '2w')" style="margin-top:6px; font-size:0.7rem; padding:4px 8px; background:#25d366; border-color:#25d366; color:#ffffff; font-weight:700; width:100%; justify-content:center;">
+                                        💬 Recordatorio WhatsApp
+                                    </button>
+                                `;
                             }
 
                             return `

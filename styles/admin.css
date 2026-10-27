@@ -8131,3 +8131,299 @@ body.floor-screen-locked .screen-lock-control-wrap {
     }
 }
 
+/* ==========================================================================
+   VENDOR PAYMENT TIMELINE & MILESTONE CALENDAR (PASO 2)
+   ========================================================================== */
+.vendor-subview-bar {
+    background: #ffffff;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.btn-vendor-subview {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-vendor-subview:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-vendor-subview.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+}
+
+.vendor-timeline-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.vendor-next-payment-banner {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.08);
+}
+
+.timeline-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.timeline-filter-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.timeline-nav-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-timeline-scroll {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-timeline-scroll:hover {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.vendor-timeline-track-wrap {
+    overflow-x: auto;
+    padding: 18px 6px 16px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.vendor-timeline-track {
+    display: flex;
+    gap: 18px;
+    position: relative;
+    min-width: min-content;
+    padding-top: 10px;
+}
+
+.vendor-timeline-track::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.timeline-node-card {
+    flex: 0 0 320px;
+    width: 320px;
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1.5px solid #e2e8f0;
+    padding: 16px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-node-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.timeline-node-card::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0f172a;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 2px #cbd5e1;
+    position: absolute;
+    top: -14px;
+    left: 24px;
+    z-index: 3;
+}
+
+.timeline-node-card.is-overdue {
+    border-color: #ef4444 !important;
+    background: #fffdfd;
+}
+.timeline-node-card.is-overdue::before {
+    background: #ef4444 !important;
+    box-shadow: 0 0 0 2px #fca5a5 !important;
+}
+
+.timeline-node-card.is-urgent-2w {
+    border-color: #f59e0b !important;
+    background: #fffefb;
+}
+.timeline-node-card.is-urgent-2w::before {
+    background: #f59e0b !important;
+    box-shadow: 0 0 0 2px #fde68a !important;
+}
+
+.timeline-node-card.is-month-1 {
+    border-color: #3b82f6 !important;
+}
+.timeline-node-card.is-month-1::before {
+    background: #3b82f6 !important;
+    box-shadow: 0 0 0 2px #bfdbfe !important;
+}
+
+.timeline-node-card.is-paid {
+    border-color: #10b981 !important;
+    background: #f0fdf4;
+    opacity: 0.9;
+}
+.timeline-node-card.is-paid::before {
+    background: #10b981 !important;
+    box-shadow: 0 0 0 2px #a7f3d0 !important;
+}
+
+.timeline-urgency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.timeline-urgency-badge.overdue {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.timeline-urgency-badge.urgent-2w {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.timeline-urgency-badge.month-1 {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.timeline-urgency-badge.future {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.timeline-urgency-badge.paid {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.timeline-card-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+/* WHATSAPP REMINDER BUBBLE */
+.whatsapp-bubble-preview {
+    background: #dcf8c6;
+    border-radius: 12px 12px 2px 12px;
+    padding: 14px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #111b21;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    position: relative;
+    border-left: 3px solid #25d366;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.btn-recipient-choice {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-recipient-choice:hover {
+    border-color: #cbd5e1;
+    background: #ffffff;
+}
+
+.btn-recipient-choice.active {
+    background: #f0fdf4 !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15) !important;
+}
+
+@media (max-width: 768px) {
+    .timeline-node-card {
+        flex: 0 0 280px;
+        width: 280px;
+        padding: 14px;
+    }
+    .vendor-timeline-section {
+        padding: 14px 10px;
+    }
+}
+

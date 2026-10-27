@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261026_accordion_v2">
+    <link rel="stylesheet" href="styles/admin.css?v=20261026_timeline_v1">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -2360,8 +2360,8 @@
             <section id="tab-vendors" class="tab-pane">
                 <div class="tab-header">
                     <div>
-                        <h1 class="tab-title">🏢 Proveedores &amp; Pagos</h1>
-                        <p class="tab-subtitle">Control de anticipos escalonados, saldos por liquidar, datos bancarios CLABE y fichas técnicas de montaje.</p>
+                        <h1 class="tab-title">🏢 Proveedores, Cronograma &amp; Pagos</h1>
+                        <p class="tab-subtitle">Línea de tiempo de anticipos, recordatorios en 1-clic por WhatsApp, saldos por liquidar y cuentas CLABE.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn-action secondary" onclick="printVendorsReport()">🖨️ Estado de Cuenta &amp; Montaje (PDF)</button>
@@ -2388,9 +2388,58 @@
                     </div>
                 </div>
 
-                <!-- VENDORS LIST -->
-                <div class="vendors-cards-grid" id="vendorsCardsList">
-                    <!-- Populated dynamically -->
+                <!-- SUB-VIEW SWITCHER PILLS -->
+                <div class="vendor-subview-bar mb-3">
+                    <div class="d-flex align-center gap-2" style="flex-wrap:wrap;">
+                        <button type="button" class="btn-vendor-subview active" id="btnSubViewTimeline" onclick="switchVendorsSubView('timeline')">
+                            🗓️ Cronograma &amp; Línea de Pagos
+                            <span class="menu-badge badge-warning" id="badgePendingPaymentMilestones">3 próximos</span>
+                        </button>
+                        <button type="button" class="btn-vendor-subview" id="btnSubViewCards" onclick="switchVendorsSubView('cards')">
+                            🏢 Fichas de Proveedores &amp; CLABEs (<span id="countVendorCards">0</span>)
+                        </button>
+                    </div>
+                    <div class="d-flex align-center gap-2">
+                        <span style="font-size:0.75rem; color:#64748b; font-weight:700;">Recordatorios WhatsApp:</span>
+                        <span class="badge-status success" style="font-size:0.72rem;">✓ Plantillas 1-Clic</span>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: HORIZONTAL PAYMENT TIMELINE & CALENDAR -->
+                <div id="vendorTimelineView" class="vendor-timeline-section mb-4">
+                    <!-- CRITICAL DEADLINE ALERT BANNER -->
+                    <div id="vendorNextPaymentBanner" class="vendor-next-payment-banner mb-3">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- TIMELINE CONTROLS & FILTERS -->
+                    <div class="timeline-controls-bar mb-3">
+                        <div class="timeline-filter-pills">
+                            <button class="filter-pill active" id="tFilter-all" onclick="setTimelineFilter('all')">Todos los Pagos</button>
+                            <button class="filter-pill" id="tFilter-urgent-2w" onclick="setTimelineFilter('urgent-2w')">🔴 Próximas 2 Semanas</button>
+                            <button class="filter-pill" id="tFilter-month-1" onclick="setTimelineFilter('month-1')">🟡 Próximos 30 Días</button>
+                            <button class="filter-pill" id="tFilter-pending" onclick="setTimelineFilter('pending')">⏳ Solo Pendientes</button>
+                            <button class="filter-pill" id="tFilter-paid" onclick="setTimelineFilter('paid')">✅ Historial Pagados</button>
+                        </div>
+                        <div class="timeline-nav-buttons">
+                            <button type="button" class="btn-timeline-scroll" onclick="scrollPaymentTimeline(-1)" title="Desplazar a pagos anteriores">◀ Anterior</button>
+                            <button type="button" class="btn-timeline-scroll" onclick="scrollPaymentTimeline(1)" title="Desplazar a pagos siguientes">Siguiente ▶</button>
+                        </div>
+                    </div>
+
+                    <!-- HORIZONTAL TIMELINE TRACK -->
+                    <div class="vendor-timeline-track-wrap" id="vendorTimelineTrackWrap">
+                        <div class="vendor-timeline-track" id="vendorTimelineTrack">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: VENDORS FULL DOSSIER CARDS -->
+                <div id="vendorCardsView" style="display:none;">
+                    <div class="vendors-cards-grid" id="vendorsCardsList">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
             </section>
 
@@ -3557,14 +3606,14 @@
     <script src="scripts/admin-seating.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-dayof.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-barcalc.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-vendors.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-vendors.js?v=20261026_timeline_v1"></script>
     <script src="scripts/admin-finance.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-pdf-reports.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-kanban.js?v=20261026_kanban_v1"></script>
     <script src="scripts/admin-budget-estimator.js?v=20261026_print_fix_v1"></script>
     <script src="scripts/admin-contracts.js?v=20261026_widescreen_v9"></script>
     <script src="scripts/admin-design-studio.js?v=20261026_print_fix_v1"></script>
-    <script src="scripts/admin-app.js?v=20261026_accordion_v2"></script>
+    <script src="scripts/admin-app.js?v=20261026_timeline_v1"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
@@ -4491,6 +4540,83 @@
             <div class="modal-footer">
                 <button class="btn-modal secondary" onclick="closePaymentModal()">Cancelar</button>
                 <button class="btn-modal primary" onclick="saveVendorPayment()">💳 Aplicar Abono</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL: RECORDATORIO WHATSAPP PARA PROVEEDORES / NOVIOS (CRONOGRAMA DE PAGOS) -->
+    <!-- ========================================================================== -->
+    <div id="modalVendorPaymentReminder" class="app-modal-overlay">
+        <div class="app-modal-card" style="max-width: 640px;">
+            <div class="modal-header">
+                <div class="d-flex align-center gap-2">
+                    <span class="modal-icon" style="background:#25d366; color:#ffffff; font-size:1.15rem;">💬</span>
+                    <div>
+                        <h3 class="modal-title">Recordatorio de Pago vía WhatsApp</h3>
+                        <p class="modal-sub">Plantilla inteligente de cobro y aviso con cálculo de días y CLABE bancaria.</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closePaymentReminderModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- 1. DESTINATARIO -->
+                <div class="form-group mb-3">
+                    <label class="form-label font-bold" style="font-size:0.8rem; text-transform:uppercase; color:#475569; letter-spacing:0.02em;">1. ¿A quién enviaremos el recordatorio?</label>
+                    <div class="reminder-recipient-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <button type="button" class="btn-recipient-choice active" id="btnChoiceNovios" onclick="setReminderRecipient('novios')">
+                            <div style="font-size:1.25rem; margin-bottom:3px;">👰🤵</div>
+                            <strong style="display:block; font-size:0.85rem; color:#0f172a;">A los Novios</strong>
+                            <span style="font-size:0.74rem; color:#64748b;" id="recipientNoviosNames">Para fondear / transferir</span>
+                        </button>
+                        <button type="button" class="btn-recipient-choice" id="btnChoiceVendor" onclick="setReminderRecipient('vendor')">
+                            <div style="font-size:1.25rem; margin-bottom:3px;">🏢</div>
+                            <strong style="display:block; font-size:0.85rem; color:#0f172a;">Al Proveedor</strong>
+                            <span style="font-size:0.74rem; color:#64748b;" id="recipientVendorName">Para coordinar abono</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. ANTELACIÓN DEL AVISO -->
+                <div class="form-group mb-3">
+                    <label class="form-label font-bold" style="font-size:0.8rem; text-transform:uppercase; color:#475569; letter-spacing:0.02em;">2. Tono &amp; Antelación del Aviso:</label>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="filter-pill active" id="pillNotice2W" onclick="setReminderNotice('2w')">⏳ En 2 Semanas (15 días)</button>
+                        <button type="button" class="filter-pill" id="pillNotice1M" onclick="setReminderNotice('1m')">📅 En 1 Mes (30 días)</button>
+                        <button type="button" class="filter-pill" id="pillNoticeUrgent" onclick="setReminderNotice('urgent')">🚨 Vence Esta Semana</button>
+                        <button type="button" class="filter-pill" id="pillNoticeCustom" onclick="setReminderNotice('custom')">✍️ Texto Personalizado</button>
+                    </div>
+                </div>
+
+                <!-- 3. TELÉFONO DESTINO -->
+                <div class="form-group mb-3">
+                    <label class="form-label font-bold" style="font-size:0.8rem; text-transform:uppercase; color:#475569; letter-spacing:0.02em;">Número de WhatsApp Destino:</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="reminderPhoneInput" class="form-input" placeholder="+52 55 1234 5678" oninput="updateReminderWhatsAppLink()">
+                    </div>
+                </div>
+
+                <!-- 4. VISTA PREVIA MENSAJE WHATSAPP -->
+                <div class="form-group mb-2">
+                    <label class="form-label font-bold" style="font-size:0.8rem; text-transform:uppercase; color:#475569; letter-spacing:0.02em;">3. Vista Previa en WhatsApp (Editable):</label>
+                    <div class="whatsapp-bubble-preview mb-2" id="reminderBubblePreview">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <textarea id="reminderMessageText" class="form-textarea" rows="6" oninput="syncReminderTextFromArea()" style="font-size:0.82rem; font-family:monospace; line-height:1.45; border-radius:8px;"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn-action secondary" onclick="copyReminderText()">
+                    📋 Copiar Mensaje
+                </button>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" class="btn-action secondary" onclick="closePaymentReminderModal()">Cerrar</button>
+                    <button type="button" class="btn-action primary" id="btnSendReminderWhatsApp" onclick="sendReminderWhatsApp()" style="background:#25d366; border-color:#25d366; color:#ffffff; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                        <span>🟢</span> Abrir WhatsApp Directo
+                    </button>
+                </div>
             </div>
         </div>
     </div>
