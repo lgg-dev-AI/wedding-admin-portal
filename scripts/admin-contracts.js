@@ -224,27 +224,52 @@ function renderContractsTab() {
             </div>
         </div>
 
-        <!-- MODAL PREVIEW DOCUMENTO / ESCANEO COMPLETO -->
-        <div id="modalViewContractScan" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); backdrop-filter:blur(6px); z-index:999999; align-items:center; justify-content:center;">
-            <div style="background:#ffffff; border-radius:16px; max-width:840px; width:94%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px rgba(0,0,0,0.3);">
-                <div style="background:#0f172a; color:#ffffff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong id="viewModalTitle" style="font-size:1rem; display:block;">Visor de Documento Escaneado</strong>
-                        <span id="viewModalMeta" style="font-size:0.75rem; color:#cbd5e1;"></span>
+        <!-- MODAL PREVIEW DOCUMENTO / ESCANEO COMPLETO (WIDESCREEN CINEMA EXPEDIENTE) -->
+        <div id="modalViewContractScan" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.92); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center;">
+            <div id="modalViewContractScanCard" class="contract-viewer-card">
+                <!-- HEADER BAR -->
+                <div style="background:#0f172a; color:#ffffff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid #334155;">
+                    <div style="min-width:260px; flex:1;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.15rem;">📄</span>
+                            <strong id="viewModalTitle" style="font-size:1.05rem; letter-spacing:0.02em; color:#ffffff;">Expediente de Contrato</strong>
+                            <span id="viewModalBadge" style="background:#2563eb; color:#ffffff; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:999px; text-transform:uppercase;">PDF MULTIPÁGINA</span>
+                        </div>
+                        <span id="viewModalMeta" style="font-size:0.78rem; color:#94a3b8; display:block; margin-top:2px;"></span>
                     </div>
-                    <button type="button" onclick="closeViewContractScanModal()" style="background:none; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer;">✕</button>
+
+                    <!-- ACTION TOOLBAR -->
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <a id="btnOpenNewTabScan" href="#" target="_blank" class="btn-action" style="background:#1e293b; color:#f1f5f9; border:1px solid #475569; font-size:0.76rem; padding:7px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-weight:600;" title="Abrir en pestaña nueva del navegador a tamaño 100% con herramientas nativas">
+                            <span>↗️ Pestaña Completa</span>
+                        </a>
+                        <button type="button" id="btnToggleFullscreenScan" onclick="toggleContractScanFullscreen()" class="btn-action" style="background:#1e293b; color:#f1f5f9; border:1px solid #475569; font-size:0.76rem; padding:7px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-weight:600;" title="Alternar modo pantalla completa">
+                            <span id="fsIcon">⛶</span> <span id="fsLabel">Pantalla Completa</span>
+                        </button>
+                        <button type="button" onclick="closeViewContractScanModal()" style="background:#334155; border:none; color:#ffffff; width:36px; height:36px; border-radius:8px; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:4px;" title="Cerrar visor">✕</button>
+                    </div>
                 </div>
-                <div id="viewModalBody" style="flex:1; padding:16px; overflow-y:auto; background:#1e293b; display:flex; align-items:center; justify-content:center;">
-                    <!-- Rendered Image or PDF Embed -->
+
+                <!-- MAIN WORKSPACE BODY -->
+                <div id="viewModalBody" style="flex:1; width:100%; height:100%; min-height:0; overflow:hidden; background:#0b1120; position:relative; display:flex; align-items:center; justify-content:center;">
+                    <!-- Rendered iframe or high-res image canvas -->
                 </div>
-                <div style="padding:12px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div id="viewModalNotes" style="font-size:0.75rem; color:#475569; max-width:550px;"></div>
-                    <a id="btnDownloadOriginalScan" href="#" download target="_blank" class="btn-action primary" style="background:#0f172a; font-size:0.78rem; text-decoration:none; padding:8px 16px;">
-                        📥 Descargar Archivo Original
-                    </a>
+
+                <!-- FOOTER BAR -->
+                <div style="padding:10px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div id="viewModalNotes" style="font-size:0.78rem; color:#475569; max-width:65%;"></div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button type="button" id="btnShareWaScan" class="btn-action" style="background:#25d366; color:#ffffff; border:none; font-size:0.78rem; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                            <span>💬 Compartir por WhatsApp</span>
+                        </button>
+                        <a id="btnDownloadOriginalScan" href="#" download target="_blank" class="btn-action primary" style="background:#0f172a; color:#ffffff; font-size:0.78rem; text-decoration:none; padding:8px 16px; border-radius:8px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                            <span>⬇️ Descargar Archivo Original</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+
     `;
 
     updateContractsBadges();
@@ -410,6 +435,38 @@ function handleSaveUploadedContract(e) {
     }
 }
 
+let currentBlobUrl = null;
+let currentImageRotation = 0;
+let currentImageZoom = 1;
+
+function getPdfViewerUrl(fileData) {
+    if (!fileData) return '';
+    // If it's a data URL, convert to Blob URL to maximize rendering speed and native browser parameter handling
+    if (fileData.startsWith('data:application/pdf') || fileData.startsWith('data:')) {
+        try {
+            if (currentBlobUrl) {
+                try { URL.revokeObjectURL(currentBlobUrl); } catch (e) {}
+                currentBlobUrl = null;
+            }
+            const parts = fileData.split(',');
+            const mimeMatch = parts[0].match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
+            const binary = atob(parts[1]);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+            }
+            const blob = new Blob([array], { type: mime });
+            currentBlobUrl = URL.createObjectURL(blob);
+            return currentBlobUrl + '#view=FitH&pagemode=thumbs&toolbar=1';
+        } catch (e) {
+            console.warn("Could not generate Blob URL for PDF:", e);
+            return fileData + (fileData.includes('#') ? '' : '#view=FitH&pagemode=thumbs&toolbar=1');
+        }
+    }
+    return fileData + (fileData.includes('#') ? '' : '#view=FitH&pagemode=thumbs&toolbar=1');
+}
+
 function openViewContractScanModal(contractId) {
     const contracts = getWeddingContracts();
     const contract = contracts.find(c => c.id === contractId);
@@ -418,25 +475,86 @@ function openViewContractScanModal(contractId) {
     const modal = document.getElementById('modalViewContractScan');
     if (!modal) return;
 
+    // Reset card state (exit fullscreen if previously set)
+    const card = document.getElementById('modalViewContractScanCard');
+    if (card) card.classList.remove('is-fullscreen');
+    const fsIcon = document.getElementById('fsIcon');
+    const fsLabel = document.getElementById('fsLabel');
+    if (fsIcon) fsIcon.textContent = '⛶';
+    if (fsLabel) fsLabel.textContent = 'Pantalla Completa';
+
     document.getElementById('viewModalTitle').innerText = contract.title;
     document.getElementById('viewModalMeta').innerText = `Contraparte: ${contract.counterparty} · Importe: ${formatMXNCurrency(contract.totalAmount)} · Firmado: ${contract.signDate}`;
     document.getElementById('viewModalNotes').innerHTML = contract.notes ? `<strong>Condiciones clave:</strong> ${contract.notes}` : '';
-    
+
+    const isPdf = contract.fileType === 'pdf' || (contract.fileData && contract.fileData.includes('application/pdf')) || (contract.fileName && contract.fileName.toLowerCase().endsWith('.pdf'));
+
+    const badge = document.getElementById('viewModalBadge');
+    if (badge) {
+        badge.textContent = isPdf ? 'PDF MULTIPÁGINA' : 'IMAGEN ESCANEADA';
+        badge.style.background = isPdf ? '#2563eb' : '#059669';
+    }
+
     const downloadBtn = document.getElementById('btnDownloadOriginalScan');
+    const openNewTabBtn = document.getElementById('btnOpenNewTabScan');
+    const shareWaBtn = document.getElementById('btnShareWaScan');
+
+    if (shareWaBtn) {
+        shareWaBtn.onclick = () => shareContractWhatsApp(contractId);
+    }
+
+    let finalViewerUrl = contract.fileData || '#';
+
+    if (isPdf) {
+        finalViewerUrl = getPdfViewerUrl(contract.fileData);
+    }
+
     if (downloadBtn) {
-        downloadBtn.href = contract.fileData || '#';
-        downloadBtn.download = contract.fileName || 'Contrato_Escaneado';
+        downloadBtn.href = currentBlobUrl || contract.fileData || '#';
+        downloadBtn.download = contract.fileName || (isPdf ? 'Contrato_Escaneado.pdf' : 'Contrato_Escaneado.jpg');
+    }
+
+    if (openNewTabBtn) {
+        openNewTabBtn.href = finalViewerUrl;
     }
 
     const body = document.getElementById('viewModalBody');
     if (body) {
-        if (contract.fileType === 'pdf' && !contract.fileData.startsWith('data:image')) {
+        if (isPdf) {
             body.innerHTML = `
-                <iframe src="${contract.fileData}" style="width:100%; height:70vh; border:none; border-radius:8px; background:#fff;"></iframe>
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;">
+                    <div style="background:#1e293b; padding:6px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; font-size:0.75rem; color:#94a3b8; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>📖 <strong>Vista Panorámica:</strong> Índice de páginas a la izquierda y lectura en alta definición al 100% a la derecha.</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="color:#38bdf8;">💡 Usa la barra superior del visor para zoom continuo o imprimir directamente.</span>
+                        </div>
+                    </div>
+                    <iframe src="${finalViewerUrl}" style="flex:1; width:100%; height:100%; border:none; background:#ffffff;" title="Visor de Contrato Panorámico"></iframe>
+                </div>
             `;
         } else {
+            // High-resolution image scan viewer with zoom/rotate controls
+            currentImageRotation = 0;
+            currentImageZoom = 1;
             body.innerHTML = `
-                <img src="${contract.fileData}" style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.5);" alt="Escaneo del Contrato">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;">
+                    <div style="background:#1e293b; padding:8px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" onclick="adjustScanImageZoom(0.25)" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Acercar documento">🔍+ Acercar</button>
+                            <button type="button" onclick="adjustScanImageZoom(-0.25)" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Alejar documento">🔍- Alejar</button>
+                            <button type="button" onclick="resetScanImageZoom()" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Restablecer tamaño original">↺ 100%</button>
+                            <button type="button" onclick="rotateScanImage()" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Girar 90 grados la fotografía">↷ Rotar 90°</button>
+                        </div>
+                        <div style="font-size:0.75rem; color:#94a3b8;">
+                            Desplázate con el ratón o desliza con el dedo para revisar cada detalle del documento.
+                        </div>
+                    </div>
+                    <div id="imageScanViewport" style="flex:1; width:100%; height:100%; overflow:auto; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+                        <img id="imageScanTarget" src="${contract.fileData}" alt="Escaneo del Contrato" style="max-width:94%; max-height:82vh; object-fit:contain; border-radius:8px; box-shadow:0 15px 35px rgba(0,0,0,0.5); transition:transform 0.2s ease-out; transform:scale(1) rotate(0deg);">
+                    </div>
+                </div>
             `;
         }
     }
@@ -444,9 +562,60 @@ function openViewContractScanModal(contractId) {
     modal.style.display = 'flex';
 }
 
+function toggleContractScanFullscreen() {
+    const card = document.getElementById('modalViewContractScanCard');
+    const fsIcon = document.getElementById('fsIcon');
+    const fsLabel = document.getElementById('fsLabel');
+    if (!card) return;
+
+    if (card.classList.contains('is-fullscreen')) {
+        card.classList.remove('is-fullscreen');
+        if (fsIcon) fsIcon.textContent = '⛶';
+        if (fsLabel) fsLabel.textContent = 'Pantalla Completa';
+    } else {
+        card.classList.add('is-fullscreen');
+        if (fsIcon) fsIcon.textContent = '🗗';
+        if (fsLabel) fsLabel.textContent = 'Restaurar';
+    }
+}
+
+function adjustScanImageZoom(delta) {
+    currentImageZoom = Math.max(0.5, Math.min(4.0, currentImageZoom + delta));
+    updateScanImageTransform();
+}
+
+function resetScanImageZoom() {
+    currentImageZoom = 1;
+    currentImageRotation = 0;
+    updateScanImageTransform();
+}
+
+function rotateScanImage() {
+    currentImageRotation = (currentImageRotation + 90) % 360;
+    updateScanImageTransform();
+}
+
+function updateScanImageTransform() {
+    const img = document.getElementById('imageScanTarget');
+    if (img) {
+        img.style.transform = `scale(${currentImageZoom}) rotate(${currentImageRotation}deg)`;
+        if (currentImageZoom > 1.1) {
+            img.style.maxWidth = 'none';
+            img.style.maxHeight = 'none';
+        } else {
+            img.style.maxWidth = '94%';
+            img.style.maxHeight = '82vh';
+        }
+    }
+}
+
 function closeViewContractScanModal() {
     const modal = document.getElementById('modalViewContractScan');
     if (modal) modal.style.display = 'none';
+    if (currentBlobUrl) {
+        try { URL.revokeObjectURL(currentBlobUrl); } catch(e) {}
+        currentBlobUrl = null;
+    }
 }
 
 function shareContractWhatsApp(contractId) {
@@ -457,7 +626,7 @@ function shareContractWhatsApp(contractId) {
     const data = (typeof getWeddingState === 'function' ? getWeddingState(window.currentWeddingId) : window.currentData) || {};
     const couple = data.couple || "Novios";
 
-    const text = `📋 *Resguardo de Contrato Firmado*\nBoda: *${couple}*\nDocumento: *${c.title}*\nProveedor: *${c.counterparty}*\nImporte: *${formatMXNCurrency(c.totalAmount)}*\nFecha de Firma: *${c.signDate}*\n\nNotas clave: ${c.notes || 'En resguardo en Wedding OS'}`;
+    const text = `📋 *Expediente de Contrato Firmado*\nBoda: *${couple}*\nDocumento: *${c.title}*\nProveedor: *${c.counterparty}*\nImporte: *${formatMXNCurrency(c.totalAmount)}*\nFecha de Firma: *${c.signDate}*\n\nNotas clave: ${c.notes || 'En resguardo en Wedding OS'}`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 }
@@ -479,6 +648,11 @@ window.handleFilePreview = handleFilePreview;
 window.handleSaveUploadedContract = handleSaveUploadedContract;
 window.openViewContractScanModal = openViewContractScanModal;
 window.closeViewContractScanModal = closeViewContractScanModal;
+window.toggleContractScanFullscreen = toggleContractScanFullscreen;
+window.adjustScanImageZoom = adjustScanImageZoom;
+window.resetScanImageZoom = resetScanImageZoom;
+window.rotateScanImage = rotateScanImage;
 window.shareContractWhatsApp = shareContractWhatsApp;
 window.deleteScannedContract = deleteScannedContract;
 window.updateContractsBadges = updateContractsBadges;
+

@@ -7875,7 +7875,48 @@ body.floor-screen-locked .screen-lock-control-wrap {
         padding-top: 6px !important;
         border-top: 1px dashed #e2e8f0 !important;
     }
+/* ==========================================================================
+   WIDESCREEN CONTRACT & SCANNED DOCUMENT VIEWER MODAL
+   ========================================================================== */
+#modalViewContractScan {
+    padding: 12px;
+    box-sizing: border-box;
 }
 
+.contract-viewer-card {
+    background: #ffffff;
+    border-radius: 14px;
+    width: 98vw !important;
+    max-width: 1720px !important;
+    height: 95vh !important;
+    max-height: 96vh !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+    margin: auto;
+    transition: all 0.2s ease-in-out;
+}
 
+.contract-viewer-card.is-fullscreen {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+}
 
+@media (max-width: 768px) {
+    #modalViewContractScan {
+        padding: 0 !important;
+    }
+    .contract-viewer-card {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+}
