@@ -225,11 +225,11 @@ function renderContractsTab() {
         </div>
 
         <!-- MODAL PREVIEW DOCUMENTO / ESCANEO COMPLETO (WIDESCREEN CINEMA EXPEDIENTE) -->
-        <div id="modalViewContractScan" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.92); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center;">
-            <div id="modalViewContractScanCard" class="contract-viewer-card">
+        <div id="modalViewContractScan" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.92); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center; padding:12px; box-sizing:border-box;">
+            <div id="modalViewContractScanCard" data-fullscreen="false" class="contract-viewer-card" style="background:#ffffff; border-radius:14px; width:96vw; max-width:1600px; height:92vh; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.5); margin:auto;">
                 <!-- HEADER BAR -->
-                <div style="background:#0f172a; color:#ffffff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid #334155;">
-                    <div style="min-width:260px; flex:1;">
+                <div style="background:#0f172a; color:#ffffff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid #334155; flex-shrink:0;">
+                    <div style="min-width:240px; flex:1;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-size:1.15rem;">📄</span>
                             <strong id="viewModalTitle" style="font-size:1.05rem; letter-spacing:0.02em; color:#ffffff;">Expediente de Contrato</strong>
@@ -240,9 +240,9 @@ function renderContractsTab() {
 
                     <!-- ACTION TOOLBAR -->
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                        <a id="btnOpenNewTabScan" href="#" target="_blank" class="btn-action" style="background:#1e293b; color:#f1f5f9; border:1px solid #475569; font-size:0.76rem; padding:7px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-weight:600;" title="Abrir en pestaña nueva del navegador a tamaño 100% con herramientas nativas">
+                        <button type="button" id="btnOpenNewTabScan" onclick="openCurrentScanInNewTab()" class="btn-action" style="background:#1e293b; color:#f1f5f9; border:1px solid #475569; font-size:0.76rem; padding:7px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-weight:600;" title="Abrir en pestaña nueva del navegador con herramientas nativas">
                             <span>↗️ Pestaña Completa</span>
-                        </a>
+                        </button>
                         <button type="button" id="btnToggleFullscreenScan" onclick="toggleContractScanFullscreen()" class="btn-action" style="background:#1e293b; color:#f1f5f9; border:1px solid #475569; font-size:0.76rem; padding:7px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; border-radius:8px; font-weight:600;" title="Alternar modo pantalla completa">
                             <span id="fsIcon">⛶</span> <span id="fsLabel">Pantalla Completa</span>
                         </button>
@@ -251,12 +251,12 @@ function renderContractsTab() {
                 </div>
 
                 <!-- MAIN WORKSPACE BODY -->
-                <div id="viewModalBody" style="flex:1; width:100%; height:100%; min-height:0; overflow:hidden; background:#0b1120; position:relative; display:flex; align-items:center; justify-content:center;">
+                <div id="viewModalBody" style="flex:1; width:100%; height:calc(92vh - 120px); min-height:calc(92vh - 120px); overflow:hidden; background:#1e293b; position:relative; display:flex; flex-direction:column;">
                     <!-- Rendered iframe or high-res image canvas -->
                 </div>
 
                 <!-- FOOTER BAR -->
-                <div style="padding:10px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div style="padding:10px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; flex-shrink:0;">
                     <div id="viewModalNotes" style="font-size:0.78rem; color:#475569; max-width:65%;"></div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <button type="button" id="btnShareWaScan" class="btn-action" style="background:#25d366; color:#ffffff; border:none; font-size:0.78rem; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
@@ -435,36 +435,32 @@ function handleSaveUploadedContract(e) {
     }
 }
 
-let currentBlobUrl = null;
+let currentViewContractId = null;
 let currentImageRotation = 0;
 let currentImageZoom = 1;
 
-function getPdfViewerUrl(fileData) {
-    if (!fileData) return '';
-    // If it's a data URL, convert to Blob URL to maximize rendering speed and native browser parameter handling
-    if (fileData.startsWith('data:application/pdf') || fileData.startsWith('data:')) {
+function openCurrentScanInNewTab() {
+    if (!currentViewContractId) return;
+    const contracts = getWeddingContracts();
+    const c = contracts.find(item => item.id === currentViewContractId);
+    if (!c || !c.fileData) return;
+
+    if (c.fileData.startsWith('data:')) {
         try {
-            if (currentBlobUrl) {
-                try { URL.revokeObjectURL(currentBlobUrl); } catch (e) {}
-                currentBlobUrl = null;
-            }
-            const parts = fileData.split(',');
-            const mimeMatch = parts[0].match(/:(.*?);/);
-            const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
+            const parts = c.fileData.split(',');
+            const mime = parts[0].match(/:(.*?);/)[1];
             const binary = atob(parts[1]);
             const array = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) {
-                array[i] = binary.charCodeAt(i);
-            }
+            for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
             const blob = new Blob([array], { type: mime });
-            currentBlobUrl = URL.createObjectURL(blob);
-            return currentBlobUrl + '#view=FitH&pagemode=thumbs&toolbar=1';
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, '_blank');
+            return;
         } catch (e) {
-            console.warn("Could not generate Blob URL for PDF:", e);
-            return fileData + (fileData.includes('#') ? '' : '#view=FitH&pagemode=thumbs&toolbar=1');
+            console.error("Error opening blob in new tab:", e);
         }
     }
-    return fileData + (fileData.includes('#') ? '' : '#view=FitH&pagemode=thumbs&toolbar=1');
+    window.open(c.fileData, '_blank');
 }
 
 function openViewContractScanModal(contractId) {
@@ -472,12 +468,27 @@ function openViewContractScanModal(contractId) {
     const contract = contracts.find(c => c.id === contractId);
     if (!contract) return;
 
+    currentViewContractId = contractId;
+
     const modal = document.getElementById('modalViewContractScan');
     if (!modal) return;
 
-    // Reset card state (exit fullscreen if previously set)
+    // Force explicit widescreen dimensions inline
     const card = document.getElementById('modalViewContractScanCard');
-    if (card) card.classList.remove('is-fullscreen');
+    const body = document.getElementById('viewModalBody');
+    if (card) {
+        card.dataset.fullscreen = "false";
+        card.style.width = "96vw";
+        card.style.maxWidth = "1600px";
+        card.style.height = "92vh";
+        card.style.maxHeight = "92vh";
+        card.style.borderRadius = "14px";
+    }
+    if (body) {
+        body.style.height = "calc(92vh - 120px)";
+        body.style.minHeight = "calc(92vh - 120px)";
+    }
+
     const fsIcon = document.getElementById('fsIcon');
     const fsLabel = document.getElementById('fsLabel');
     if (fsIcon) fsIcon.textContent = '⛶';
@@ -496,43 +507,21 @@ function openViewContractScanModal(contractId) {
     }
 
     const downloadBtn = document.getElementById('btnDownloadOriginalScan');
-    const openNewTabBtn = document.getElementById('btnOpenNewTabScan');
     const shareWaBtn = document.getElementById('btnShareWaScan');
 
     if (shareWaBtn) {
         shareWaBtn.onclick = () => shareContractWhatsApp(contractId);
     }
 
-    let finalViewerUrl = contract.fileData || '#';
-
-    if (isPdf) {
-        finalViewerUrl = getPdfViewerUrl(contract.fileData);
-    }
-
     if (downloadBtn) {
-        downloadBtn.href = currentBlobUrl || contract.fileData || '#';
+        downloadBtn.href = contract.fileData || '#';
         downloadBtn.download = contract.fileName || (isPdf ? 'Contrato_Escaneado.pdf' : 'Contrato_Escaneado.jpg');
     }
 
-    if (openNewTabBtn) {
-        openNewTabBtn.href = finalViewerUrl;
-    }
-
-    const body = document.getElementById('viewModalBody');
     if (body) {
         if (isPdf) {
             body.innerHTML = `
-                <div style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;">
-                    <div style="background:#1e293b; padding:6px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; font-size:0.75rem; color:#94a3b8; flex-wrap:wrap; gap:8px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span>📖 <strong>Vista Panorámica:</strong> Índice de páginas a la izquierda y lectura en alta definición al 100% a la derecha.</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <span style="color:#38bdf8;">💡 Usa la barra superior del visor para zoom continuo o imprimir directamente.</span>
-                        </div>
-                    </div>
-                    <iframe src="${finalViewerUrl}" style="flex:1; width:100%; height:100%; border:none; background:#ffffff;" title="Visor de Contrato Panorámico"></iframe>
-                </div>
+                <iframe src="${contract.fileData}" style="width:100%; height:100%; min-height:100%; border:none; background:#ffffff;" title="Visor de Contrato Panorámico"></iframe>
             `;
         } else {
             // High-resolution image scan viewer with zoom/rotate controls
@@ -540,7 +529,7 @@ function openViewContractScanModal(contractId) {
             currentImageZoom = 1;
             body.innerHTML = `
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; position:relative;">
-                    <div style="background:#1e293b; padding:8px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; flex-wrap:wrap; gap:8px;">
+                    <div style="background:#0f172a; padding:8px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; flex-wrap:wrap; gap:8px; flex-shrink:0;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <button type="button" onclick="adjustScanImageZoom(0.25)" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Acercar documento">🔍+ Acercar</button>
                             <button type="button" onclick="adjustScanImageZoom(-0.25)" class="btn-action" style="background:#334155; color:#fff; border:none; padding:5px 12px; font-size:0.75rem; border-radius:6px; cursor:pointer; font-weight:700;" title="Alejar documento">🔍- Alejar</button>
@@ -552,7 +541,7 @@ function openViewContractScanModal(contractId) {
                         </div>
                     </div>
                     <div id="imageScanViewport" style="flex:1; width:100%; height:100%; overflow:auto; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
-                        <img id="imageScanTarget" src="${contract.fileData}" alt="Escaneo del Contrato" style="max-width:94%; max-height:82vh; object-fit:contain; border-radius:8px; box-shadow:0 15px 35px rgba(0,0,0,0.5); transition:transform 0.2s ease-out; transform:scale(1) rotate(0deg);">
+                        <img id="imageScanTarget" src="${contract.fileData}" alt="Escaneo del Contrato" style="max-width:94%; max-height:80vh; object-fit:contain; border-radius:8px; box-shadow:0 15px 35px rgba(0,0,0,0.5); transition:transform 0.2s ease-out; transform:scale(1) rotate(0deg);">
                     </div>
                 </div>
             `;
@@ -564,16 +553,35 @@ function openViewContractScanModal(contractId) {
 
 function toggleContractScanFullscreen() {
     const card = document.getElementById('modalViewContractScanCard');
+    const body = document.getElementById('viewModalBody');
     const fsIcon = document.getElementById('fsIcon');
     const fsLabel = document.getElementById('fsLabel');
     if (!card) return;
 
-    if (card.classList.contains('is-fullscreen')) {
-        card.classList.remove('is-fullscreen');
+    if (card.dataset.fullscreen === "true") {
+        card.dataset.fullscreen = "false";
+        card.style.width = "96vw";
+        card.style.maxWidth = "1600px";
+        card.style.height = "92vh";
+        card.style.maxHeight = "92vh";
+        card.style.borderRadius = "14px";
+        if (body) {
+            body.style.height = "calc(92vh - 120px)";
+            body.style.minHeight = "calc(92vh - 120px)";
+        }
         if (fsIcon) fsIcon.textContent = '⛶';
         if (fsLabel) fsLabel.textContent = 'Pantalla Completa';
     } else {
-        card.classList.add('is-fullscreen');
+        card.dataset.fullscreen = "true";
+        card.style.width = "100vw";
+        card.style.maxWidth = "100vw";
+        card.style.height = "100vh";
+        card.style.maxHeight = "100vh";
+        card.style.borderRadius = "0";
+        if (body) {
+            body.style.height = "calc(100vh - 120px)";
+            body.style.minHeight = "calc(100vh - 120px)";
+        }
         if (fsIcon) fsIcon.textContent = '🗗';
         if (fsLabel) fsLabel.textContent = 'Restaurar';
     }
@@ -604,7 +612,7 @@ function updateScanImageTransform() {
             img.style.maxHeight = 'none';
         } else {
             img.style.maxWidth = '94%';
-            img.style.maxHeight = '82vh';
+            img.style.maxHeight = '80vh';
         }
     }
 }
@@ -612,10 +620,6 @@ function updateScanImageTransform() {
 function closeViewContractScanModal() {
     const modal = document.getElementById('modalViewContractScan');
     if (modal) modal.style.display = 'none';
-    if (currentBlobUrl) {
-        try { URL.revokeObjectURL(currentBlobUrl); } catch(e) {}
-        currentBlobUrl = null;
-    }
 }
 
 function shareContractWhatsApp(contractId) {
@@ -648,6 +652,7 @@ window.handleFilePreview = handleFilePreview;
 window.handleSaveUploadedContract = handleSaveUploadedContract;
 window.openViewContractScanModal = openViewContractScanModal;
 window.closeViewContractScanModal = closeViewContractScanModal;
+window.openCurrentScanInNewTab = openCurrentScanInNewTab;
 window.toggleContractScanFullscreen = toggleContractScanFullscreen;
 window.adjustScanImageZoom = adjustScanImageZoom;
 window.resetScanImageZoom = resetScanImageZoom;
