@@ -7853,4 +7853,29 @@ body.floor-screen-locked .screen-lock-control-wrap {
     }
 }
 
+/* ==========================================================================
+   SMART BUDGET ESTIMATOR RESPONSIVE STYLES
+   ========================================================================== */
+@media (max-width: 900px) {
+    .budget-estimator-grid {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+    }
+}
+@media (max-width: 480px) {
+    .budget-item-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+    }
+    .budget-item-card > div:last-child {
+        width: 100% !important;
+        text-align: left !important;
+        margin-top: 6px !important;
+        padding-top: 6px !important;
+        border-top: 1px dashed #e2e8f0 !important;
+    }
+}
+
+
 

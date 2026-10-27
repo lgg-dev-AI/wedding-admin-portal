@@ -79,6 +79,18 @@ const KNOWLEDGE_BASE = [
         actionLabel: '📋 Ir al Tablero Kanban'
     },
     {
+        keywords: ['contrato', 'contratos', 'firma', 'firma digital', 'firmar', 'legal', 'deslinde', 'responsabilidad'],
+        answer: '📑 <strong>¿Cómo funciona el módulo de Contratos & Firma Digital?</strong><br><br>• Permite formalizar acuerdos entre la Wedding Planner y los Novios o Proveedores con <strong>validez legal en México (Art. 89-95 Código de Comercio)</strong>.<br>• El firmante traza su firma manuscrita con el dedo en su celular o con el ratón.<br>• Registra automáticamente el <strong>rastro de auditoría</strong>: IP, fecha/hora UTC y sello Hash criptográfico.<br>• Incluye la <strong>cláusula de deslinde SaaS</strong> para proteger al desarrollador web de cualquier controversia.',
+        actionTab: 'contracts',
+        actionLabel: '📑 Ir a Contratos'
+    },
+    {
+        keywords: ['design studio', 'estudio de diseno', 'diseno', 'diseño', 'moodboard', 'paleta', 'colores', 'hex', 'estilo'],
+        answer: '🎨 <strong>¿Cómo funciona el Design Studio & Ficha de Estilo?</strong><br><br>• <strong>Paleta Oficial:</strong> Muestra los colores clave de la boda con selector y copia de código HEX en 1 clic.<br>• <strong>Moodboard por Zonas:</strong> Tableros visuales para <em>Flores</em>, <em>Mobiliario & Loza</em>, <em>Iluminación</em> y <em>Detalles & Pastel</em>.<br>• <strong>Dossier PDF:</strong> Genera con 1 clic un PDF elegante para enviarle por WhatsApp al florista o decorador.',
+        actionTab: 'designstudio',
+        actionLabel: '🎨 Ir a Design Studio'
+    },
+    {
         keywords: ['boda nueva', 'nueva boda', 'crear boda', 'agregar boda', 'registrar boda', 'alta de boda'],
         answer: '💍 <strong>¿Cómo dar de alta una nueva boda?</strong><br><br>1. Ve al encabezado superior (arriba a la derecha del selector de boda).<br>2. Haz clic en el botón dorado <strong>"+ Nueva Boda"</strong>.<br>3. Completa los nombres de la pareja, fecha, recinto y revisa el usuario y contraseña sugeridos para los novios.<br>4. Haz clic en <strong>"💍 Registrar & Activar Boda"</strong> y el sistema la activará de inmediato en tu cartera.',
         actionTab: null

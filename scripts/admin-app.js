@@ -414,7 +414,7 @@ function showTab(tabName) {
     // Gatekeeper: Solo aplica para la vista de novios o bodas sin briefing,
     // garantizando que Wedding Planner y Master Developer nunca queden bloqueados de sus herramientas.
     const isBriefingDone = currentData && (currentData.isBriefingCompleted || localStorage.getItem(`briefing_done_${currentWeddingId}`));
-    const nonGatedTabs = ['dashboard', 'kanban', 'backups', 'dev-clients', 'dev-analytics', 'hostess', 'settings', 'album', 'playlist'];
+    const nonGatedTabs = ['dashboard', 'kanban', 'contracts', 'designstudio', 'backups', 'dev-clients', 'dev-analytics', 'hostess', 'settings', 'album', 'playlist'];
 
     if (activeRole === 'couple' && !nonGatedTabs.includes(tabName) && !isBriefingDone) {
         showToast(`⚠️ Debes completar el Formulario para Invitación Web antes de usar este módulo.`);
@@ -454,6 +454,8 @@ function showTab(tabName) {
 
     if (tabName === 'dashboard') renderDashboard();
     if (tabName === 'kanban') { if (typeof renderKanbanTab === 'function') renderKanbanTab(); }
+    if (tabName === 'contracts') { if (typeof renderContractsTab === 'function') renderContractsTab(); }
+    if (tabName === 'designstudio') { if (typeof renderDesignStudioTab === 'function') renderDesignStudioTab(); }
     if (tabName === 'dispatch') { if (typeof renderDispatchTab === 'function') renderDispatchTab(); }
     if (tabName === 'seating') { if (typeof renderSeatingChart === 'function') renderSeatingChart(); }
     if (tabName === 'dayof') { if (typeof renderDayOfTab === 'function') renderDayOfTab(); }
@@ -739,6 +741,12 @@ function renderDashboard() {
 
     // 11. Sync Kanban Roadmap Badges and Progress Widget
     if (typeof updateKanbanBadges === 'function') updateKanbanBadges();
+
+    // 12. Render Smart Budget Estimator with Interactive Chart
+    if (typeof renderSmartBudgetEstimator === 'function') renderSmartBudgetEstimator();
+
+    // 13. Sync Contracts Badges
+    if (typeof updateContractsBadges === 'function') updateContractsBadges();
 }
 
 // GUEST CRM TABLE

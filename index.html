@@ -169,12 +169,17 @@
                 </button>
 
                 <!-- FASE 2: PRESUPUESTO & PROVEEDORES -->
-                <div class="menu-section-header planner-only" data-section="phase2">
+                <div class="menu-section-header" data-section="phase2">
                     <span class="section-label">2. Presupuesto &amp; Contratos</span>
                 </div>
                 <button class="menu-item planner-only" onclick="showTab('vendors')">
                     <span class="menu-icon">🏢</span>
                     <span class="menu-text">Proveedores &amp; Anticipos</span>
+                </button>
+                <button class="menu-item" onclick="showTab('contracts')">
+                    <span class="menu-icon">📑</span>
+                    <span class="menu-text">Contratos &amp; Firma Digital</span>
+                    <span class="menu-badge" id="badgeContractsCount">Firmados</span>
                 </button>
                 <button class="menu-item" onclick="showTab('finance')">
                     <span class="menu-icon">💳</span>
@@ -208,6 +213,10 @@
                 <div class="menu-section-header" data-section="phase4">
                     <span class="section-label">4. Experiencia &amp; Recuerdos</span>
                 </div>
+                <button class="menu-item" onclick="showTab('designstudio')">
+                    <span class="menu-icon">🎨</span>
+                    <span class="menu-text">Design Studio (Estilo)</span>
+                </button>
                 <button class="menu-item" onclick="showTab('album')">
                     <span class="menu-icon">📸</span>
                     <span class="menu-text">Álbum Colaborativo (QR)</span>
@@ -424,6 +433,11 @@
                     </div>
                 </div>
 
+                <!-- ESTIMADOR INTELIGENTE DE PRESUPUESTO & GRÁFICA INTERACTIVA -->
+                <div id="dashboardBudgetEstimatorWrap">
+                    <!-- Populated dynamically by renderSmartBudgetEstimator() -->
+                </div>
+
                 <!-- OPERATIONAL QUICK-ACTION TRIAGE -->
                 <div class="section-card mb-4" style="background: #ffffff; border: 1.5px dashed rgba(212, 175, 55, 0.5); padding: 20px 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
@@ -518,6 +532,16 @@
             <!-- TAB: CRM DE ACTIVIDADES & ROADMAP (KANBAN DRAG & DROP) -->
             <section id="tab-kanban" class="tab-pane">
                 <!-- Content will be rendered dynamically by renderKanbanTab() -->
+            </section>
+
+            <!-- TAB: CONTRATOS & FIRMA DIGITAL -->
+            <section id="tab-contracts" class="tab-pane">
+                <!-- Content will be rendered dynamically by renderContractsTab() -->
+            </section>
+
+            <!-- TAB: DESIGN STUDIO (ESTILO & MOODBOARD) -->
+            <section id="tab-designstudio" class="tab-pane">
+                <!-- Content will be rendered dynamically by renderDesignStudioTab() -->
             </section>
 
             <!-- TAB: TABLERO DE CONTROL DE ENVÍOS WHATSAPP (WEDDING PLANNER HUB) -->
@@ -3487,6 +3511,9 @@
     <script src="scripts/admin-finance.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-pdf-reports.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-kanban.js?v=20261026_kanban_v1"></script>
+    <script src="scripts/admin-budget-estimator.js?v=20261026_v1"></script>
+    <script src="scripts/admin-contracts.js?v=20261026_v1"></script>
+    <script src="scripts/admin-design-studio.js?v=20261026_v1"></script>
     <script src="scripts/admin-app.js?v=20261025_planner_shield_v9"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
