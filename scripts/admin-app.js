@@ -276,6 +276,74 @@ function refreshSidebarWeddingInfo() {
     if (dashTitle) dashTitle.innerText = `Dashboard · ${currentData.couple}`;
 }
 
+function toggleMenuAccordion(groupId) {
+    const group = document.querySelector(`.menu-accordion-group[data-group="${groupId}"]`);
+    if (!group) return;
+    const isCurrentlyOpen = group.classList.contains('is-open');
+
+    // On mobile screens, auto-close sibling accordions so user doesn't have to scroll endlessly
+    if (window.innerWidth <= 768 && !isCurrentlyOpen) {
+        document.querySelectorAll('.menu-accordion-group').forEach(otherGroup => {
+            if (otherGroup !== group) {
+                otherGroup.classList.remove('is-open');
+                const ch = otherGroup.querySelector('.accordion-chevron');
+                if (ch) ch.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+
+    if (isCurrentlyOpen) {
+        group.classList.remove('is-open');
+        const chevron = group.querySelector('.accordion-chevron');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+        group.classList.add('is-open');
+        const chevron = group.querySelector('.accordion-chevron');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+    }
+}
+
+function autoExpandAccordionForTab(tabName) {
+    const tabToGroup = {
+        'dashboard': 'control',
+        'kanban': 'control',
+        'guests': 'guests',
+        'dispatch': 'guests',
+        'seating': 'guests',
+        'vendors': 'finance',
+        'contracts': 'finance',
+        'finance': 'finance',
+        'barcalc': 'finance',
+        'designstudio': 'experience',
+        'album': 'experience',
+        'playlist': 'experience',
+        'dayof': 'dayof',
+        'hostess': 'dayof',
+        'travel': 'dayof',
+        'dev-clients': 'dev',
+        'dev-analytics': 'dev',
+        'backups': 'dev'
+    };
+
+    const targetGroup = tabToGroup[tabName];
+    if (targetGroup) {
+        const group = document.querySelector(`.menu-accordion-group[data-group="${targetGroup}"]`);
+        if (group && !group.classList.contains('is-open')) {
+            // Auto close others on mobile
+            if (window.innerWidth <= 768) {
+                document.querySelectorAll('.menu-accordion-group').forEach(g => {
+                    g.classList.remove('is-open');
+                    const ch = g.querySelector('.accordion-chevron');
+                    if (ch) ch.style.transform = 'rotate(0deg)';
+                });
+            }
+            group.classList.add('is-open');
+            const ch = group.querySelector('.accordion-chevron');
+            if (ch) ch.style.transform = 'rotate(180deg)';
+        }
+    }
+}
+
 function setRole(role) {
     activeRole = role;
     const btnPlanner = document.getElementById('btnRolePlanner');
@@ -291,6 +359,11 @@ function setRole(role) {
         el.style.display = (role === 'planner' || role === 'developer') ? '' : 'none';
     });
 
+    // Dev-only controls
+    document.querySelectorAll('.dev-only').forEach(el => {
+        el.style.display = (role === 'developer') ? '' : 'none';
+    });
+
     const weddingSelect = document.getElementById('weddingSelect');
     if (weddingSelect) {
         weddingSelect.disabled = (role === 'couple');
@@ -302,30 +375,36 @@ function setRole(role) {
         triggerDayD.style.display = (role === 'planner' || role === 'developer') ? 'inline-flex' : 'none';
     }
 
-    const devPanelBtn = document.getElementById('menuItemDevPanel');
-    const devBackupsBtn = document.getElementById('menuItemDevBackups');
-
     if (role === 'developer') {
         // =========================================================================
         // VISTA 1: 💎 MASTER DEVELOPER (SOLO LO QUE LE INTERESA A LUIS COMO DUEÑO)
         // =========================================================================
-        // Solo 4 pestañas maestras para Luis:
-        // 1. Planners, Cobranza & Stripe (dev-clients)
-        // 2. Métricas & Crecimiento SaaS (dev-analytics)
-        // 3. Configuración de Planes Comerciales (settings)
-        // 4. Respaldos de Base de Datos JSON (backups)
         const allowedDevTabs = ['dev-clients', 'dev-analytics', 'album', 'playlist', 'settings', 'backups'];
 
-        document.querySelectorAll('.sidebar-menu .menu-item').forEach(btn => {
-            const onclickAttr = btn.getAttribute('onclick') || '';
-            const isAllowed = allowedDevTabs.some(tab => onclickAttr.includes(`showTab('${tab}')`));
-            btn.style.display = isAllowed ? 'flex' : 'none';
+        // Ocultar acordeones de boda estándar que no competen a SaaS dev
+        ['control', 'guests', 'finance', 'dayof'].forEach(g => {
+            const grp = document.querySelector(`.menu-accordion-group[data-group="${g}"]`);
+            if (grp) grp.style.display = 'none';
         });
 
-        // Ocultar fases de boda y mostrar sección Master Dev
-        document.querySelectorAll('.menu-section-header[data-section]').forEach(hdr => hdr.style.display = 'none');
-        const devSec = document.getElementById('secHeaderMasterDev');
-        if (devSec) devSec.style.display = 'flex';
+        // Mostrar acordeón Dev abierto
+        const devGroup = document.querySelector('.menu-accordion-group[data-group="dev"]');
+        if (devGroup) {
+            devGroup.style.display = 'block';
+            devGroup.classList.add('is-open');
+            const ch = devGroup.querySelector('.accordion-chevron');
+            if (ch) ch.style.transform = 'rotate(180deg)';
+        }
+
+        // Mostrar experiencia para Álbum y Playlist
+        const expGroup = document.querySelector('.menu-accordion-group[data-group="experience"]');
+        if (expGroup) {
+            expGroup.style.display = 'block';
+            expGroup.querySelectorAll('.menu-item').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick') || '';
+                btn.style.display = (onclickAttr.includes('album') || onclickAttr.includes('playlist')) ? 'flex' : 'none';
+            });
+        }
 
         // Personalizar la tarjeta superior del Sidebar para Luis / Antigravity
         const heroTag = document.getElementById('sidebarThemeTag');
@@ -345,17 +424,21 @@ function setRole(role) {
         sessionStorage.setItem('antigravity_user_role', 'planner');
         refreshSidebarWeddingInfo();
 
-        const devOnlyTabs = ['dev-clients', 'dev-analytics', 'backups'];
-        document.querySelectorAll('.sidebar-menu .menu-item').forEach(btn => {
-            const onclickAttr = btn.getAttribute('onclick') || '';
-            const isDevOnly = devOnlyTabs.some(tab => onclickAttr.includes(`showTab('${tab}')`)) || btn.classList.contains('dev-only');
-            btn.style.display = isDevOnly ? 'none' : 'flex';
+        // Mostrar todas las suites de boda
+        ['control', 'guests', 'finance', 'experience', 'dayof'].forEach(g => {
+            const grp = document.querySelector(`.menu-accordion-group[data-group="${g}"]`);
+            if (grp) grp.style.display = 'block';
         });
 
-        // Mostrar todas las 4 fases de boda y ajustes planner, ocultar dev
-        document.querySelectorAll('.menu-section-header[data-section]').forEach(hdr => hdr.style.display = 'flex');
-        const devSec = document.getElementById('secHeaderMasterDev');
-        if (devSec) devSec.style.display = 'none';
+        // Restaurar display en items
+        document.querySelectorAll('.sidebar-menu .menu-item').forEach(btn => {
+            if (!btn.classList.contains('dev-only')) {
+                btn.style.display = 'flex';
+            }
+        });
+
+        const devGroup = document.querySelector('.menu-accordion-group[data-group="dev"]');
+        if (devGroup) devGroup.style.display = 'none';
 
         // Si estaba en pestaña exclusiva de desarrollador, cambiar al dashboard general
         const currentActiveTab = document.querySelector('.tab-pane.active');
@@ -377,17 +460,24 @@ function setRole(role) {
         if (typeof applyVisibilityToCoupleView === 'function') {
             applyVisibilityToCoupleView();
         }
-        document.querySelectorAll('.dev-only').forEach(el => el.style.display = 'none');
 
-        // Mostrar solo fases relevantes para la pareja
-        document.querySelectorAll('.menu-section-header').forEach(hdr => {
-            const isPlannerOnly = hdr.classList.contains('planner-only');
-            const isDevOnly = hdr.classList.contains('dev-only');
-            hdr.style.display = (isPlannerOnly || isDevOnly) ? 'none' : 'flex';
+        // Mostrar suites pertinentes a la pareja
+        ['control', 'guests', 'finance', 'experience'].forEach(g => {
+            const grp = document.querySelector(`.menu-accordion-group[data-group="${g}"]`);
+            if (grp) grp.style.display = 'block';
         });
 
+        // Ocultar suites planner y dev
+        const dayofGroup = document.querySelector('.menu-accordion-group[data-group="dayof"]');
+        if (dayofGroup) dayofGroup.style.display = 'none';
+        const devGroup = document.querySelector('.menu-accordion-group[data-group="dev"]');
+        if (devGroup) devGroup.style.display = 'none';
+
+        // Ocultar items planner-only dentro de finance (vendors, barcalc)
+        document.querySelectorAll('.menu-item.planner-only').forEach(el => el.style.display = 'none');
+
         const currentActiveTab = document.querySelector('.tab-pane.active');
-        if (currentActiveTab && (currentActiveTab.id === 'tab-dev-clients' || currentActiveTab.id === 'tab-settings' || currentActiveTab.id === 'tab-backups')) {
+        if (currentActiveTab && (currentActiveTab.id === 'tab-dev-clients' || currentActiveTab.id === 'tab-settings' || currentActiveTab.id === 'tab-backups' || currentActiveTab.id === 'tab-dayof' || currentActiveTab.id === 'tab-hostess')) {
             showTab('guests');
         } else if (currentActiveTab && currentActiveTab.id) {
             showTab(currentActiveTab.id.replace('tab-', ''));
@@ -451,6 +541,9 @@ function showTab(tabName) {
         return attr.includes(`showTab('${tabName}')`);
     });
     if (btn) btn.classList.add('active');
+
+    // Asegurar que el acordeón correspondiente a la pestaña activa esté abierto
+    autoExpandAccordionForTab(tabName);
 
     if (tabName === 'dashboard') renderDashboard();
     if (tabName === 'kanban') { if (typeof renderKanbanTab === 'function') renderKanbanTab(); }

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/admin.css?v=20261026_widescreen_v9">
+    <link rel="stylesheet" href="styles/admin.css?v=20261026_accordion_v1">
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -138,122 +138,172 @@
             </div>
 
             <nav class="sidebar-menu">
-                <!-- TORRE DE CONTROL -->
-                <button class="menu-item active" onclick="showTab('dashboard')">
-                    <span class="menu-icon">📊</span>
-                    <span class="menu-text">Torre de Control (Dash)</span>
-                </button>
-                <button class="menu-item" onclick="showTab('kanban')">
-                    <span class="menu-icon">📋</span>
-                    <span class="menu-text">CRM Actividades (Kanban)</span>
-                    <span class="menu-badge badge-warning" id="statKanbanPendingBadge">12 pendientes</span>
-                </button>
-
-                <!-- FASE 1: CONVOCATORIA & MESAS -->
-                <div class="menu-section-header" data-section="phase1">
-                    <span class="section-label">1. Convocatoria &amp; Mesas</span>
+                <!-- 1. TORRE DE CONTROL & GESTIÓN -->
+                <div class="menu-accordion-group is-open" data-group="control">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('control')">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">📊</span>
+                            <span class="accordion-title">Torre de Control &amp; CRM</span>
+                        </div>
+                        <span class="accordion-chevron" style="transform: rotate(180deg);">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-control">
+                        <button class="menu-item active" onclick="showTab('dashboard')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Torre de Control (Dash)</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('kanban')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">CRM Actividades (Kanban)</span>
+                            <span class="menu-badge badge-warning" id="statKanbanPendingBadge">12 pendientes</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="menu-item" onclick="showTab('guests')">
-                    <span class="menu-icon">👥</span>
-                    <span class="menu-text">Lista de Invitados &amp; Menú</span>
-                </button>
-                <button class="menu-item" onclick="showTab('dispatch')">
-                    <span class="menu-icon">📲</span>
-                    <span class="menu-text">Envíos WhatsApp</span>
-                    <span class="menu-badge badge-warning" id="statDispatchPendingBadge">27 por mandar</span>
-                </button>
-                <button class="menu-item" onclick="showTab('seating')">
-                    <span class="menu-icon">🪑</span>
-                    <span class="menu-text">Distribución de Mesas 2D</span>
-                    <span class="menu-badge" id="badgeSeatingPending">8 pendientes</span>
-                </button>
 
-                <!-- FASE 2: PRESUPUESTO & PROVEEDORES -->
-                <div class="menu-section-header" data-section="phase2">
-                    <span class="section-label">2. Presupuesto &amp; Contratos</span>
+                <!-- 2. CONVOCATORIA, INVITADOS & MESAS -->
+                <div class="menu-accordion-group" data-group="guests">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('guests')">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">👥</span>
+                            <span class="accordion-title">Invitados &amp; Asistencia</span>
+                        </div>
+                        <span class="accordion-chevron">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-guests">
+                        <button class="menu-item" onclick="showTab('guests')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Lista de Invitados &amp; Menú</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('dispatch')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Envíos WhatsApp</span>
+                            <span class="menu-badge badge-warning" id="statDispatchPendingBadge">27 por mandar</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('seating')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Distribución de Mesas 2D</span>
+                            <span class="menu-badge" id="badgeSeatingPending">8 pendientes</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="menu-item planner-only" onclick="showTab('vendors')">
-                    <span class="menu-icon">🏢</span>
-                    <span class="menu-text">Proveedores &amp; Anticipos</span>
-                </button>
-                <button class="menu-item" onclick="showTab('contracts')">
-                    <span class="menu-icon">📑</span>
-                    <span class="menu-text">Expediente &amp; Contratos</span>
-                    <span class="menu-badge" id="badgeContractsCount">Expediente</span>
-                </button>
-                <button class="menu-item" onclick="showTab('finance')">
-                    <span class="menu-icon">💳</span>
-                    <span class="menu-text">Comprobantes &amp; SPEI</span>
-                    <span class="menu-badge badge-warning" id="badgePendingVouchers">2 por validar</span>
-                </button>
-                <button class="menu-item planner-only" onclick="showTab('barcalc')">
-                    <span class="menu-icon">🍾</span>
-                    <span class="menu-text">Cálculo de Barra &amp; Vinos</span>
-                </button>
 
-                <!-- FASE 3: OPERACIÓN DÍA D -->
-                <div class="menu-section-header planner-only" data-section="phase3">
-                    <span class="section-label">3. Operación Día D (Sábado)</span>
+                <!-- 3. PRESUPUESTO, PROVEEDORES & CONTRATOS -->
+                <div class="menu-accordion-group" data-group="finance">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('finance')">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">💰</span>
+                            <span class="accordion-title">Presupuesto &amp; Contratos</span>
+                        </div>
+                        <span class="accordion-chevron">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-finance">
+                        <button class="menu-item planner-only" onclick="showTab('vendors')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Proveedores &amp; Anticipos</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('contracts')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Expediente &amp; Contratos</span>
+                            <span class="menu-badge" id="badgeContractsCount">Expediente</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('finance')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Comprobantes &amp; SPEI</span>
+                            <span class="menu-badge badge-warning" id="badgePendingVouchers">2 por validar</span>
+                        </button>
+                        <button class="menu-item planner-only" onclick="showTab('barcalc')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Cálculo de Barra &amp; Vinos</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="menu-item planner-only" onclick="showTab('dayof')">
-                    <span class="menu-icon">⏱️</span>
-                    <span class="menu-text">Cronograma Minuto a Minuto</span>
-                </button>
-                <button class="menu-item planner-only" onclick="showTab('hostess')" style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981;">
-                    <span class="menu-icon">📱</span>
-                    <span class="menu-text" style="font-weight:700; color:#059669;">Control Acceso (Hostess)</span>
-                    <span class="menu-badge" style="background:#10b981; color:#fff;">Live Hostess</span>
-                </button>
-                <button class="menu-item planner-only" onclick="showTab('travel')">
-                    <span class="menu-icon">✈️</span>
-                    <span class="menu-text">Logística, Hoteles &amp; Shuttles</span>
-                </button>
 
-                <!-- FASE 4: EXPERIENCIA & RECUERDOS -->
-                <div class="menu-section-header" data-section="phase4">
-                    <span class="section-label">4. Experiencia &amp; Recuerdos</span>
+                <!-- 4. DISEÑO & EXPERIENCIA -->
+                <div class="menu-accordion-group" data-group="experience">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('experience')">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">🎨</span>
+                            <span class="accordion-title">Diseño &amp; Experiencia</span>
+                        </div>
+                        <span class="accordion-chevron">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-experience">
+                        <button class="menu-item" onclick="showTab('designstudio')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Design Studio (Estilo)</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('album')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Álbum Colaborativo (QR)</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('playlist')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Playlist para el DJ</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="menu-item" onclick="showTab('designstudio')">
-                    <span class="menu-icon">🎨</span>
-                    <span class="menu-text">Design Studio (Estilo)</span>
-                </button>
-                <button class="menu-item" onclick="showTab('album')">
-                    <span class="menu-icon">📸</span>
-                    <span class="menu-text">Álbum Colaborativo (QR)</span>
-                </button>
-                <button class="menu-item" onclick="showTab('playlist')">
-                    <span class="menu-icon">🎵</span>
-                    <span class="menu-text">Playlist para el DJ</span>
-                </button>
 
-                <!-- CONFIGURACIÓN PLANNER -->
-                <div class="menu-section-header planner-only" data-section="settings" style="margin-top:10px; border-top:1px solid rgba(226,232,240,0.5); padding-top:10px;">
-                    <span class="section-label">Configuración</span>
+                <!-- 5. OPERACIÓN DÍA D (PLANNER ONLY) -->
+                <div class="menu-accordion-group planner-only" data-group="dayof">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('dayof')">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">⚡</span>
+                            <span class="accordion-title">Operación Día D</span>
+                        </div>
+                        <span class="accordion-chevron">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-dayof">
+                        <button class="menu-item" onclick="showTab('dayof')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Cronograma Minuto a Minuto</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('hostess')" style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981;">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text" style="font-weight:700; color:#059669;">Control Acceso (Hostess)</span>
+                            <span class="menu-badge" style="background:#10b981; color:#fff;">Live Hostess</span>
+                        </button>
+                        <button class="menu-item" onclick="showTab('travel')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text">Logística, Hoteles &amp; Shuttles</span>
+                        </button>
+                    </div>
                 </div>
-                <button class="menu-item planner-only" onclick="showTab('settings')">
-                    <span class="menu-icon">⚙️</span>
-                    <span class="menu-text">Configuración &amp; Planes</span>
-                </button>
 
-                <!-- MASTER DEVELOPER -->
-                <div class="menu-section-header dev-only" id="secHeaderMasterDev" style="display:none; margin-top:10px; border-top:1px solid rgba(217,119,6,0.3); padding-top:10px;">
-                    <span class="section-label" style="color:#d97706;">Master Developer</span>
+                <!-- 6. CONFIGURACIÓN PLANNER -->
+                <div class="planner-only" style="margin-top:6px; padding-top:6px; border-top:1px solid #e2e8f0;">
+                    <button class="menu-item" onclick="showTab('settings')">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">Configuración &amp; Planes</span>
+                    </button>
                 </div>
-                <button class="menu-item dev-only" id="menuItemDevPanel" onclick="showTab('dev-clients')" style="display:none; background: rgba(217, 119, 6, 0.15); border: 1px solid rgba(217, 119, 6, 0.35);">
-                    <span class="menu-icon">💎</span>
-                    <span class="menu-text" style="color:#fbbf24; font-weight:700;">Planners, Cobranza &amp; Stripe</span>
-                    <span class="menu-badge" style="background:#d97706; color:#fff;">Master</span>
-                </button>
-                <button class="menu-item dev-only" id="menuItemDevAnalytics" onclick="showTab('dev-analytics')" style="display:none; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35);">
-                    <span class="menu-icon">📈</span>
-                    <span class="menu-text" style="color:#a5b4fc; font-weight:700;">Métricas SaaS</span>
-                    <span class="menu-badge" style="background:#4f46e5; color:#fff;">KPIs</span>
-                </button>
-                <button class="menu-item dev-only" id="menuItemDevBackups" onclick="showTab('backups')" style="display:none; background: rgba(255, 255, 255, 0.05);">
-                    <span class="menu-icon">💾</span>
-                    <span class="menu-text" style="color:#cbd5e1;">Respaldos de Base de Datos</span>
-                    <span class="menu-badge" style="background:#334155; color:#fff;">JSON</span>
-                </button>
+
+                <!-- 7. MASTER DEVELOPER (DEV ONLY) -->
+                <div class="menu-accordion-group dev-only" id="accordionGroupMasterDev" data-group="dev" style="display:none; margin-top:8px; border-top:1px solid rgba(217,119,6,0.3); padding-top:8px;">
+                    <button type="button" class="menu-accordion-trigger" onclick="toggleMenuAccordion('dev')" style="background: rgba(217, 119, 6, 0.1);">
+                        <div class="accordion-title-wrap">
+                            <span class="menu-icon">💎</span>
+                            <span class="accordion-title" style="color:#d97706; font-weight:800;">Master Developer</span>
+                        </div>
+                        <span class="accordion-chevron">▾</span>
+                    </button>
+                    <div class="menu-accordion-body" id="acc-body-dev">
+                        <button class="menu-item" id="menuItemDevPanel" onclick="showTab('dev-clients')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text" style="color:#fbbf24; font-weight:700;">Planners, Cobranza &amp; Stripe</span>
+                            <span class="menu-badge" style="background:#d97706; color:#fff;">Master</span>
+                        </button>
+                        <button class="menu-item" id="menuItemDevAnalytics" onclick="showTab('dev-analytics')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text" style="color:#a5b4fc; font-weight:700;">Métricas SaaS</span>
+                            <span class="menu-badge" style="background:#4f46e5; color:#fff;">KPIs</span>
+                        </button>
+                        <button class="menu-item" id="menuItemDevBackups" onclick="showTab('backups')">
+                            <span class="sub-dot"></span>
+                            <span class="menu-text" style="color:#cbd5e1;">Respaldos de Base de Datos</span>
+                            <span class="menu-badge" style="background:#334155; color:#fff;">JSON</span>
+                        </button>
+                    </div>
+                </div>
             </nav>
 
             <div class="sidebar-footer">
@@ -3514,7 +3564,7 @@
     <script src="scripts/admin-budget-estimator.js?v=20261026_print_fix_v1"></script>
     <script src="scripts/admin-contracts.js?v=20261026_widescreen_v9"></script>
     <script src="scripts/admin-design-studio.js?v=20261026_print_fix_v1"></script>
-    <script src="scripts/admin-app.js?v=20261025_planner_shield_v9"></script>
+    <script src="scripts/admin-app.js?v=20261026_accordion_v1"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
