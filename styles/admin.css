@@ -7875,6 +7875,8 @@ body.floor-screen-locked .screen-lock-control-wrap {
         padding-top: 6px !important;
         border-top: 1px dashed #e2e8f0 !important;
     }
+}
+
 /* ==========================================================================
    WIDESCREEN CONTRACT & SCANNED DOCUMENT VIEWER MODAL
    ========================================================================== */
@@ -7922,82 +7924,131 @@ body.floor-screen-locked .screen-lock-control-wrap {
 }
 
 /* ==========================================================================
-   SIDEBAR ACCORDION NAVIGATION
+   SIDEBAR ACCORDION NAVIGATION (PREMIUM WEDDING OS HIERARCHY)
    ========================================================================== */
 .menu-accordion-group {
-    margin-bottom: 4px;
-    border-radius: 10px;
-    transition: all 0.2s ease;
+    margin-bottom: 6px !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
 }
 
 .menu-accordion-trigger {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: transparent;
-    border: none;
-    border-radius: 10px;
-    color: #334155;
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    text-align: left;
-    box-sizing: border-box;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 12px !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    color: #1e293b !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
 }
 
 .menu-accordion-trigger:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
 }
 
-.menu-accordion-group.is-open .menu-accordion-trigger {
-    color: #0f172a;
-    background: rgba(241, 245, 249, 0.95);
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+.menu-accordion-group.is-open > .menu-accordion-trigger {
+    background: #ffffff !important;
+    border-color: #0f172a !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
 }
 
 .accordion-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    min-width: 0 !important;
+}
+
+.accordion-title-wrap .menu-icon {
+    font-size: 1rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
 }
 
 .accordion-title {
-    letter-spacing: 0.01em;
-    font-weight: 700;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    color: #1e293b !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.menu-accordion-group.is-open > .menu-accordion-trigger .accordion-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
 }
 
 .accordion-chevron {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    display: inline-block;
-    user-select: none;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: #e2e8f0 !important;
+    font-size: 0.72rem !important;
+    color: #475569 !important;
+    flex-shrink: 0 !important;
+    margin-left: 8px !important;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s, color 0.2s !important;
+    user-select: none !important;
     transform: rotate(0deg);
 }
 
-.menu-accordion-group.is-open .accordion-chevron {
-    transform: rotate(180deg);
-    color: #d97706;
+.menu-accordion-group.is-open > .menu-accordion-trigger .accordion-chevron {
+    transform: rotate(180deg) !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
 }
 
+/* Accordion body: hidden by default, visible only when .is-open */
 .menu-accordion-body {
-    display: none;
-    padding: 4px 0 6px 12px;
-    border-left: 2px solid #e2e8f0;
-    margin-left: 20px;
-    margin-top: 2px;
-    transition: all 0.25s ease;
+    display: none !important;
+    padding: 6px 0 6px 12px !important;
+    border-left: 2px solid #e2e8f0 !important;
+    margin-left: 18px !important;
+    margin-top: 4px !important;
+    margin-bottom: 8px !important;
+    animation: accordionFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.menu-accordion-group.is-open .menu-accordion-body {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+@keyframes accordionFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-accordion-group.is-open > .menu-accordion-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
 }
 
 /* Sub-items inside accordion body */
@@ -8010,24 +8061,33 @@ body.floor-screen-locked .screen-lock-control-wrap {
     border-radius: 8px !important;
     display: flex !important;
     align-items: center !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
     text-align: left !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    outline: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
 }
 
 .menu-accordion-body .menu-item:hover {
-    background: #f8fafc !important;
+    background: #f1f5f9 !important;
     color: #0f172a !important;
-    padding-left: 15px !important;
+    padding-left: 14px !important;
 }
 
 .menu-accordion-body .menu-item.active {
     background: #0f172a !important;
     color: #ffffff !important;
     font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15) !important;
+}
+
+.menu-accordion-body .menu-item.active .menu-text {
+    color: #ffffff !important;
 }
 
 .menu-accordion-body .menu-item.active .menu-badge {
@@ -8036,29 +8096,29 @@ body.floor-screen-locked .screen-lock-control-wrap {
 }
 
 .sub-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #cbd5e1;
-    display: inline-block;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: #cbd5e1 !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    transition: all 0.2s ease !important;
 }
 
 .menu-accordion-body .menu-item:hover .sub-dot {
-    background: #d97706;
+    background: #d97706 !important;
 }
 
 .menu-accordion-body .menu-item.active .sub-dot {
-    background: #d97706;
-    transform: scale(1.3);
+    background: #f59e0b !important;
+    transform: scale(1.3) !important;
 }
 
 @media (max-width: 768px) {
     .menu-accordion-trigger {
         padding: 13px 14px !important;
         font-size: 0.86rem !important;
-        min-height: 48px;
+        min-height: 48px !important;
     }
     .menu-accordion-body {
         margin-left: 14px !important;
@@ -8067,7 +8127,7 @@ body.floor-screen-locked .screen-lock-control-wrap {
     .menu-accordion-body .menu-item {
         padding: 12px 14px !important;
         font-size: 0.84rem !important;
-        min-height: 44px;
+        min-height: 46px !important;
     }
 }
 

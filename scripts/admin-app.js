@@ -281,25 +281,18 @@ function toggleMenuAccordion(groupId) {
     if (!group) return;
     const isCurrentlyOpen = group.classList.contains('is-open');
 
-    // On mobile screens, auto-close sibling accordions so user doesn't have to scroll endlessly
-    if (window.innerWidth <= 768 && !isCurrentlyOpen) {
-        document.querySelectorAll('.menu-accordion-group').forEach(otherGroup => {
-            if (otherGroup !== group) {
-                otherGroup.classList.remove('is-open');
-                const ch = otherGroup.querySelector('.accordion-chevron');
-                if (ch) ch.style.transform = 'rotate(0deg)';
-            }
-        });
-    }
-
     if (isCurrentlyOpen) {
         group.classList.remove('is-open');
-        const chevron = group.querySelector('.accordion-chevron');
-        if (chevron) chevron.style.transform = 'rotate(0deg)';
     } else {
+        // En móvil auto-colapsar los otros grupos para evitar scroll vertical
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.menu-accordion-group').forEach(otherGroup => {
+                if (otherGroup !== group) {
+                    otherGroup.classList.remove('is-open');
+                }
+            });
+        }
         group.classList.add('is-open');
-        const chevron = group.querySelector('.accordion-chevron');
-        if (chevron) chevron.style.transform = 'rotate(180deg)';
     }
 }
 
@@ -329,17 +322,12 @@ function autoExpandAccordionForTab(tabName) {
     if (targetGroup) {
         const group = document.querySelector(`.menu-accordion-group[data-group="${targetGroup}"]`);
         if (group && !group.classList.contains('is-open')) {
-            // Auto close others on mobile
             if (window.innerWidth <= 768) {
                 document.querySelectorAll('.menu-accordion-group').forEach(g => {
-                    g.classList.remove('is-open');
-                    const ch = g.querySelector('.accordion-chevron');
-                    if (ch) ch.style.transform = 'rotate(0deg)';
+                    if (g !== group) g.classList.remove('is-open');
                 });
             }
             group.classList.add('is-open');
-            const ch = group.querySelector('.accordion-chevron');
-            if (ch) ch.style.transform = 'rotate(180deg)';
         }
     }
 }
