@@ -295,60 +295,120 @@ function printBudgetBreakdownPDF() {
             <meta charset="utf-8">
             <title>Ficha de Presupuesto Nupcial - ${couple}</title>
             <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; padding: 30px; margin: 0; }
-                .header { border-bottom: 2px solid #0f172a; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-                h1 { margin: 0; font-size: 1.5rem; color: #0f172a; }
-                .meta { color: #64748b; font-size: 0.88rem; margin-top: 4px; }
-                .total-box { background: #fef3c7; border: 1.5px solid #d97706; border-radius: 8px; padding: 12px 20px; text-align: right; }
-                .total-box small { display: block; font-size: 0.72rem; color: #92400e; font-weight: 800; text-transform: uppercase; }
-                .total-box strong { font-size: 1.35rem; color: #b45309; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.86rem; }
-                th, td { padding: 10px 12px; border: 1px solid #e2e8f0; text-align: left; }
-                th { background: #f1f5f9; font-weight: 800; color: #334155; }
-                .footer { margin-top: 30px; font-size: 0.75rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+                @page {
+                    size: letter portrait;
+                    margin: 10mm 15mm 10mm 15mm;
+                }
+                * {
+                    box-sizing: border-box;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                }
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    background: #ffffff;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    color: #1e293b;
+                    line-height: 1.35;
+                }
+                .sheet-wrap {
+                    padding: 16px 20px 0 20px;
+                }
+                .header {
+                    border-bottom: 2px solid #0f172a;
+                    padding-bottom: 10px;
+                    margin-bottom: 12px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                }
+                h1 { margin: 0; font-size: 1.35rem; color: #0f172a; }
+                .meta { color: #64748b; font-size: 0.82rem; margin-top: 3px; }
+                .total-box {
+                    background: #fef3c7 !important;
+                    border: 1.5px solid #d97706;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    text-align: right;
+                }
+                .total-box small { display: block; font-size: 0.68rem; color: #92400e; font-weight: 800; text-transform: uppercase; }
+                .total-box strong { font-size: 1.25rem; color: #b45309; }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                    font-size: 0.82rem;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                th, td { padding: 7px 10px; border: 1px solid #e2e8f0; text-align: left; }
+                th { background: #f1f5f9 !important; font-weight: 800; color: #334155; }
+                .footer {
+                    margin-top: 14px;
+                    font-size: 0.72rem;
+                    color: #94a3b8;
+                    text-align: center;
+                    border-top: 1px solid #e2e8f0;
+                    padding-top: 8px;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .no-print {
+                    display: block;
+                }
                 @media print {
-                    button { display: none; }
+                    .no-print { display: none !important; }
+                    .sheet-wrap { padding: 0 !important; }
+                    html, body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        overflow: hidden !important;
+                    }
                 }
             </style>
         </head>
         <body>
-            <div class="header">
-                <div>
-                    <h1>Ficha Técnica de Presupuesto Nupcial</h1>
-                    <div class="meta">Pareja: <strong>${couple}</strong> · Fecha: ${date} · Recinto: ${venue}</div>
+            <div class="sheet-wrap">
+                <div class="header">
+                    <div>
+                        <h1>Ficha Técnica de Presupuesto Nupcial</h1>
+                        <div class="meta">Pareja: <strong>${couple}</strong> · Fecha: ${date} · Recinto: ${venue}</div>
+                    </div>
+                    <div class="total-box">
+                        <small>Presupuesto Total Estimado</small>
+                        <strong>${formatMXNCurrency(total)}</strong>
+                    </div>
                 </div>
-                <div class="total-box">
-                    <small>Presupuesto Total Estimado</small>
-                    <strong>${formatMXNCurrency(total)}</strong>
-                </div>
-            </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:40%;">Rubro Nupcial</th>
-                        <th style="width:15%; text-align:center;">Porcentaje</th>
-                        <th style="width:25%; text-align:right;">Monto Estimado</th>
-                        <th style="width:20%;">Alcance Recomendado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${BUDGET_BENCHMARKS.map(b => `
+                <table>
+                    <thead>
                         <tr>
-                            <td><strong>${b.icon} ${b.label}</strong></td>
-                            <td style="text-align:center; font-weight:700;">${b.pct}%</td>
-                            <td style="text-align:right; font-weight:800; color:#0f172a;">${formatMXNCurrency(total * (b.pct/100))}</td>
-                            <td><small style="color:#64748b;">${b.desc}</small></td>
+                            <th style="width:38%;">Rubro Nupcial</th>
+                            <th style="width:14%; text-align:center;">Porcentaje</th>
+                            <th style="width:24%; text-align:right;">Monto Estimado</th>
+                            <th style="width:24%;">Alcance Recomendado</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${BUDGET_BENCHMARKS.map(b => `
+                            <tr>
+                                <td><strong>${b.icon} ${b.label}</strong></td>
+                                <td style="text-align:center; font-weight:700;">${b.pct}%</td>
+                                <td style="text-align:right; font-weight:800; color:#0f172a;">${formatMXNCurrency(total * (b.pct/100))}</td>
+                                <td><small style="color:#64748b;">${b.desc}</small></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
 
-            <div class="footer">
-                Documento emitido por Wedding OS · Sistema de Coordinación Ejecutiva para Wedding Planners.
-            </div>
-            <div style="text-align:center; margin-top:16px;">
-                <button onclick="window.print()" style="padding:10px 20px; background:#0f172a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">🖨️ Imprimir Documento</button>
+                <div class="footer">
+                    Documento emitido por Wedding OS · Sistema de Coordinación Ejecutiva para Wedding Planners.
+                </div>
+                <div class="no-print" style="text-align:center; margin-top:16px;">
+                    <button onclick="window.print()" style="padding:10px 20px; background:#0f172a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">🖨️ Imprimir Documento</button>
+                </div>
             </div>
         </body>
         </html>

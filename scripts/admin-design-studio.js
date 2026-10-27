@@ -238,62 +238,126 @@ function printDesignDossierPDF() {
             <meta charset="utf-8">
             <title>Dossier de Estilo Nupcial - ${coupleName}</title>
             <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif; color: #1e293b; padding: 40px; margin: 0; line-height: 1.5; }
-                .header { border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
-                h1 { margin: 0; font-size: 1.6rem; color: #0f172a; font-family: 'Playfair Display', Georgia, serif; }
-                .meta { color: #64748b; font-size: 0.9rem; margin-top: 4px; }
-                .palette-bar { display: flex; gap: 14px; margin-bottom: 30px; }
-                .palette-item { flex: 1; text-align: center; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
-                .color-circle { width: 44px; height: 44px; border-radius: 50%; margin: 0 auto 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-                .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-                .zone-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; background: #f8fafc; }
-                .zone-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-                .zone-notes { background: #ffffff; border-left: 3px solid #d97706; padding: 8px 10px; font-size: 0.8rem; margin-top: 10px; color: #334155; }
+                @page {
+                    size: letter portrait;
+                    margin: 12mm 15mm 12mm 15mm;
+                }
+                * {
+                    box-sizing: border-box;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                }
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    background: #ffffff;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+                    color: #1e293b;
+                    line-height: 1.45;
+                }
+                .dossier-wrap {
+                    padding: 24px 30px;
+                }
+                .header {
+                    border-bottom: 2px solid #0f172a;
+                    padding-bottom: 12px;
+                    margin-bottom: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                }
+                h1 { margin: 0; font-size: 1.5rem; color: #0f172a; font-family: 'Playfair Display', Georgia, serif; }
+                .meta { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
+                .palette-bar { display: flex; gap: 12px; margin-bottom: 24px; page-break-inside: avoid; break-inside: avoid; }
+                .palette-item {
+                    flex: 1;
+                    text-align: center;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 10px 8px;
+                    background: #ffffff;
+                }
+                .color-svg-wrap {
+                    width: 44px;
+                    height: 44px;
+                    margin: 0 auto 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                .zone-card {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 14px;
+                    background: #f8fafc;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                }
+                .zone-title { font-size: 0.98rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+                .zone-notes {
+                    background: #ffffff;
+                    border-left: 3px solid #d97706;
+                    padding: 7px 10px;
+                    font-size: 0.78rem;
+                    margin-top: 8px;
+                    color: #334155;
+                }
                 .img-row { display: flex; gap: 8px; margin-top: 8px; }
-                .img-row img { width: 50%; height: 110px; object-fit: cover; border-radius: 6px; }
+                .img-row img { width: 50%; height: 105px; object-fit: cover; border-radius: 6px; }
+                .no-print { display: block; }
                 @media print {
-                    button { display: none; }
+                    .no-print { display: none !important; }
+                    .dossier-wrap { padding: 0 !important; }
+                    body { margin: 0 !important; padding: 0 !important; }
                 }
             </style>
         </head>
         <body>
-            <div class="header">
-                <div>
-                    <span style="font-size:0.75rem; text-transform:uppercase; color:#d97706; font-weight:800; letter-spacing:0.5px;">Ficha Oficial de Ambientación &amp; Estilo</span>
-                    <h1>${coupleName}</h1>
-                    <div class="meta">Fecha: ${date} · Recinto: ${venue}</div>
-                </div>
-                <div>
-                    <button onclick="window.print()" style="padding: 10px 20px; background:#0f172a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:800;">🖨️ Imprimir Dossier</button>
-                </div>
-            </div>
-
-            <h3 style="font-size:1.05rem; color:#0f172a; margin-bottom:12px;">PALETA CROMÁTICA OFICIAL</h3>
-            <div class="palette-bar">
-                ${data.palette.map(c => `
-                    <div class="palette-item">
-                        <div class="color-circle" style="background:${c.hex};"></div>
-                        <strong style="display:block; font-size:0.8rem; color:#0f172a;">${c.name}</strong>
-                        <code style="font-size:0.72rem; color:#64748b;">${c.hex.toUpperCase()}</code>
+            <div class="dossier-wrap">
+                <div class="header">
+                    <div>
+                        <span style="font-size:0.75rem; text-transform:uppercase; color:#d97706; font-weight:800; letter-spacing:0.5px;">Ficha Oficial de Ambientación &amp; Estilo</span>
+                        <h1>${coupleName}</h1>
+                        <div class="meta">Fecha: ${date} · Recinto: ${venue}</div>
                     </div>
-                `).join('')}
-            </div>
-
-            <h3 style="font-size:1.05rem; color:#0f172a; margin-bottom:12px;">DIRECTRICES VISUALES POR ZONA</h3>
-            <div class="zone-grid">
-                ${data.zones.map(z => `
-                    <div class="zone-card">
-                        <div class="zone-title">${z.title}</div>
-                        <div style="font-size:0.78rem; color:#64748b;">${z.desc}</div>
-                        <div class="img-row">
-                            ${z.images.map(img => `<img src="${img}" alt="Ref">`).join('')}
-                        </div>
-                        <div class="zone-notes">
-                            <strong>Instrucciones para Proveedor:</strong><br>
-                            ${z.notes}
-                        </div>
+                    <div class="no-print">
+                        <button onclick="window.print()" style="padding: 10px 20px; background:#0f172a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:800;">🖨️ Imprimir Dossier</button>
                     </div>
-                `).join('')}
+                </div>
+
+                <h3 style="font-size:0.95rem; color:#0f172a; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">PALETA CROMÁTICA OFICIAL</h3>
+                <div class="palette-bar">
+                    ${data.palette.map(c => `
+                        <div class="palette-item">
+                            <div class="color-svg-wrap">
+                                <svg width="44" height="44" viewBox="0 0 44 44" style="display:block;">
+                                    <circle cx="22" cy="22" r="20" fill="${c.hex}" stroke="#cbd5e1" stroke-width="1.5" />
+                                </svg>
+                            </div>
+                            <strong style="display:block; font-size:0.78rem; color:#0f172a;">${c.name}</strong>
+                            <code style="font-size:0.72rem; color:#64748b; font-weight:700;">${c.hex.toUpperCase()}</code>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <h3 style="font-size:0.95rem; color:#0f172a; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">DIRECTRICES VISUALES POR ZONA</h3>
+                <div class="zone-grid">
+                    ${data.zones.map(z => `
+                        <div class="zone-card">
+                            <div class="zone-title">${z.title}</div>
+                            <div style="font-size:0.75rem; color:#64748b;">${z.desc}</div>
+                            <div class="img-row">
+                                ${z.images.map(img => `<img src="${img}" alt="Ref">`).join('')}
+                            </div>
+                            <div class="zone-notes">
+                                <strong>Instrucciones para Proveedor:</strong><br>
+                                ${z.notes}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
         </body>
         </html>
