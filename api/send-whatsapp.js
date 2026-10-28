@@ -9,14 +9,17 @@ const PHONE_NUMBER_ID = process.env.META_PHONE_NUMBER_ID || '1386603407867954';
 const WABA_ID = process.env.META_WABA_ID || '2076905906364029';
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || 'EAAZBXEyuLd6cBSlrXbP3YamgCxhzI004IfWyJEiuNuJvEStc1xkyRx03wdawBKmlYU4O7fSH5IMKwFjas8Xd5w1BjVGNpR27MxYScnhYocDvpPQLHqDHeJJUAXPWNuSwZCeXYpCBzOtx1M6hQmJX4H4Efe7SDSl2OAxkAJ4KYghecQ2Etci0c1Q3gxI2Q50wZDZD';
 
-function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null) {
+function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null, extraData = {}) {
     return new Promise((resolve, reject) => {
-        let cleanDigits = toPhone.replace(/[^0-9]/g, '');
+        let cleanDigits = (toPhone || '').replace(/[^0-9]/g, '');
         if (cleanDigits.length === 10) {
-            cleanDigits = '52' + cleanDigits;
+            cleanDigits = '521' + cleanDigits;
+        } else if (cleanDigits.length === 12 && cleanDigits.startsWith('52') && !cleanDigits.startsWith('521')) {
+            cleanDigits = '521' + cleanDigits.substring(2);
         }
 
-        // Si se provee una plantilla aprobada de Meta, enviarla como type: 'template'
+        // Si no se especifica plantilla válida, construir fallback a la plantilla oficial de Meta aprobada (notificacion_reservas_bodas)
+        // para garantizar entrega inmediata fuera de la ventana de 24h
         let payloadObj;
         if (templatePayload && templatePayload.name) {
             payloadObj = {
@@ -31,14 +34,30 @@ function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null) {
                 }
             };
         } else {
+            // Auto-fallback a plantilla aprobada oficial
+            const pCount = extraData.passes || 1;
+            const pText = pCount > 1 ? `${pCount} pases` : '1 pase';
             payloadObj = {
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
                 to: cleanDigits,
-                type: 'text',
-                text: {
-                    preview_url: true,
-                    body: messageBody
+                type: 'template',
+                template: {
+                    name: 'notificacion_reservas_bodas',
+                    language: { code: 'es_MX' },
+                    components: [
+                        {
+                            type: 'body',
+                            parameters: [
+                                { type: 'text', text: extraData.name || 'Invitado de Honor' },
+                                { type: 'text', text: pText },
+                                { type: 'text', text: extraData.couple || 'Sofía & Alejandro' },
+                                { type: 'text', text: extraData.date || '24 de Octubre, 2027' },
+                                { type: 'text', text: extraData.venue || 'Hacienda Fundadores' },
+                                { type: 'text', text: extraData.liveUrl || 'https://aura-wedding-experience.vercel.app' }
+                            ]
+                        }
+                    ]
                 }
             };
         }
@@ -110,7 +129,7 @@ module.exports = async (req, res) => {
             for (const item of batch) {
                 if (!item.to) continue;
                 try {
-                    const r = await sendMetaWhatsApp(item.to, item.message, item.template || template);
+                    const r = await sendMetaWhatsApp(item.to, item.message, item.template || template, item);
                     results.push({ to: item.to, guestId: item.guestId, name: item.name, ...r });
                 } catch (err) {
                     results.push({ to: item.to, guestId: item.guestId, name: item.name, success: false, error: err.message });
@@ -124,7 +143,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Falta el parámetro requerido: "to"' });
         }
 
-        const result = await sendMetaWhatsApp(to, message, template);
+        const result = await sendMetaWhatsApp(to, message, template, body);
         return res.status(result.success ? 200 : 400).json(result);
 
     } catch (err) {

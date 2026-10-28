@@ -9,6 +9,17 @@ let currentGatewayMode = 'meta_api'; // 'meta_api' = Stage 1 Invite, 'qr_gateway
 let previewedGuestId = null;
 let isDispatchingBatch = false;
 
+function formatPhoneForWhatsAppLink(phone) {
+    let clean = (phone || '').replace(/[^0-9]/g, '');
+    if (clean.length === 10) {
+        return '521' + clean;
+    }
+    if (clean.length === 12 && clean.startsWith('52') && !clean.startsWith('521')) {
+        return '521' + clean.substring(2);
+    }
+    return clean;
+}
+
 function setDispatchSort(sortKey) {
     activeDispatchSort = sortKey;
     const sortSelect = document.getElementById('dispatchSortOrder');
@@ -427,12 +438,12 @@ function renderDispatchTab() {
     tbody.innerHTML = filtered.map(g => {
         const isSent = g.dispatchStatus === 'sent' || g.sentDate;
         const sentDateText = g.sentDate ? g.sentDate : (isSent ? 'Recientemente' : null);
-        const cleanPhone = (g.phone || '').replace(/[^0-9]/g, '');
+        const cleanPhone = formatPhoneForWhatsAppLink(g.phone);
         const tableName = getGuestTableName(g, currentData);
         const passCount = g.passes || 1;
 
         const waMessage = encodeURIComponent(buildPlannerWhatsAppText(g, currentGatewayMode, currentData));
-        const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${waMessage}`;
+        const waLink = `https://wa.me/${cleanPhone}?text=${waMessage}`;
 
         // Status RSVP Badge
         let rsvpBadge = '';
@@ -461,19 +472,29 @@ function renderDispatchTab() {
             `;
         }
 
-        // Single Contextual Action Button
+        // Dual Action Buttons: Cloud API (Background Automated) + Personal WhatsApp (Direct Link)
         let actionBtnHtml = '';
         if (!isSent) {
             actionBtnHtml = `
-                <a href="${waLink}" target="_blank" onclick="markAsSentOnWhatsApp('${g.id}')" style="background:#10b981; color:#ffffff; font-weight:700; font-size:0.78rem; padding:7px 14px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(16,185,129,0.3); transition:all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                    <span>📲 Enviar WhatsApp</span>
-                </a>
+                <div style="display:inline-flex; gap:6px; align-items:center;">
+                    <button type="button" onclick="sendAutomatedSingleMessage('${g.id}')" title="Disparar automáticamente vía Meta Cloud API en segundo plano" style="background:#0284c7; color:#ffffff; font-weight:700; font-size:0.75rem; padding:7px 11px; border-radius:6px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(2,132,199,0.3); transition:all 0.2s;" onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
+                        <span>⚡ Cloud API</span>
+                    </button>
+                    <a href="${waLink}" target="_blank" onclick="markAsSentOnWhatsApp('${g.id}')" title="Abrir y enviar desde tu propio WhatsApp Web o App móvil" style="background:#10b981; color:#ffffff; font-weight:700; font-size:0.75rem; padding:7px 11px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(16,185,129,0.3); transition:all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                        <span>📲 Mi WhatsApp</span>
+                    </a>
+                </div>
             `;
         } else if (g.status !== 'confirmed' && g.status !== 'declined') {
             actionBtnHtml = `
-                <a href="${waLink}" target="_blank" onclick="markAsSentOnWhatsApp('${g.id}')" style="background:#f59e0b; color:#ffffff; font-weight:700; font-size:0.78rem; padding:7px 14px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(245,158,11,0.3); transition:all 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">
-                    <span>🔔 Recordatorio</span>
-                </a>
+                <div style="display:inline-flex; gap:6px; align-items:center;">
+                    <button type="button" onclick="sendAutomatedSingleMessage('${g.id}')" title="Enviar recordatorio oficial por Meta Cloud API" style="background:#d97706; color:#ffffff; font-weight:700; font-size:0.75rem; padding:7px 11px; border-radius:6px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 3px rgba(217,119,6,0.3); transition:all 0.2s;" onmouseover="this.style.background='#b45309'" onmouseout="this.style.background='#d97706'">
+                        <span>🔔 Recordatorio API</span>
+                    </button>
+                    <a href="${waLink}" target="_blank" onclick="markAsSentOnWhatsApp('${g.id}')" title="Enviar recordatorio desde tu propio WhatsApp" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-weight:700; font-size:0.75rem; padding:7px 11px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                        <span>💬 Chat</span>
+                    </a>
+                </div>
             `;
         } else if (g.status === 'confirmed') {
             actionBtnHtml = `
@@ -817,13 +838,68 @@ function getFinishedCoupleSampleRawText() {
     return rendered;
 }
 
-function sendSampleToCoupleWhatsApp() {
+async function sendSampleToCoupleWhatsApp() {
+    currentData = getWeddingState(currentWeddingId);
+    const guests = (currentData && currentData.guests) ? currentData.guests : [];
+    // Prioritize Luis González or first guest's phone
+    const defaultPhone = guests.find(g => (g.name || '').toLowerCase().includes('luis'))?.phone || (guests[0] ? guests[0].phone : '+52 81 2219 9352');
+    
+    const targetPhone = prompt('📱 Ingresa el número de WhatsApp para recibir la prueba oficial de invitación:', defaultPhone || '+52 81 2219 9352');
+    if (!targetPhone) return;
+
     const rawText = getFinishedCoupleSampleRawText();
-    const encoded = encodeURIComponent(`[PRUEBA DE INVITACIÓN OFICIAL]\n\n${rawText}`);
-    const waUrl = `https://api.whatsapp.com/send?text=${encoded}`;
-    window.open(waUrl, '_blank');
+    const liveUrl = (currentData && currentData.liveUrl) ? currentData.liveUrl : 'https://aura-wedding-experience.vercel.app';
+
     if (typeof showToast === 'function') {
-        showToast('📲 Abriendo WhatsApp para enviar la prueba...');
+        showToast(`🚀 Disparando prueba oficial vía Meta Cloud API a ${targetPhone}...`);
+    }
+
+    try {
+        const response = await fetch('/api/send-whatsapp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                to: targetPhone,
+                name: 'Luis González (Prueba)',
+                passes: 2,
+                couple: currentData.couple || 'Sofía & Alejandro',
+                date: currentData.date || '24 de Octubre, 2027',
+                venue: currentData.venue || 'Hacienda Fundadores',
+                liveUrl: liveUrl,
+                message: rawText,
+                template: {
+                    name: 'notificacion_reservas_bodas',
+                    language: 'es_MX',
+                    components: [
+                        {
+                            type: 'body',
+                            parameters: [
+                                { type: 'text', text: 'Luis González Garza' },
+                                { type: 'text', text: '2 pases' },
+                                { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
+                                { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
+                                { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
+                                { type: 'text', text: liveUrl }
+                            ]
+                        }
+                    ]
+                }
+            })
+        });
+
+        const resJson = await response.json();
+        if (resJson && resJson.success) {
+            alert(`🎉 ¡Prueba oficial despachada con éxito a ${targetPhone}!\n\nℹ️ El mensaje fue emitido desde la línea oficial registrada en Meta (+1 364 212 1213 - Antigravity Web Studio).\n\nRevisa tu WhatsApp en tu teléfono. Si no lo ves en la bandeja principal, búscalo en Solicitudes de Mensaje o Números Desconocidos.`);
+        } else {
+            const errMsg = (resJson && resJson.error) ? resJson.error : 'Fallo en Meta API';
+            alert(`⚠️ Respuesta de Meta: ${errMsg}\n\nSe abrirá WhatsApp Web/Móvil como alternativa para enviarlo directamente.`);
+            const clean = formatPhoneForWhatsAppLink(targetPhone);
+            window.open(`https://wa.me/${clean}?text=${encodeURIComponent(rawText)}`, '_blank');
+        }
+    } catch (e) {
+        console.error('Error disparando muestra:', e);
+        const clean = formatPhoneForWhatsAppLink(targetPhone);
+        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(rawText)}`, '_blank');
     }
 }
 
@@ -1032,8 +1108,80 @@ function markAsSentOnWhatsApp(guestId) {
     }, 600);
 }
 
-function sendAutomatedSingleMessage(guestId) {
-    markAsSentOnWhatsApp(guestId);
+async function sendAutomatedSingleMessage(guestId) {
+    currentData = getWeddingState(currentWeddingId);
+    const guest = (currentData && currentData.guests) ? currentData.guests.find(g => g.id === guestId) : null;
+    if (!guest) return;
+
+    if (!guest.phone) {
+        showToast('⚠️ Este invitado no cuenta con número de teléfono registrado.');
+        return;
+    }
+
+    const liveUrl = (currentData && currentData.liveUrl) ? currentData.liveUrl : 'https://aura-wedding-experience.vercel.app';
+    const passCount = guest.passes || 1;
+    const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
+    const personalizedMessage = buildPlannerWhatsAppText(guest, currentGatewayMode, currentData);
+
+    const templatePayload = {
+        name: 'notificacion_reservas_bodas',
+        language: 'es_MX',
+        components: [
+            {
+                type: 'body',
+                parameters: [
+                    { type: 'text', text: guest.name || 'Familia' },
+                    { type: 'text', text: passText },
+                    { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
+                    { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
+                    { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
+                    { type: 'text', text: liveUrl }
+                ]
+            }
+        ]
+    };
+
+    if (typeof showToast === 'function') {
+        showToast(`🚀 Disparando mensaje oficial vía Meta Cloud API a ${guest.name}...`);
+    }
+
+    try {
+        const response = await fetch('/api/send-whatsapp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                to: guest.phone,
+                message: personalizedMessage,
+                template: templatePayload,
+                guestId: guest.id,
+                name: guest.name,
+                passes: guest.passes,
+                couple: currentData.couple,
+                date: currentData.date,
+                venue: currentData.venue,
+                liveUrl: liveUrl
+            })
+        });
+
+        const resJson = await response.json();
+        if (resJson && resJson.success) {
+            guest.dispatchStatus = 'sent';
+            guest.deliveryStatus = 'delivered';
+            guest.sentDate = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' (Meta Cloud API)';
+            saveWeddingState(currentWeddingId, currentData);
+            renderDispatchTab();
+            if (typeof showToast === 'function') {
+                showToast(`🎉 ¡Invitación enviada con éxito a ${guest.name} (${guest.phone}) vía Meta Cloud API!`);
+            }
+        } else {
+            const errMsg = (resJson && resJson.error) ? resJson.error : 'Fallo de entrega en Meta';
+            console.error('Error Meta API:', resJson);
+            alert(`⚠️ Detalle de entrega Meta Cloud API:\n\n${errMsg}\n\nPuedes abrir WhatsApp directamente con el botón "📲 Mi WhatsApp" para enviarlo desde tu app.`);
+        }
+    } catch (err) {
+        console.error('Error enviando mensaje individual:', err);
+        showToast(`⚠️ Error de conexión: ${err.message}`);
+    }
 }
 
 // ==========================================================================
