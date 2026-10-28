@@ -86,7 +86,7 @@ function getActiveSubscriptionTier() {
     }
 
     const tier = localStorage.getItem('wedding_subscription_tier');
-    if (tier && ['intermediate', 'elite'].includes(tier)) {
+    if (tier && ['intermediate', 'elite', 'single_wedding'].includes(tier)) {
         return tier;
     }
     return null;

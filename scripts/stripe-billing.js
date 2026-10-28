@@ -9,7 +9,8 @@ const STRIPE_CONFIG = {
         intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · Mensual)', amount: 1990, currency: 'mxn', maxWeddings: 10, period: 'month', durationDays: 30 },
         intermediate_annual: { id: 'price_signature_annual', name: 'Plan Signature Pro (1-10 Bodas · Anual · 2 Meses Gratis)', amount: 19900, currency: 'mxn', maxWeddings: 10, period: 'year', durationDays: 365 },
         elite: { id: 'price_atelier', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca · Mensual)', amount: 3290, currency: 'mxn', maxWeddings: 15, period: 'month', durationDays: 30 },
-        elite_annual: { id: 'price_atelier_annual', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca · Anual · 2 Meses Gratis)', amount: 32900, currency: 'mxn', maxWeddings: 15, period: 'year', durationDays: 365 }
+                elite_annual: { id: 'price_atelier_annual', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca · Anual · 2 Meses Gratis)', amount: 32900, currency: 'mxn', maxWeddings: 15, period: 'year', durationDays: 365 },
+        single_wedding: { id: 'price_single_wedding', name: 'Pase Boda Única (1 Evento Exclusivo · 12 Meses)', amount: 4820, currency: 'mxn', maxWeddings: 1, period: 'one_time', durationDays: 365 }
     }
 };
 
@@ -43,7 +44,7 @@ function openStripeCheckoutModal(planTier = 'intermediate', cycle = null) {
     const modal = document.getElementById('modalStripeCheckout');
     if (!modal) return;
 
-    const periodLabel = plan.period === 'year' ? 'año (12 meses · 2 meses gratis)' : 'mes';
+    const periodLabel = plan.period === 'one_time' ? 'Pago Único (12 meses de vigencia para 1 sola boda)' : (plan.period === 'year' ? 'año (12 meses · 2 meses gratis)' : 'mes');
     document.getElementById('stripePlanTitle').innerText = plan.name;
     document.getElementById('stripePlanPrice').innerText = `${plan.amount.toLocaleString('es-MX')} MXN / ${periodLabel}`;
     document.getElementById('stripePayBtnText').innerText = `Pagar ${plan.amount.toLocaleString('es-MX')} MXN y Activar`;
@@ -67,6 +68,11 @@ function openStripeCheckoutModal(planTier = 'intermediate', cycle = null) {
     const agencyInput = document.getElementById('stripeCardAgency');
     if (agencyInput && activeAgency) {
         agencyInput.value = activeAgency;
+    }
+    const phoneInput = document.getElementById('stripeCardPhone');
+    const savedPhone = sessionStorage.getItem('antigravity_reg_phone') || '';
+    if (phoneInput && savedPhone) {
+        phoneInput.value = savedPhone;
     }
 
     modal.classList.add('active');
@@ -162,6 +168,36 @@ async function handleStripePaymentSubmit(e) {
     const displayError = document.getElementById('stripeCardErrors');
     const email = document.getElementById('stripeCardEmail')?.value.trim().toLowerCase();
     const agencyName = document.getElementById('stripeCardAgency')?.value.trim() || 'Agencia Wedding Planner';
+    const rawPhone = document.getElementById('stripeCardPhone')?.value.trim() || '';
+    const cleanPhone = rawPhone.replace(/\D/g, '');
+
+    // CANDADO ANTI-ABUSO PARA PASE BODA ÚNICA:
+    // Evitar que una misma Wedding Planner use múltiples correos con el mismo número telefónico
+    if (activeCheckoutPlan === 'single_wedding') {
+        if (!cleanPhone || cleanPhone.length < 8) {
+            alert('Por favor ingresa un número de teléfono celular / WhatsApp válido para registrar tu boda.');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<span>Pagar $4,820 MXN y Activar</span>'; }
+            return;
+        }
+
+        const clientsDb = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+        const duplicatePhone = clientsDb.find(c => 
+            c.planTier === 'single_wedding' && 
+            c.paymentStatus === 'paid' && 
+            !c.isSuspended && 
+            (c.phone || '').replace(/\D/g, '') === cleanPhone &&
+            c.email.toLowerCase() !== email.toLowerCase()
+        );
+
+        if (duplicatePhone) {
+            if (displayError) {
+                displayError.innerText = '⚠️ Este número de WhatsApp ya cuenta con un Pase Boda Única activo en otra cuenta. Para coordinar múltiples bodas, tu perfil corresponde a una agencia; por favor adquiere el Plan Signature Pro.';
+                displayError.style.display = 'block';
+            }
+            if (btn) { btn.disabled = false; btn.innerHTML = '<span>Pagar $4,820 MXN y Activar</span>'; }
+            return;
+        }
+    }
 
     if (!email) {
         alert('Por favor ingresa tu correo electrónico.');

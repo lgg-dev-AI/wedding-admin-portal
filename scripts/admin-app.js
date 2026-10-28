@@ -1383,6 +1383,16 @@ function showNewWeddingModal() {
         }
     }
 
+        // CANDADO ESTRICTO DE 1 BODA PARA PASE BODA UNICA
+    const currentActiveTier = typeof getActiveSubscriptionTier === 'function' ? getActiveSubscriptionTier() : (localStorage.getItem('wedding_subscription_tier') || '');
+    if (currentActiveTier === 'single_wedding') {
+        const totalRegisteredWeddings = Object.keys(typeof WEDDINGS_DB !== 'undefined' ? WEDDINGS_DB : {}).length;
+        if (totalRegisteredWeddings >= 1) {
+            alert('💍 Pase Boda Única Activo\n\nTu plan actual cubre exclusivamente 1 sola boda activa por 12 meses.\n\nPara dar de alta bodas adicionales o administrar una cartera de clientes como Wedding Planner, por favor actualiza a los planes Signature Pro o Atelier Elite en ⚙️ Configuración de Planes.');
+            return;
+        }
+    }
+
     document.getElementById('formNewWedding').reset();
 
     // Adapt Modalidad de Confirmación based on Plan Tier:

@@ -1305,6 +1305,35 @@
                     </div>
                 </div>
 
+                <!-- TARJETA DESTACADA: PASE BODA ÚNICA ($4,820 MXN · 1 EVENTO / 12 MESES) -->
+                <div style="background:linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border:1.5px solid #cbd5e1; border-radius:16px; padding:20px 24px; margin-bottom:26px; box-shadow:0 4px 16px rgba(15,23,42,0.04); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;">
+                    <div style="max-width:680px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <span style="font-size:1.4rem;">💍</span>
+                            <h4 style="margin:0; font-size:1.1rem; font-weight:900; color:#0f172a; font-family:'Playfair Display', serif;">¿Solo tienes una boda que organizar? — Pase Boda Única</h4>
+                            <span style="background:#e0e7ff; color:#3730a3; font-size:0.72rem; padding:3px 10px; border-radius:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Pago Único</span>
+                        </div>
+                        <p style="margin:0 0 6px; font-size:0.83rem; color:#475569; line-height:1.5;">
+                            Diseñado exclusivamente para parejas de novios o coordinadores independientes de un solo evento. Otorga acceso total durante <strong>12 meses continuos a 1 sola boda</strong> con Invitación Web Interactiva, Envíos WhatsApp Masivo para tus invitados, Acomodo de Mesas 2D, Check-in QR Hostess y Álbum Colaborativo.
+                        </p>
+                        <div style="font-size:0.75rem; color:#64748b; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <span>🔒 Límite estricto de 1 proyecto</span>
+                            <span>•</span>
+                            <span>🚫 Sin marca blanca de agencia</span>
+                            <span>•</span>
+                            <span>⚡ Activación instantánea en servidor</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right; min-width:210px;">
+                        <span style="font-size:0.75rem; color:#64748b; display:block; margin-bottom:2px;">Inversión Única:</span>
+                        <strong style="display:block; font-size:1.65rem; color:#0f172a; font-weight:900; letter-spacing:-0.5px;">$4,820 <small style="font-size:0.82rem; color:#64748b; font-weight:600;">MXN</small></strong>
+                        <span style="display:block; font-size:0.72rem; color:#059669; font-weight:800; margin-bottom:10px;">✓ Válido por 1 año sin mensualidades</span>
+                        <button type="button" class="btn-action primary" onclick="openStripeCheckoutModal('single_wedding', 'one_time'); event.stopPropagation();" style="width:100%; font-weight:800; background:#0f172a; border-color:#0f172a; padding:10px 18px; font-size:0.84rem; border-radius:10px; box-shadow:0 4px 12px rgba(15,23,42,0.25);">
+                            💳 Comprar Pase ($4,820)
+                        </button>
+                    </div>
+                </div>
+
                 <!-- PERSONALIZAR PORTAL DE NOVIOS & SERVICIOS EXTRA (INDEPENDIENTE POR BODA) -->
                 <div class="section-card">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
@@ -5626,6 +5655,10 @@
                     <div class="form-group mb-3">
                         <label class="form-label" style="font-size:0.78rem;">Correo Electrónico (Para tu Recibo):</label>
                         <input type="email" id="stripeCardEmail" class="form-input" placeholder="tu-correo@agencia.com" required>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="form-label" style="font-size:0.78rem;">Teléfono Celular / WhatsApp Oficial (Para Blindaje de tu Evento):</label>
+                        <input type="tel" id="stripeCardPhone" class="form-input" placeholder="+52 81 2219 9352" required>
                     </div>
 
                     <div class="form-group mb-3">
