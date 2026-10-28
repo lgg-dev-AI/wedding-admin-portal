@@ -424,6 +424,44 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
+/**
+ * Enviar alerta formateada cuando una Wedding Planner cancela o desactiva su plan
+ */
+async function sendTelegramPlanDeactivationAlert(deactivationData) {
+    const config = getTelegramConfig();
+    if (config.enabled === false) return;
+
+    const {
+        agencyName = 'Agencia Planner',
+        plannerName = 'Wedding Planner',
+        email = 'Sin correo',
+        planName = 'Plan Mensual',
+        contractDate = 'N/A',
+        cancellationDate = 'Hoy',
+        periodEndDate = 'Fin de ciclo',
+        reason = 'Sin especificar'
+    } = deactivationData;
+
+    const messageHtml = `
+🛑 <b>¡PLAN DESACTIVADO POR WEDDING PLANNER!</b>
+━━━━━━━━━━━━━━━━━━━━
+🏢 <b>Agencia:</b> ${escapeHtml(agencyName)}
+👤 <b>Planner:</b> ${escapeHtml(plannerName)}
+📧 <b>Email:</b> ${escapeHtml(email)}
+💎 <b>Plan Desactivado:</b> <b>${escapeHtml(planName)}</b>
+📅 <b>Fecha Contratación:</b> ${escapeHtml(contractDate)}
+🛑 <b>Fecha Desactivación:</b> ${escapeHtml(cancellationDate)}
+⏳ <b>Último Día de Servicio:</b> <b>${escapeHtml(periodEndDate)}</b>
+━━━━━━━━━━━━━━━━━━━━
+💬 <b>Feedback / Motivo:</b>
+<i>"${escapeHtml(reason)}"</i>
+━━━━━━━━━━━━━━━━━━━━
+ℹ️ <i>El servicio continuará activo hasta el fin de ciclo sin cobros adicionales.</i>
+`.trim();
+
+    return await sendTelegramMessage(messageHtml);
+}
+
 // Inicializar al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(renderTelegramConfigUI, 600);

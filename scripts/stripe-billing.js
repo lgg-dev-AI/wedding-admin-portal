@@ -265,6 +265,11 @@ async function handleStripePaymentSubmit(e) {
 
         // Establecer el plan activo en el almacenamiento local y en el estado de la boda
         localStorage.setItem('wedding_subscription_tier', activeCheckoutPlan);
+        localStorage.setItem('wedding_subscription_status', 'active');
+        localStorage.setItem('wedding_subscription_start_date', new Date().toISOString().split('T')[0]);
+        localStorage.removeItem('wedding_subscription_cancelled_at');
+        localStorage.removeItem('wedding_subscription_period_end');
+        localStorage.removeItem('wedding_subscription_cancel_reason');
         if (typeof currentData !== 'undefined' && currentData) {
             if (!currentData.couplePermissions) currentData.couplePermissions = {};
             currentData.couplePermissions.planTier = activeCheckoutPlan;

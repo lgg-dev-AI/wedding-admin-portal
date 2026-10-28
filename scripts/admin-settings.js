@@ -96,15 +96,62 @@ function renderSettingsTab() {
     const activeSubTier = getActiveSubscriptionTier();
     const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
     const allTiers = ['intermediate', 'elite'];
+    const isCanceling = localStorage.getItem('wedding_subscription_status') === 'canceling';
+    const subDates = (isCanceling && typeof getSubscriptionDates === 'function') ? getSubscriptionDates() : null;
+
+    // AVISO DE CANCELACIÓN / DESACTIVACIÓN PROGRAMADA
+    const noticeBanner = document.getElementById('subscriptionCancellationNoticeBanner');
+    const noticeText = document.getElementById('subscriptionCancellationNoticeText');
+    if (noticeBanner) {
+        if (isCanceling && activeSubTier) {
+            noticeBanner.style.display = 'block';
+            if (noticeText && subDates) {
+                noticeText.innerHTML = `Tu plan <strong>${planNames[activeSubTier] || 'Premium'}</strong> fue desactivado y no renovará automáticamente. <strong>Mantienes acceso total a todas las herramientas hasta el ${subDates.periodEndDate}</strong> sin ningún cobro futuro.`;
+            }
+        } else {
+            noticeBanner.style.display = 'none';
+        }
+    }
 
     // 1. Antigravity SaaS Subscription Preset Cards
     allTiers.forEach(tier => {
         const card = document.getElementById(`cardPlan_${tier}`);
         const isCurrentActive = activeSubTier === tier;
+        const deactivateBtn = document.getElementById(`btnDeactivate_${tier}`);
+
+        // Controlar visibilidad del 3er botón: Desactivar mi plan
+        if (deactivateBtn) {
+            if (isCurrentActive) {
+                deactivateBtn.style.display = 'block';
+                if (isCanceling) {
+                    deactivateBtn.innerText = '🔄 Conservar / Reactivar Plan';
+                    deactivateBtn.style.background = '#ecfdf5';
+                    deactivateBtn.style.color = '#059669';
+                    deactivateBtn.style.borderColor = '#10b981';
+                } else {
+                    deactivateBtn.innerText = '🛑 Desactivar mi plan';
+                    deactivateBtn.style.background = '#fef2f2';
+                    deactivateBtn.style.color = '#dc2626';
+                    deactivateBtn.style.borderColor = '#fca5a5';
+                }
+            } else {
+                deactivateBtn.style.display = 'none';
+            }
+        }
 
         if (card) {
-            card.style.border = isCurrentActive ? '2px solid #059669' : '';
-            card.style.boxShadow = isCurrentActive ? '0 8px 24px rgba(5, 150, 105, 0.25)' : '';
+            if (isCurrentActive) {
+                if (isCanceling) {
+                    card.style.border = '2px solid #f97316';
+                    card.style.boxShadow = '0 8px 24px rgba(249, 115, 22, 0.25)';
+                } else {
+                    card.style.border = '2px solid #059669';
+                    card.style.boxShadow = '0 8px 24px rgba(5, 150, 105, 0.25)';
+                }
+            } else {
+                card.style.border = '';
+                card.style.boxShadow = '';
+            }
             card.style.position = 'relative';
 
             let activeTag = card.querySelector('.active-plan-badge-tag');
@@ -112,9 +159,14 @@ function renderSettingsTab() {
                 if (!activeTag) {
                     activeTag = document.createElement('div');
                     activeTag.className = 'active-plan-badge-tag';
+                    card.appendChild(activeTag);
+                }
+                if (isCanceling && subDates) {
+                    activeTag.innerHTML = `⏳ CANCELACIÓN PROGRAMADA · Activo hasta el ${subDates.periodEndDate}`;
+                    activeTag.style.cssText = 'position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#ea580c; color:#fff; font-size:0.72rem; font-weight:800; padding:4px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(234,88,12,0.4); text-transform:uppercase; letter-spacing:0.5px; z-index:10; white-space:nowrap;';
+                } else {
                     activeTag.innerHTML = `🌟 PLAN ACTUALMENTE ACTIVO`;
                     activeTag.style.cssText = 'position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(5,150,105,0.4); text-transform:uppercase; letter-spacing:0.5px; z-index:10; white-space:nowrap;';
-                    card.appendChild(activeTag);
                 }
             } else if (activeTag) {
                 if (typeof activeTag.remove === 'function') {
@@ -130,9 +182,9 @@ function renderSettingsTab() {
             btn.classList.toggle('active', isCurrentActive);
             if (isCurrentActive) {
                 btn.innerText = `✓ Plan Activo (${planNames[tier]})`;
-                btn.style.background = '#059669';
+                btn.style.background = isCanceling ? '#ea580c' : '#059669';
                 btn.style.color = '#ffffff';
-                btn.style.borderColor = '#059669';
+                btn.style.borderColor = isCanceling ? '#ea580c' : '#059669';
             } else {
                 btn.innerText = `Elegir Plan ${planNames[tier]}`;
                 btn.style.background = '';
@@ -401,4 +453,260 @@ function saveCoupleCredentialsFromSettings() {
 
     showToast(`✅ Credenciales guardadas: Usuario "${cleanUser}" / Clave "${cleanPass}"`);
 }
+
+// ==========================================================================
+// WEDDING PLANNER SUBSCRIPTION CANCELLATION & BILLING CYCLE ENGINE
+// ==========================================================================
+
+function getSubscriptionDates() {
+    const email = (sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email && c.email.toLowerCase() === email);
+
+    let startDateStr = localStorage.getItem('wedding_subscription_start_date');
+    if (client && client.lastPaymentDate) {
+        startDateStr = client.lastPaymentDate;
+    } else if (client && client.createdAt) {
+        startDateStr = client.createdAt;
+    } else if (!startDateStr) {
+        startDateStr = new Date().toISOString().split('T')[0];
+    }
+
+    const startDate = new Date(startDateStr + 'T00:00:00');
+    const today = new Date();
+
+    // The subscription renews monthly on the same day-of-month as startDate
+    const billingDay = startDate.getDate() || today.getDate();
+    
+    // Find the next recurrence of billingDay
+    let periodEnd = new Date(today.getFullYear(), today.getMonth(), billingDay);
+    if (periodEnd <= today) {
+        periodEnd = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    }
+
+    const formatDate = (d) => d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    return {
+        contractDate: formatDate(startDate),
+        contractDateIso: startDateStr,
+        cancellationDate: formatDate(today),
+        cancellationDateIso: today.toISOString().split('T')[0],
+        periodEndDate: formatDate(periodEnd),
+        periodEndDateIso: periodEnd.toISOString().split('T')[0]
+    };
+}
+
+let pendingDeactivationTier = null;
+
+function openDeactivatePlanModal(tier) {
+    const activeSubTier = getActiveSubscriptionTier();
+    const isCanceling = localStorage.getItem('wedding_subscription_status') === 'canceling';
+    
+    // Si ya está en cancelación programada, permitir reactivar directamente
+    if (isCanceling) {
+        resumeActiveSubscriptionPlan();
+        return;
+    }
+
+    if (!activeSubTier || (activeSubTier !== tier && activeSubTier !== 'elite' && activeSubTier !== 'intermediate')) {
+        showToast('⚠️ No tienes este plan activo actualmente.');
+        return;
+    }
+
+    pendingDeactivationTier = tier;
+    const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
+    const selectedPlanName = planNames[tier] || 'Signature Pro';
+
+    const modal = document.getElementById('modalDeactivatePlan');
+    if (!modal) return;
+
+    // Obtener detalles de la planner y agencia
+    const email = (sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email && c.email.toLowerCase() === email);
+
+    let plannerName = sessionStorage.getItem('antigravity_reg_planner') || (client ? client.plannerName : '') || '';
+    if (!plannerName || plannerName === 'admin' || plannerName === 'Wedding Planner') {
+        const agency = sessionStorage.getItem('antigravity_agency_name') || (client ? client.agencyName : '');
+        plannerName = agency || 'Wedding Planner';
+    }
+
+    const dates = getSubscriptionDates();
+
+    // Llenar campos dinámicos en el modal
+    const titleEl = document.getElementById('deactivateModalPlanTitle');
+    if (titleEl) titleEl.innerText = `Desactivar mi Plan ${selectedPlanName}`;
+
+    const plannerNameEl = document.getElementById('deactivatePlannerNamePlaceholder');
+    if (plannerNameEl) plannerNameEl.innerText = plannerName;
+
+    const planNameEl = document.getElementById('deactivatePlanNamePlaceholder');
+    if (planNameEl) planNameEl.innerText = selectedPlanName;
+
+    const periodEndDisplay = document.getElementById('deactivatePeriodEndDateDisplay');
+    if (periodEndDisplay) periodEndDisplay.innerText = dates.periodEndDate;
+
+    const serviceUntilDisplay = document.getElementById('deactivateServiceUntilDisplay');
+    if (serviceUntilDisplay) serviceUntilDisplay.innerText = dates.periodEndDate;
+
+    const contractDateDisplay = document.getElementById('deactivateContractDateDisplay');
+    if (contractDateDisplay) contractDateDisplay.innerText = dates.contractDate;
+
+    const requestDateDisplay = document.getElementById('deactivateRequestDateDisplay');
+    if (requestDateDisplay) requestDateDisplay.innerText = dates.cancellationDate;
+
+    const feedbackTextarea = document.getElementById('deactivateFeedbackReason');
+    if (feedbackTextarea) feedbackTextarea.value = '';
+
+    const chk = document.getElementById('chkConfirmDeactivation');
+    if (chk) chk.checked = false;
+
+    const submitBtn = document.getElementById('btnConfirmDeactivateSubmit');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+        submitBtn.innerHTML = '<span>🛑 Desactivar mi Plan</span>';
+    }
+
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+}
+
+function closeDeactivatePlanModal() {
+    const modal = document.getElementById('modalDeactivatePlan');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+    pendingDeactivationTier = null;
+}
+
+function onToggleDeactivationAgreement() {
+    const chk = document.getElementById('chkConfirmDeactivation');
+    const submitBtn = document.getElementById('btnConfirmDeactivateSubmit');
+    if (!submitBtn) return;
+
+    if (chk && chk.checked) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+}
+
+async function confirmPlanDeactivation() {
+    const chk = document.getElementById('chkConfirmDeactivation');
+    if (!chk || !chk.checked) {
+        showToast('⚠️ Debes marcar la casilla de confirmación para continuar.');
+        return;
+    }
+
+    const tier = pendingDeactivationTier || getActiveSubscriptionTier() || 'intermediate';
+    const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
+    const planName = planNames[tier] || 'Signature Pro';
+
+    const submitBtn = document.getElementById('btnConfirmDeactivateSubmit');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>⏳ Procesando desactivación...</span>';
+    }
+
+    const dates = getSubscriptionDates();
+    const reason = document.getElementById('deactivateFeedbackReason')?.value.trim() || 'No especificó motivo de cancelación.';
+
+    const email = (sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || 'planner@wedding.com').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email && c.email.toLowerCase() === email);
+
+    const agencyName = sessionStorage.getItem('antigravity_agency_name') || (client ? client.agencyName : 'Agencia Wedding Planner');
+    let plannerName = sessionStorage.getItem('antigravity_reg_planner') || (client ? client.plannerName : agencyName);
+
+    const deactivationPayload = {
+        plannerName: plannerName,
+        plannerEmail: email,
+        agencyName: agencyName,
+        planTier: tier,
+        planName: planName,
+        contractDate: dates.contractDate,
+        cancellationDate: dates.cancellationDate,
+        periodEndDate: dates.periodEndDate,
+        reason: reason
+    };
+
+    // 1. Notificar vía API Serverless a Master Developer (Luis) por email
+    try {
+        await fetch('/api/cancel-subscription', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(deactivationPayload)
+        });
+    } catch (e) {
+        console.warn('Error al llamar /api/cancel-subscription:', e);
+    }
+
+    // 2. Notificar vía Telegram instantáneamente
+    if (typeof sendTelegramPlanDeactivationAlert === 'function') {
+        try {
+            await sendTelegramPlanDeactivationAlert(deactivationPayload);
+        } catch (e) {
+            console.warn('Error enviando alerta de Telegram:', e);
+        }
+    }
+
+    // 3. Persistir estado de cancelación programada
+    localStorage.setItem('wedding_subscription_status', 'canceling');
+    localStorage.setItem('wedding_subscription_cancelled_at', dates.cancellationDateIso);
+    localStorage.setItem('wedding_subscription_period_end', dates.periodEndDate);
+    localStorage.setItem('wedding_subscription_period_end_iso', dates.periodEndDateIso);
+    localStorage.setItem('wedding_subscription_cancel_reason', reason);
+
+    if (client) {
+        client.subscriptionStatus = 'canceling';
+        client.cancellationReason = reason;
+        client.periodEndDate = dates.periodEndDateIso;
+        if (typeof saveClientsDatabase === 'function') {
+            saveClientsDatabase(clients);
+        }
+    }
+
+    closeDeactivatePlanModal();
+
+    showToast(`🛑 Suscripción desactivada. Continuarás disfrutando de tu ${planName} hasta el ${dates.periodEndDate}.`);
+
+    renderSettingsTab();
+}
+
+function resumeActiveSubscriptionPlan() {
+    const tier = getActiveSubscriptionTier() || 'intermediate';
+    const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
+    const planName = planNames[tier] || 'Signature Pro';
+
+    if (!confirm(`¿Deseas reactivar y mantener tu suscripción al Plan ${planName}?`)) {
+        return;
+    }
+
+    localStorage.setItem('wedding_subscription_status', 'active');
+    localStorage.removeItem('wedding_subscription_cancelled_at');
+    localStorage.removeItem('wedding_subscription_cancel_reason');
+
+    const email = (sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email && c.email.toLowerCase() === email);
+
+    if (client) {
+        client.subscriptionStatus = 'active';
+        client.cancellationReason = '';
+        if (typeof saveClientsDatabase === 'function') {
+            saveClientsDatabase(clients);
+        }
+    }
+
+    showToast(`🎉 ¡Excelente! Tu plan ${planName} ha sido reactivado y continuará activo.`);
+    renderSettingsTab();
+}
+
 

@@ -1251,6 +1251,24 @@
                     </div>
                 </div>
 
+                <!-- AVISO DE CANCELACIÓN / DESACTIVACIÓN PROGRAMADA -->
+                <div id="subscriptionCancellationNoticeBanner" style="display:none; margin-bottom:18px; border-radius:14px; padding:16px 20px; background:#fff7ed; border:1.5px solid #f97316; box-shadow:0 4px 16px rgba(249,115,22,0.12);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div style="display:flex; align-items:flex-start; gap:12px;">
+                            <span style="font-size:1.6rem; line-height:1;">⏳</span>
+                            <div>
+                                <h4 style="margin:0 0 3px; font-size:0.95rem; font-weight:800; color:#9a3412;">Cancelación Programada de Suscripción</h4>
+                                <p id="subscriptionCancellationNoticeText" style="margin:0; font-size:0.83rem; color:#c2410c; line-height:1.45;">
+                                    Tu plan se desactivará al concluir el ciclo mensual actual. Mantienes acceso total a todas las herramientas sin cargos futuros.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="resumeActiveSubscriptionPlan()" style="background:#059669; color:#ffffff; border:none; border-radius:8px; padding:8px 16px; font-size:0.82rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(5,150,105,0.25);">
+                            <span>🔄 Conservar / Reactivar Plan</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- PRESET PLANS CARDS (2 PLANES PREMIUM) -->
                 <div class="plan-presets-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
                     <div class="plan-preset-card featured" id="cardPlan_intermediate" onclick="applyPlanPreset('intermediate')">
@@ -1260,6 +1278,7 @@
                         <p class="preset-desc"><strong>Capacidad:</strong> 1-10 bodas simultáneas · Incluye Invitaciones Web Interactivas, WhatsApp Masivo con Blindaje, Acomodo 2D, Check-in QR Hostess y Playlist DJ.</p>
                         <button class="plan-preset-btn active" data-plan="intermediate" onclick="applyPlanPreset('intermediate'); event.stopPropagation();">Aplicar Plan Signature Pro</button>
                         <button type="button" class="btn-action primary" onclick="openStripeCheckoutModal('intermediate'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border:none; box-shadow:0 4px 12px rgba(79,70,229,0.35);">💳 Pagar $1,990 MXN (Stripe)</button>
+                        <button type="button" class="btn-action danger btn-deactivate-plan" id="btnDeactivate_intermediate" onclick="openDeactivatePlanModal('intermediate'); event.stopPropagation();" style="display:none; width:100%; margin-top:8px; font-weight:700; background:#fef2f2; color:#dc2626; border:1.5px solid #fca5a5; border-radius:8px; padding:8px 12px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🛑 Desactivar mi plan</button>
                     </div>
 
                     <div class="plan-preset-card" id="cardPlan_elite" onclick="applyPlanPreset('elite')">
@@ -1269,6 +1288,7 @@
                         <p class="preset-desc"><strong>Capacidad:</strong> Hasta 15 bodas · Invitaciones Web Ilimitadas + Marca Blanca, Calculadora de Barra Libre, Dossier Técnico y Soporte VIP.</p>
                         <button class="plan-preset-btn" data-plan="elite" onclick="applyPlanPreset('elite'); event.stopPropagation();">Aplicar Plan Atelier Elite</button>
                         <button type="button" class="btn-action secondary" onclick="openStripeCheckoutModal('elite'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; border-color:#7c3aed; color:#7c3aed;">💳 Pagar con Stripe ($3,290)</button>
+                        <button type="button" class="btn-action danger btn-deactivate-plan" id="btnDeactivate_elite" onclick="openDeactivatePlanModal('elite'); event.stopPropagation();" style="display:none; width:100%; margin-top:8px; font-weight:700; background:#fef2f2; color:#dc2626; border:1.5px solid #fca5a5; border-radius:8px; padding:8px 12px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🛑 Desactivar mi plan</button>
                     </div>
                 </div>
 
@@ -5651,6 +5671,82 @@
             <button type="button" class="btn-modal primary" onclick="closePaymentSuccessModal()" style="width:100%; background:#10b981; border-color:#059669;">
                 <span>🚀 Entrar a Mi Suite de Wedding OS</span>
             </button>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL: DESACTIVACIÓN DE PLAN (WEDDING PLANNER) -->
+    <!-- ========================================================================== -->
+    <div id="modalDeactivatePlan" class="app-modal-overlay">
+        <div class="app-modal-card" style="max-width: 530px; border-top: 5px solid #ef4444;">
+            <div class="modal-header" style="background:#fef2f2 !important; border-bottom:1px solid #fee2e2 !important; padding:16px 20px;">
+                <div class="d-flex align-center gap-2">
+                    <span class="modal-icon" style="font-size:1.6rem;">🛑</span>
+                    <div>
+                        <h3 class="modal-title" style="color:#991b1b; font-size:1.15rem; margin:0;" id="deactivateModalPlanTitle">Desactivar mi Plan Signature Pro</h3>
+                        <p class="text-xs" style="color:#b91c1c; margin:2px 0 0;">Cancelación de renovación automática del servicio</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeDeactivatePlanModal()" style="color:#991b1b;">✕</button>
+            </div>
+
+            <div class="modal-body" style="padding:20px;">
+                <!-- Summary / Grace Period Banner -->
+                <div style="background:#fffbeb; border:1.5px solid #fcd34d; border-radius:12px; padding:14px 16px; margin-bottom:16px;">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <span style="font-size:1.3rem;">ℹ️</span>
+                        <div style="font-size:0.83rem; color:#92400e; line-height:1.5;">
+                            <strong>¡No perderás tus accesos de inmediato!</strong><br>
+                            Al desactivar tu plan, la renovación mensual quedará pausada. Como tu ciclo mensual actual ya fue cubierto, <strong>mantendrás acceso total a tus bodas y herramientas hasta el:</strong>
+                            <div style="margin-top:6px; font-size:1rem; font-weight:800; color:#b45309;" id="deactivatePeriodEndDateDisplay">-- de -- de ----</div>
+                            <span style="font-size:0.75rem; color:#a16207;">A partir de esa fecha no se te realizará ningún cargo adicional en Stripe ni transferencias.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle de Fechas -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.8rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="color:#64748b;">📅 Fecha de Contratación:</span>
+                        <strong id="deactivateContractDateDisplay" style="color:#0f172a;">--</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="color:#64748b;">🛑 Fecha de Desactivación:</span>
+                        <strong id="deactivateRequestDateDisplay" style="color:#dc2626;">Hoy</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#64748b;">⏳ Servicio Activo Hasta:</span>
+                        <strong id="deactivateServiceUntilDisplay" style="color:#059669; font-weight:800;">--</strong>
+                    </div>
+                </div>
+
+                <!-- Feedback Textarea -->
+                <div class="form-group mb-3">
+                    <label class="form-label" style="font-size:0.8rem; font-weight:700; color:#334155;">
+                        💬 ¿Por qué has decidido desactivar tu cuenta? <small style="color:#64748b; font-weight:normal;">(Tu opinión nos ayuda a mejorar)</small>
+                    </label>
+                    <textarea id="deactivateFeedbackReason" class="form-input" rows="3" style="width:100%; resize:vertical; font-size:0.82rem; padding:10px; border-radius:8px; border:1px solid #cbd5e1;" placeholder="Nos interesa tu opinión con el fin de mejorar el servicio... (ej. Demasiada información, no me sirvió o algo por el estilo)"></textarea>
+                </div>
+
+                <!-- Mandatory Agreement Checkbox -->
+                <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:10px; padding:12px 14px;">
+                    <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:0.82rem; color:#7f1d1d; line-height:1.45; font-weight:600; margin:0;">
+                        <input type="checkbox" id="chkConfirmDeactivation" onchange="onToggleDeactivationAgreement()" style="margin-top:3px; width:17px; height:17px; accent-color:#dc2626; cursor:pointer;">
+                        <span id="deactivationAgreementText">
+                            Yo, <strong id="deactivatePlannerNamePlaceholder">Wedding Planner</strong>, confirmo y estoy de acuerdo en que se desactive mi plan <strong id="deactivatePlanNamePlaceholder">Signature Pro</strong> al término de mi periodo pagado.
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="padding:14px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn-modal secondary" onclick="closeDeactivatePlanModal()" style="font-weight:700;">
+                    Mantener mi Plan
+                </button>
+                <button type="button" id="btnConfirmDeactivateSubmit" class="btn-modal primary" onclick="confirmPlanDeactivation()" disabled style="background:#ef4444; border-color:#dc2626; font-weight:800; opacity:0.5; cursor:not-allowed;">
+                    <span>🛑 Desactivar mi Plan</span>
+                </button>
+            </div>
         </div>
     </div>
 
