@@ -46,12 +46,12 @@ const DEFAULT_WHATSAPP_TEMPLATES = {
     // ETAPA 1: INVITACIÓN OFICIAL & CONFIRMACIÓN (3 VARIANTES)
     // =========================================================================
     meta_api: {
-        // Opción 1: Aprobada Oficial en Meta (notificacion_reservas_bodas - Formal y Detallada)
-        opt1: `Estimado(a) {nombre_familia},\n\nLe notificamos que su registro de asistencia cuenta con {pases} reservados para el evento de {novios} ({fecha} en {lugar}).\n\nPara confirmar su asistencia y validar sus accesos, favor de ingresar a su enlace digital oficial:\n{link_invitacion}\n\nFavor de completar su registro. Gracias.`,
-        // Opción 2: Aprobada Oficial en Meta (aviso_invitacion_boda - Cercano y Directo)
-        opt2: `Hola {nombre_familia},\n\nTe notificamos que tus {pases} reservados para la boda se encuentran listos para confirmacion en tu enlace digital:\n\n{link_invitacion}\n\nFavor de confirmar.`,
-        // Opción 3: Aprobada Oficial en Meta (invitacion_oficial_boda - Ejecutivo y Conciso)
-        opt3: `Estimado/a {nombre_familia},\n\nLe notificamos que sus {pases} reservados para la celebracion de la boda se encuentran listos para confirmacion en su enlace digital:\n\n{link_invitacion}\n\nFavor de confirmar su asistencia. Gracias.`
+        // Opción 1: Protocolaria & Formal de Gala
+        opt1: `Estimado(a) {nombre_familia},\n\nLe notificamos con gran honor que su registro de asistencia cuenta con {pases} reservados para celebrar el enlace matrimonial de *{novios}* ({fecha} en {lugar}).\n\n📅 *Fecha:* {fecha}\n📍 *Lugar:* {lugar}\n🎟️ *Pases reservados:* {pases}\n\nPara confirmar su asistencia, elegir sus tiempos de menú y validar sus accesos oficiales, favor de ingresar a su enlace digital oficial:\n👉 {link_invitacion}\n\nFavor de completar su registro a la brevedad. ¡Agradecemos su atención y aprecio!`,
+        // Opción 2: Emotiva, Familiar & Festiva (Con Candela)
+        opt2: `¡Hola {nombre_familia}! 💍✨🥂\n\n¡La cuenta regresiva ha comenzado! Con inmensa alegría en el corazón, *{novios}* quieren invitarte a ser parte del día más feliz de sus vidas.\n\n💒 *Boda:* {novios}\n📅 *Fecha:* {fecha}\n📍 *Lugar:* {lugar}\n🎟️ *Tus accesos reservados:* {pases}\n\nHemos preparado una velada mágica e inolvidable. Por favor abre tu enlace interactivo para conocer el itinerario, opciones de banquete y confirmar tu asistencia:\n👉 {link_invitacion}\n\n¡Nos emociona muchísimo celebrar y brindar juntos! 🎉`,
+        // Opción 3: Vanguardista, Exclusiva & Minimalista
+        opt3: `Apreciable {nombre_familia} ✨\n\nEstás cordialmente invitado(a) a la celebración oficial del enlace de *{novios}*.\n\n🗓️ *Cuándo:* {fecha}\n🏛️ *Dónde:* {lugar}\n🎫 *Tus lugares:* {pases} reservados\n\nTu presencia es fundamental para nosotros. Para garantizar tu asignación de mesa y registrar requerimientos especiales de banquete, por favor confirma en tu portal digital:\n🔗 {link_invitacion}\n\n¡Esperamos compartir esta velada extraordinaria contigo! 🍾`
     },
 
     // =========================================================================
@@ -104,7 +104,17 @@ function getActiveTemplateText(mode, data) {
 function selectTemplateOption(optKey) {
     currentTemplateOption = optKey;
     document.querySelectorAll('.tpl-opt-pill').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-opt') === optKey);
+        const isActive = btn.getAttribute('data-opt') === optKey;
+        btn.classList.toggle('active', isActive);
+        if (isActive) {
+            btn.style.borderColor = '#059669';
+            btn.style.background = '#ecfdf5';
+            btn.style.color = '#065f46';
+        } else {
+            btn.style.borderColor = '#cbd5e1';
+            btn.style.background = '#f8fafc';
+            btn.style.color = '#334155';
+        }
     });
     updateTemplateEditorView();
     renderDispatchTab();
@@ -213,91 +223,44 @@ function getMetaCloudTemplatePayload(guest, mode, option, data) {
     const dateText = (data && data.date) ? data.date : '24 de Octubre, 2027';
     const venueText = (data && data.venue) ? data.venue : 'Hacienda Fundadores';
 
-    if (mode === 'meta_api' || mode === 'manual') {
-        if (option === 'opt2') {
-            return {
-                name: 'aviso_invitacion_boda',
-                language: 'es_MX',
-                components: [
-                    {
-                        type: 'body',
-                        parameters: [
-                            { type: 'text', text: guestName },
-                            { type: 'text', text: passText },
-                            { type: 'text', text: liveUrl }
-                        ]
-                    }
-                ]
-            };
-        } else if (option === 'opt3') {
-            return {
-                name: 'invitacion_oficial_boda',
-                language: 'es_MX',
-                components: [
-                    {
-                        type: 'body',
-                        parameters: [
-                            { type: 'text', text: guestName },
-                            { type: 'text', text: passText },
-                            { type: 'text', text: liveUrl }
-                        ]
-                    }
-                ]
-            };
-        } else {
-            return {
-                name: 'notificacion_reservas_bodas',
-                language: 'es_MX',
-                components: [
-                    {
-                        type: 'body',
-                        parameters: [
-                            { type: 'text', text: guestName },
-                            { type: 'text', text: passText },
-                            { type: 'text', text: coupleText },
-                            { type: 'text', text: dateText },
-                            { type: 'text', text: venueText },
-                            { type: 'text', text: liveUrl }
-                        ]
-                    }
-                ]
-            };
-        }
-    } else if (mode === 'qr_gateway') {
-        if (option === 'opt2') {
-            return {
-                name: 'recordatorio_reserva_boda',
-                language: 'es_MX',
-                components: [
-                    {
-                        type: 'body',
-                        parameters: [
-                            { type: 'text', text: guestName },
-                            { type: 'text', text: passText },
-                            { type: 'text', text: coupleText },
-                            { type: 'text', text: dateText },
-                            { type: 'text', text: liveUrl }
-                        ]
-                    }
-                ]
-            };
-        } else {
-            return {
-                name: 'notificacion_reserva_boda',
-                language: 'es_MX',
-                components: [
-                    {
-                        type: 'body',
-                        parameters: [
-                            { type: 'text', text: guestName },
-                            { type: 'text', text: passText },
-                            { type: 'text', text: liveUrl }
-                        ]
-                    }
-                ]
-            };
-        }
+    if (mode === 'qr_gateway') {
+        // Recordatorio oficial con Novios, Fecha y Enlace (5 parámetros)
+        return {
+            name: 'recordatorio_reserva_boda',
+            language: 'es_MX',
+            components: [
+                {
+                    type: 'body',
+                    parameters: [
+                        { type: 'text', text: guestName },
+                        { type: 'text', text: passText },
+                        { type: 'text', text: coupleText },
+                        { type: 'text', text: dateText },
+                        { type: 'text', text: liveUrl }
+                    ]
+                }
+            ]
+        };
     }
+
+    // Invitación oficial completa con Novios, Fecha, Lugar, Pases y Enlace (6 parámetros)
+    return {
+        name: 'notificacion_reservas_bodas',
+        language: 'es_MX',
+        components: [
+            {
+                type: 'body',
+                parameters: [
+                    { type: 'text', text: guestName },
+                    { type: 'text', text: passText },
+                    { type: 'text', text: coupleText },
+                    { type: 'text', text: dateText },
+                    { type: 'text', text: venueText },
+                    { type: 'text', text: liveUrl }
+                ]
+            }
+        ]
+    };
 
     return {
         name: 'notificacion_reservas_bodas',
