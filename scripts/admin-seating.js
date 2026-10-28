@@ -234,7 +234,7 @@ function render2DFloorPlan() {
         if (el.type === 'table') {
             const tableData = (currentData.tables || []).find(t => t.id === el.tableId) || { name: el.name, capacity: el.shape === 'rect' ? 12 : 10 };
             const seated = (currentData.guests || []).filter(g => g.tableId === el.tableId);
-            const totalPax = seated.reduce((s, g) => s + (g.passes || 1), 0);
+            const totalPax = seated.reduce((s, g) => s + (g.confirmedPasses || g.passes || 1), 0);
             const hasAllergy = seated.some(g => g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '');
 
             const waiter = floorPlanState.waiters.find(w => w.tables.includes(el.tableNumber));
@@ -768,7 +768,7 @@ function inspectTableElement(el, tableData, seated, waiter) {
     inspector.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h4 class="inspector-title" style="margin:0;">🍽️ Mesa #${el.tableNumber} ${el.shape === 'rect' ? '(Imperial)' : '(Circular)'}</h4>
-            <span style="font-size:0.75rem; font-weight:700; background:#f1f5f9; padding:2px 8px; border-radius:12px;">${seated.reduce((s, g) => s + (g.passes || 1), 0)} / ${tableData.capacity} pax</span>
+            <span style="font-size:0.75rem; font-weight:700; background:#f1f5f9; padding:2px 8px; border-radius:12px;">${seated.reduce((s, g) => s + (g.confirmedPasses || g.passes || 1), 0)} / ${tableData.capacity} pax</span>
         </div>
         <p style="font-size:0.8rem; font-weight:600; color:#1e293b; margin:6px 0 10px;">${tableData.name}</p>
         
@@ -985,7 +985,7 @@ function openCaptainPrintModal() {
         const waiterName = waiter ? waiter.name : '<span style="color:#ef4444; font-weight:700;">Sin Asignar</span>';
 
         const seated = (currentData.guests || []).filter(g => g.tableId === t.id);
-        const pax = seated.reduce((s, g) => s + (g.passes || 1), 0);
+        const pax = seated.reduce((s, g) => s + (g.confirmedPasses || g.passes || 1), 0);
         const allergies = seated.filter(g => g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '');
         const allergiesText = allergies.length > 0 ? allergies.map(a => `${a.name}: ${a.allergies}`).join('; ') : 'Menú Estándar (Sin Alergias)';
 
@@ -1007,7 +1007,7 @@ function openCaptainPrintModal() {
             const tableObj = (currentData.tables || [])[tNum - 1];
             if (tableObj) {
                 const seated = (currentData.guests || []).filter(g => g.tableId === tableObj.id);
-                totalPax += seated.reduce((s, g) => s + (g.passes || 1), 0);
+                totalPax += seated.reduce((s, g) => s + (g.confirmedPasses || g.passes || 1), 0);
             }
         });
         waiterBoxes += `
@@ -1100,9 +1100,11 @@ function renderSeatingChart() {
     }
 
     const unassigned = currentData.guests.filter(g => !g.tableId && g.status === 'confirmed');
-    document.getElementById('unassignedCount').innerText = unassigned.length;
+    const unassignedPax = unassigned.reduce((sum, g) => sum + (g.confirmedPasses || g.passes || 1), 0);
+    const uCountEl = document.getElementById('unassignedCount');
+    if (uCountEl) uCountEl.innerText = `${unassigned.length} (${unassignedPax} pax)`;
     const badgeSeating = document.getElementById('badgeSeatingPending');
-    if (badgeSeating) badgeSeating.innerText = `${unassigned.length} pendientes`;
+    if (badgeSeating) badgeSeating.innerText = `${unassigned.length} pendientes (${unassignedPax} pax)`;
 
     // Render Unassigned Pool
     unassigned.forEach(g => {
@@ -1112,14 +1114,24 @@ function renderSeatingChart() {
         item.id = `guest_${g.id}`;
         item.dataset.guestId = g.id;
 
+        const confirmedPax = g.confirmedPasses || g.passes || 1;
+        const extraCount = confirmedPax - 1;
+        const extraLabel = extraCount > 0 ? ` (+${extraCount})` : '';
         const hasAllergy = g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '';
+        const compName = g.companion || '';
+
         item.innerHTML = `
-            <div class="drag-guest-name">
-                <span>${g.name}</span>
-                <span class="drag-guest-passes">🎟️ ${g.passes} ${g.passes > 1 ? '(+1)' : ''}</span>
+            <div class="drag-guest-name" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <strong style="color:#0f172a; font-size:0.88rem;">${g.name}${extraLabel}</strong>
+                <span class="drag-guest-passes" style="background:#dbeafe; color:#1e40af; font-weight:800; font-size:0.75rem; padding:3px 9px; border-radius:12px; border:1px solid #bfdbfe;">
+                    🎟️ ${confirmedPax} ${confirmedPax === 1 ? 'pase' : 'pax'}
+                </span>
             </div>
-            <div class="drag-guest-menu">Platillo: ${getMenuLabel(g.menu)}</div>
-            ${hasAllergy ? `<span class="guest-allergy-badge">⚠️ ${g.allergies}</span>` : ''}
+            ${compName ? `<div style="font-size:0.73rem; color:#475569; margin-bottom:4px; font-weight:600;">👥 Integrantes: ${compName}</div>` : ''}
+            <div class="drag-guest-menu" style="font-size:0.72rem; color:#64748b;">
+                <span>🍽️ Menú: ${getMenuLabel(g.menu)}</span>
+            </div>
+            ${hasAllergy ? `<div style="margin-top:4px;"><span class="guest-allergy-badge" style="background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; font-weight:700; font-size:0.7rem;">⚠️ ${g.allergies}</span></div>` : ''}
         `;
 
         item.addEventListener('dragstart', handleDragStart);
@@ -1130,7 +1142,7 @@ function renderSeatingChart() {
     // Render Tables
     currentData.tables.forEach(t => {
         const seatedGuests = currentData.guests.filter(g => g.tableId === t.id);
-        const totalPax = seatedGuests.reduce((sum, g) => sum + (g.passes || 1), 0);
+        const totalPax = seatedGuests.reduce((sum, g) => sum + (g.confirmedPasses || g.passes || 1), 0);
         const isFull = totalPax >= t.capacity;
         const tableAllergies = seatedGuests.filter(g => g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '');
 
@@ -1147,7 +1159,7 @@ function renderSeatingChart() {
                     <small style="display:block; color:#64748b; font-weight:600;">${t.shape === 'rect' || t.shape === 'imperial' ? '🔲 Rectangular / Imperial' : t.shape === 'square' ? '⬛ Cuadrangular' : t.shape === 'honor' ? '👑 Mesa de Honor' : '⚪ Circular'}</small>
                 </div>
                 <span class="table-occupancy ${isFull ? 'occupancy-full' : 'occupancy-open'}">
-                    ${totalPax} / ${t.capacity} pax ${isFull ? '(Llena)' : ''}
+                    ${totalPax} / ${t.capacity} pax ${isFull ? '(Llena)' : `(${t.capacity - totalPax} libres)`}
                 </span>
             </div>
 
@@ -1165,13 +1177,22 @@ function renderSeatingChart() {
         seatedGuests.forEach(g => {
             const guestRow = document.createElement('div');
             guestRow.className = 'seated-guest-row';
+            const confirmedPax = g.confirmedPasses || g.passes || 1;
+            const extraCount = confirmedPax - 1;
+            const extraLabel = extraCount > 0 ? ` (+${extraCount})` : '';
+            const compName = g.companion || '';
             const hasAllergy = g.allergies && g.allergies.toLowerCase() !== 'ninguna' && g.allergies.trim() !== '';
+
             guestRow.innerHTML = `
-                <div>
-                    <strong>${g.name}</strong> ${g.passes > 1 ? `<small>(+1: ${g.companion || 'Acompañante'})</small>` : ''}
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <strong style="color:#0f172a; font-size:0.83rem;">${g.name}${extraLabel}</strong>
+                        <span style="background:#e0f2fe; color:#0369a1; font-weight:800; font-size:0.7rem; padding:1px 6px; border-radius:10px;">${confirmedPax} pax</span>
+                    </div>
+                    ${compName ? `<div style="font-size:0.72rem; color:#475569; margin:1px 0;">👥 ${compName}</div>` : ''}
                     <div style="font-size:0.7rem; color:#64748b;">${getMenuLabel(g.menu)} ${hasAllergy ? `<span style="color:#b91c1c; font-weight:700;">⚠️ ${g.allergies}</span>` : ''}</div>
                 </div>
-                <button class="btn-unseat" title="Remover de mesa" onclick="unseatGuest('${g.id}')">✕</button>
+                <button class="btn-unseat" title="Remover de mesa y regresar al padrón de confirmados" onclick="unseatGuest('${g.id}')">✕</button>
             `;
             seatList.appendChild(guestRow);
         });
@@ -1222,6 +1243,8 @@ function handleDropToTable(e) {
     const guest = currentData.guests.find(g => g.id === draggedGuestId);
     if (!guest) return;
 
+    const neededPax = guest.confirmedPasses || guest.passes || 1;
+
     const tableObj = (currentData.tables || []).find(t => t.id === tableId);
     const isHonorTable = (tableObj && (tableObj.shape === 'honor' || tableObj.name.toLowerCase().includes('honor')));
 
@@ -1232,15 +1255,18 @@ function handleDropToTable(e) {
     }
 
     if (currentPax + neededPax > capacity) {
-        showToast(`⚠️ Capacidad insuficiente en esta mesa (requiere ${neededPax} lugares, disponibles: ${capacity - currentPax})`);
+        showToast(`⚠️ Capacidad insuficiente en esta mesa (${guest.name} requiere ${neededPax} lugares, disponibles: ${capacity - currentPax})`);
         return;
     }
 
     guest.tableId = tableId;
     saveWeddingState(currentWeddingId, currentData);
     renderSeatingChart();
-    renderDashboard();
-    showToast(`✅ ${guest.name} asignado a ${this.querySelector('.table-title').innerText}`);
+    if (typeof renderDispatchTab === 'function') renderDispatchTab();
+    if (typeof render2DFloorPlan === 'function') render2DFloorPlan();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    const tblTitle = this.querySelector('.table-title') ? this.querySelector('.table-title').innerText : 'mesa';
+    showToast(`✅ "${guest.name}" (${neededPax} pax) asignado a ${tblTitle}`);
 }
 
 function allowDrop(e) {
@@ -1256,11 +1282,14 @@ function dropToUnassigned(e) {
 function unseatGuest(guestId) {
     const guest = currentData.guests.find(g => g.id === guestId);
     if (guest) {
+        const pax = guest.confirmedPasses || guest.passes || 1;
         guest.tableId = null;
         saveWeddingState(currentWeddingId, currentData);
         renderSeatingChart();
-        renderDashboard();
-        showToast(`↩️ ${guest.name} desasignado de la mesa`);
+        if (typeof renderDispatchTab === 'function') renderDispatchTab();
+        if (typeof render2DFloorPlan === 'function') render2DFloorPlan();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        showToast(`↩️ "${guest.name}" (${pax} pax) desasignado de la mesa.`);
     }
 }
 
@@ -1385,7 +1414,7 @@ function saveTableConfig() {
 
     // Check if seated guests already exceed the new capacity
     const seated = (currentData.guests || []).filter(g => g.tableId === table.id);
-    const currentPax = seated.reduce((s, g) => s + (g.passes || 1), 0);
+    const currentPax = seated.reduce((s, g) => s + (g.confirmedPasses || g.passes || 1), 0);
     if (currentPax > newCapacity) {
         alert(`⚠️ No se puede reducir la capacidad a ${newCapacity} pax porque actualmente hay ${currentPax} invitados sentados en esta mesa. Reubica invitados antes de reducir.`);
         return;
@@ -1442,6 +1471,7 @@ function saveTableConfig() {
     closeEditTableModal();
     renderSeatingChart();
     if (typeof render2DFloorPlan === 'function') render2DFloorPlan();
+    if (typeof renderDispatchTab === 'function') renderDispatchTab();
     showToast(`✅ "${newName}" actualizada: Forma ${selectedShape.toUpperCase()}, ${newCapacity} sillas.`);
 }
 
