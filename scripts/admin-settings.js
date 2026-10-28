@@ -92,6 +92,75 @@ function getActiveSubscriptionTier() {
     return null;
 }
 
+
+let currentBillingCycleMode = 'monthly';
+
+function setBillingCycleMode(mode) {
+    currentBillingCycleMode = mode;
+    const btnMonthly = document.getElementById('btnBillingCycle_monthly');
+    const btnAnnual = document.getElementById('btnBillingCycle_annual');
+    const priceInter = document.getElementById('priceDisplay_intermediate');
+    const priceElite = document.getElementById('priceDisplay_elite');
+    const btnStripeInter = document.getElementById('btnStripe_intermediate');
+    const btnStripeElite = document.getElementById('btnStripe_elite');
+
+    if (mode === 'annual') {
+        if (btnMonthly) {
+            btnMonthly.style.background = 'transparent';
+            btnMonthly.style.color = '#475569';
+            btnMonthly.style.boxShadow = 'none';
+        }
+        if (btnAnnual) {
+            btnAnnual.style.background = '#0f172a';
+            btnAnnual.style.color = '#ffffff';
+            btnAnnual.style.boxShadow = '0 2px 8px rgba(15,23,42,0.25)';
+        }
+
+        if (priceInter) {
+            priceInter.innerHTML = '<span style="text-decoration:line-through; font-size:0.95rem; color:#94a3b8; font-weight:normal; margin-right:6px;">$23,880</span>$19,900 <small style="font-size:0.8rem; color:#059669; font-weight:800;">MXN / año (Ahorra $3,980)</small>';
+        }
+        if (priceElite) {
+            priceElite.innerHTML = '<span style="text-decoration:line-through; font-size:0.95rem; color:#94a3b8; font-weight:normal; margin-right:6px;">$39,480</span>$32,900 <small style="font-size:0.8rem; color:#059669; font-weight:800;">MXN / año (Ahorra $6,580)</small>';
+        }
+
+        if (btnStripeInter) {
+            btnStripeInter.innerHTML = '✨ Pagar $19,900 MXN / Año (2 Meses Gratis)';
+            btnStripeInter.setAttribute('onclick', "openStripeCheckoutModal('intermediate', 'annual'); event.stopPropagation();");
+        }
+        if (btnStripeElite) {
+            btnStripeElite.innerHTML = '👑 Pagar $32,900 MXN / Año (2 Meses Gratis)';
+            btnStripeElite.setAttribute('onclick', "openStripeCheckoutModal('elite', 'annual'); event.stopPropagation();");
+        }
+    } else {
+        if (btnMonthly) {
+            btnMonthly.style.background = '#0f172a';
+            btnMonthly.style.color = '#ffffff';
+            btnMonthly.style.boxShadow = '0 2px 8px rgba(15,23,42,0.25)';
+        }
+        if (btnAnnual) {
+            btnAnnual.style.background = 'transparent';
+            btnAnnual.style.color = '#475569';
+            btnAnnual.style.boxShadow = 'none';
+        }
+
+        if (priceInter) {
+            priceInter.innerHTML = '$1,990 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small>';
+        }
+        if (priceElite) {
+            priceElite.innerHTML = '$3,290 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small>';
+        }
+
+        if (btnStripeInter) {
+            btnStripeInter.innerHTML = '💳 Pagar $1,990 MXN (Stripe)';
+            btnStripeInter.setAttribute('onclick', "openStripeCheckoutModal('intermediate', 'monthly'); event.stopPropagation();");
+        }
+        if (btnStripeElite) {
+            btnStripeElite.innerHTML = '💳 Pagar con Stripe ($3,290)';
+            btnStripeElite.setAttribute('onclick', "openStripeCheckoutModal('elite', 'monthly'); event.stopPropagation();");
+        }
+    }
+}
+
 function renderSettingsTab() {
     const activeSubTier = getActiveSubscriptionTier();
     const planNames = { intermediate: 'Signature Pro', elite: 'Atelier Elite' };
@@ -165,7 +234,8 @@ function renderSettingsTab() {
                     activeTag.innerHTML = `⏳ CANCELACIÓN PROGRAMADA · Activo hasta el ${subDates.periodEndDate}`;
                     activeTag.style.cssText = 'position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#ea580c; color:#fff; font-size:0.72rem; font-weight:800; padding:4px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(234,88,12,0.4); text-transform:uppercase; letter-spacing:0.5px; z-index:10; white-space:nowrap;';
                 } else {
-                    activeTag.innerHTML = `🌟 PLAN ACTUALMENTE ACTIVO`;
+                    const isAnnualSub = localStorage.getItem('wedding_subscription_cycle') === 'year' || localStorage.getItem('wedding_subscription_cycle') === 'annual';
+                    activeTag.innerHTML = isAnnualSub ? '🌟 PLAN ANUAL ACTIVO (12 MESES)' : '🌟 PLAN ACTUALMENTE ACTIVO';
                     activeTag.style.cssText = 'position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#059669; color:#fff; font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(5,150,105,0.4); text-transform:uppercase; letter-spacing:0.5px; z-index:10; white-space:nowrap;';
                 }
             } else if (activeTag) {

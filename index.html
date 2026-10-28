@@ -1269,25 +1269,38 @@
                     </div>
                 </div>
 
+                                <!-- SELECTOR DE FRECUENCIA DE FACTURACIÓN: MENSUAL / ANUAL (2 MESES GRATIS) -->
+                <div style="display:flex; justify-content:center; align-items:center; margin-bottom:22px;">
+                    <div style="background:#f1f5f9; padding:5px; border-radius:30px; display:inline-flex; align-items:center; border:1.5px solid #cbd5e1; box-shadow:0 2px 10px rgba(15,23,42,0.05); gap:4px;">
+                        <button type="button" id="btnBillingCycle_monthly" onclick="setBillingCycleMode('monthly')" style="border:none; background:#0f172a; color:#ffffff; padding:9px 22px; border-radius:24px; font-weight:800; font-size:0.84rem; cursor:pointer; transition:all 0.2s ease; box-shadow:0 2px 8px rgba(15,23,42,0.25);">
+                            📅 Facturación Mensual
+                        </button>
+                        <button type="button" id="btnBillingCycle_annual" onclick="setBillingCycleMode('annual')" style="border:none; background:transparent; color:#475569; padding:9px 22px; border-radius:24px; font-weight:800; font-size:0.84rem; cursor:pointer; transition:all 0.2s ease; display:flex; align-items:center; gap:8px;">
+                            <span>✨ Facturación Anual</span>
+                            <span style="background:linear-gradient(135deg, #059669 0%, #047857 100%); color:#ffffff; font-size:0.72rem; padding:3px 10px; border-radius:14px; font-weight:900; letter-spacing:0.4px; box-shadow:0 2px 6px rgba(5,150,105,0.3);">2 MESES GRATIS</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- PRESET PLANS CARDS (2 PLANES PREMIUM) -->
                 <div class="plan-presets-grid mb-4" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
                     <div class="plan-preset-card featured" id="cardPlan_intermediate" onclick="applyPlanPreset('intermediate')">
                         <div class="preset-badge gold">1 a 10 Bodas · Invitaciones Web Incluidas</div>
                         <h3 class="preset-title">🥈 Plan Signature Pro (Logística &amp; Web)</h3>
-                        <strong style="display:block; font-size:1.45rem; color:#d97706; margin:4px 0;">$1,990 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
+                        <strong id="priceDisplay_intermediate" style="display:block; font-size:1.45rem; color:#d97706; margin:4px 0;">$1,990 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
                         <p class="preset-desc"><strong>Capacidad:</strong> 1-10 bodas simultáneas · Incluye Invitaciones Web Interactivas, WhatsApp Masivo con Blindaje, Acomodo 2D, Check-in QR Hostess y Playlist DJ.</p>
                         <button class="plan-preset-btn active" data-plan="intermediate" onclick="applyPlanPreset('intermediate'); event.stopPropagation();">Aplicar Plan Signature Pro</button>
-                        <button type="button" class="btn-action primary" onclick="openStripeCheckoutModal('intermediate'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border:none; box-shadow:0 4px 12px rgba(79,70,229,0.35);">💳 Pagar $1,990 MXN (Stripe)</button>
+                        <button type="button" class="btn-action primary" id="btnStripe_intermediate" onclick="openStripeCheckoutModal('intermediate'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); border:none; box-shadow:0 4px 12px rgba(79,70,229,0.35);">💳 Pagar $1,990 MXN (Stripe)</button>
                         <button type="button" class="btn-action danger btn-deactivate-plan" id="btnDeactivate_intermediate" onclick="openDeactivatePlanModal('intermediate'); event.stopPropagation();" style="display:none; width:100%; margin-top:8px; font-weight:700; background:#fef2f2; color:#dc2626; border:1.5px solid #fca5a5; border-radius:8px; padding:8px 12px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🛑 Desactivar mi plan</button>
                     </div>
 
                     <div class="plan-preset-card" id="cardPlan_elite" onclick="applyPlanPreset('elite')">
                         <div class="preset-badge">Hasta 15 Bodas · Marca Blanca Total</div>
                         <h3 class="preset-title">👑 Plan Atelier Elite (Full Experience)</h3>
-                        <strong style="display:block; font-size:1.45rem; color:#7c3aed; margin:4px 0;">$3,290 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
+                        <strong id="priceDisplay_elite" style="display:block; font-size:1.45rem; color:#7c3aed; margin:4px 0;">$3,290 <small style="font-size:0.8rem; color:#64748b;">MXN / mes</small></strong>
                         <p class="preset-desc"><strong>Capacidad:</strong> Hasta 15 bodas · Invitaciones Web Ilimitadas + Marca Blanca, Calculadora de Barra Libre, Dossier Técnico y Soporte VIP.</p>
                         <button class="plan-preset-btn" data-plan="elite" onclick="applyPlanPreset('elite'); event.stopPropagation();">Aplicar Plan Atelier Elite</button>
-                        <button type="button" class="btn-action secondary" onclick="openStripeCheckoutModal('elite'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; border-color:#7c3aed; color:#7c3aed;">💳 Pagar con Stripe ($3,290)</button>
+                        <button type="button" class="btn-action secondary" id="btnStripe_elite" onclick="openStripeCheckoutModal('elite'); event.stopPropagation();" style="width:100%; margin-top:8px; font-weight:700; border-color:#7c3aed; color:#7c3aed;">💳 Pagar con Stripe ($3,290)</button>
                         <button type="button" class="btn-action danger btn-deactivate-plan" id="btnDeactivate_elite" onclick="openDeactivatePlanModal('elite'); event.stopPropagation();" style="display:none; width:100%; margin-top:8px; font-weight:700; background:#fef2f2; color:#dc2626; border:1.5px solid #fca5a5; border-radius:8px; padding:8px 12px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🛑 Desactivar mi plan</button>
                     </div>
                 </div>
@@ -5631,7 +5644,7 @@
                         </button>
                     </div>
                     <div style="font-size:0.72rem; color:#64748b; text-align:center; line-height:1.45; border-top:1px solid #f1f5f9; padding-top:8px; width:100%;">
-                        <span>📜 Al pagar aceptas los Términos de Servicio SaaS de Antigravity Wedding OS.</span><br>
+                        <span>📜 Al pagar aceptas los <a href="javascript:void(0)" onclick="openLegalTermsModal()" style="color:#6366f1; text-decoration:underline; font-weight:700;">Términos de Servicio SaaS</a> y la Política de Venta Definitiva (Cero Devoluciones por servicio digital intangible).</span><br>
                         <span>⏱️ <strong>SLA de Activación:</strong> Acceso instantáneo con Stripe. Acompañamiento personalizado y setup de agencia: 1 a 2 días hábiles (máximo 7 días para soporte integral).</span>
                     </div>
                 </div>
@@ -5819,6 +5832,11 @@
                     <h4 style="color:#0f172a;">6. Deslinde Absoluto de Responsabilidad sobre Cuentas Bancarias, Transferencias y Pagos Directos</h4>
                     <p style="background:#fef2f2; border-left:3px solid #ef4444; padding:10px 12px; border-radius:4px; color:#991b1b; line-height:1.5;">
                         <strong>Antigravity Web Studio provee exclusivamente una suite tecnológica de software (SaaS) orientada a la organización, visualización informativa y automatización de eventos nupciales.</strong> En ningún momento Antigravity Web Studio retiene, administra, intermedia, recibe en custodia ni procesa fondos derivados de transferencias bancarias, cuentas CLABE, reservas de hotel o paquetes turísticos entre los invitados, la Wedding Planner o la pareja titular. Todos los datos bancarios y números de cuenta CLABE desplegados en la plataforma son ingresados bajo la entera y exclusiva responsabilidad de la Wedding Planner y/o la pareja del evento. Antigravity Web Studio queda libre y expresamente exento de cualquier responsabilidad civil, mercantil, penal, fiscal o administrativa por errores de captura de cuentas bancarias, pagos no recibidos, cancelaciones de reservaciones, disputas interbancarias, fraudes de terceros o incumplimientos de proveedores.
+                    </p>
+                    <h4 style="color:#0f172a;">7. Política Estricta de Cero Devoluciones y No Reembolso (Venta Definitiva SaaS)</h4>
+                    <p style="background:#fff7ed; border-left:3px solid #f97316; padding:10px 12px; border-radius:4px; color:#9a3412; line-height:1.5;">
+                        <strong>Por tratarse de un servicio digital de software intangible en la nube (SaaS) con aprovisionamiento instantáneo, asignación inmediata de espacio en base de datos y consumo de recursos informáticos en tiempo real, TODAS LAS TRANSACCIONES Y PAGOS (MENSUALES, ANUALES O PASES ÚNICOS) SON DEFINITIVOS Y NO SUJETOS A DEVOLUCIÓN, REEMBOLSO TOTAL NI PARCIAL BAJO NINGUNA CIRCUNSTANCIA.</strong><br><br>
+                        Una vez procesado el pago y habilitadas las credenciales de acceso, la licencia de uso se considera plenamente ejecutada y entregada. Ni la cancelación de la boda por los novios, la reprogramación de fecha, la ruptura del compromiso, la falta de uso voluntario de las herramientas ni la desavenencia entre las partes dará derecho a reembolso monetario o indemnización alguna. En caso de desactivar la suscripción mensual o anual, el usuario conservará el derecho a utilizar la plataforma hasta el último día del periodo efectivamente pagado, suspendiéndose cualquier cobro subsecuente.
                     </p>
                 </div>
 

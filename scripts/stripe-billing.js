@@ -6,8 +6,10 @@
 const STRIPE_CONFIG = {
     PUBLISHABLE_KEY: 'pk_test_51UNz29AKkeuI6eHKGuy4tzROd1CqKrAAd7XVHjJdRfodX4RTsUufZ3cKfKtCIntfz012dYiih9lckumK6AaOSRXQ00rEE1Oo87',
     PLANS: {
-        intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · Invitaciones Web)', amount: 1990, currency: 'mxn', maxWeddings: 10 },
-        elite: { id: 'price_atelier', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca)', amount: 3290, currency: 'mxn', maxWeddings: 15 }
+        intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · Mensual)', amount: 1990, currency: 'mxn', maxWeddings: 10, period: 'month', durationDays: 30 },
+        intermediate_annual: { id: 'price_signature_annual', name: 'Plan Signature Pro (1-10 Bodas · Anual · 2 Meses Gratis)', amount: 19900, currency: 'mxn', maxWeddings: 10, period: 'year', durationDays: 365 },
+        elite: { id: 'price_atelier', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca · Mensual)', amount: 3290, currency: 'mxn', maxWeddings: 15, period: 'month', durationDays: 30 },
+        elite_annual: { id: 'price_atelier_annual', name: 'Plan Atelier Elite (1-15 Bodas · Marca Blanca · Anual · 2 Meses Gratis)', amount: 32900, currency: 'mxn', maxWeddings: 15, period: 'year', durationDays: 365 }
     }
 };
 
@@ -23,16 +25,28 @@ function initStripeBilling() {
     }
 }
 
-function openStripeCheckoutModal(planTier = 'intermediate') {
-    activeCheckoutPlan = planTier;
-    const plan = STRIPE_CONFIG.PLANS[planTier] || STRIPE_CONFIG.PLANS.intermediate;
+function openStripeCheckoutModal(planTier = 'intermediate', cycle = null) {
+    let resolvedCycle = cycle;
+    if (!resolvedCycle && typeof currentBillingCycleMode !== 'undefined') {
+        resolvedCycle = currentBillingCycleMode;
+    }
+    let planKey = planTier;
+    if (resolvedCycle === 'annual' && !planKey.includes('_annual')) {
+        planKey = `${planTier}_annual`;
+    } else if (resolvedCycle === 'monthly') {
+        planKey = planTier.replace('_annual', '');
+    }
+
+    activeCheckoutPlan = planKey;
+    const plan = STRIPE_CONFIG.PLANS[planKey] || STRIPE_CONFIG.PLANS[planTier] || STRIPE_CONFIG.PLANS.intermediate;
 
     const modal = document.getElementById('modalStripeCheckout');
     if (!modal) return;
 
+    const periodLabel = plan.period === 'year' ? 'año (12 meses · 2 meses gratis)' : 'mes';
     document.getElementById('stripePlanTitle').innerText = plan.name;
-    document.getElementById('stripePlanPrice').innerText = `$${plan.amount.toLocaleString('es-MX')} MXN / mes`;
-    document.getElementById('stripePayBtnText').innerText = `Pagar $${plan.amount.toLocaleString('es-MX')} MXN y Activar`;
+    document.getElementById('stripePlanPrice').innerText = `${plan.amount.toLocaleString('es-MX')} MXN / ${periodLabel}`;
+    document.getElementById('stripePayBtnText').innerText = `Pagar ${plan.amount.toLocaleString('es-MX')} MXN y Activar`;
 
     // Prefill user email and agency if available
     const activeEmail = sessionStorage.getItem('antigravity_user_email') || sessionStorage.getItem('antigravity_logged_user') || '';
@@ -192,9 +206,11 @@ async function handleStripePaymentSubmit(e) {
             throw new Error(apiData.error);
         }
 
+        const durationDays = plan.durationDays || (plan.period === 'year' ? 365 : 30);
         const nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + 30);
+        nextDate.setDate(nextDate.getDate() + durationDays);
         const nextDueDateStr = nextDate.toISOString().split('T')[0];
+        const baseTier = activeCheckoutPlan.replace('_annual', '');
 
         // 1. Guardar cliente en la base de datos
         const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
@@ -205,7 +221,8 @@ async function handleStripePaymentSubmit(e) {
         const regPhone = sessionStorage.getItem('antigravity_reg_phone') || '+52 81 0000 0000';
 
         if (existingClient) {
-            existingClient.planTier = activeCheckoutPlan;
+            existingClient.planTier = baseTier;
+            existingClient.billingCycle = plan.period || "month";
             existingClient.monthlyFee = plan.amount;
             existingClient.maxWeddings = plan.maxWeddings;
             existingClient.paymentStatus = 'paid';
@@ -225,7 +242,8 @@ async function handleStripePaymentSubmit(e) {
                 plannerName: regPlanner,
                 email: email,
                 phone: regPhone,
-                planTier: activeCheckoutPlan,
+                planTier: baseTier,
+                billingCycle: plan.period || "month",
                 maxWeddings: plan.maxWeddings,
                 monthlyFee: plan.amount,
                 billingCycleDay: new Date().getDate(),
@@ -264,7 +282,8 @@ async function handleStripePaymentSubmit(e) {
         if (demoBanner) demoBanner.style.display = 'none';
 
         // Establecer el plan activo en el almacenamiento local y en el estado de la boda
-        localStorage.setItem('wedding_subscription_tier', activeCheckoutPlan);
+        localStorage.setItem('wedding_subscription_tier', baseTier);
+        localStorage.setItem('wedding_subscription_cycle', plan.period || 'month');
         localStorage.setItem('wedding_subscription_status', 'active');
         localStorage.setItem('wedding_subscription_start_date', new Date().toISOString().split('T')[0]);
         localStorage.removeItem('wedding_subscription_cancelled_at');
