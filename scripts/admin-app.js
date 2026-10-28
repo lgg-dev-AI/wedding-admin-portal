@@ -484,6 +484,7 @@ function setRole(role) {
 }
 
 function showTab(tabName) {
+    if (tabName === 'guests') tabName = 'dispatch';
     currentData = getWeddingState(currentWeddingId);
 
     // Blindaje de seguridad para la Vista Novios:
@@ -492,7 +493,7 @@ function showTab(tabName) {
         if (typeof showToast === 'function') {
             showToast('🔒 Esta sección es exclusiva de la administración de tu Wedding Planner.');
         }
-        tabName = 'guests';
+        tabName = 'dispatch';
     }
 
     // Gatekeeper: Solo aplica para la vista de novios o bodas sin briefing,
@@ -1245,6 +1246,30 @@ function saveGuestForm(e) {
     if (typeof renderDispatchTab === 'function') renderDispatchTab();
     if (typeof renderSeatingChart === 'function') renderSeatingChart();
     renderDashboard();
+}
+
+function deleteGuest(guestId) {
+    currentData = getWeddingState(currentWeddingId);
+    if (!currentData || !currentData.guests) return;
+    const guest = currentData.guests.find(g => g.id === guestId);
+    if (!guest) return;
+
+    if (confirm(`¿Estás seguro de eliminar a "${guest.name}" de la convocatoria?`)) {
+        // Liberar asiento en mesa si estaba asignado
+        if (guest.tableId && currentData.tables) {
+            const tbl = currentData.tables.find(t => t.id === guest.tableId);
+            if (tbl && tbl.guests) {
+                tbl.guests = tbl.guests.filter(gid => gid !== guestId);
+            }
+        }
+        currentData.guests = currentData.guests.filter(g => g.id !== guestId);
+        saveWeddingState(currentWeddingId, currentData);
+        if (typeof renderDispatchTab === 'function') renderDispatchTab();
+        if (typeof renderGuestTable === 'function') renderGuestTable();
+        if (typeof renderSeatingChart === 'function') renderSeatingChart();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        showToast(`🗑️ "${guest.name}" eliminado de la convocatoria.`);
+    }
 }
 
 function addNewTableModal() {

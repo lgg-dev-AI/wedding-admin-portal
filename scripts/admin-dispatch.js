@@ -4,9 +4,17 @@
 // ==========================================================================
 
 let activeDispatchFilter = 'all';
+let activeDispatchSort = 'az';
 let currentGatewayMode = 'meta_api'; // 'meta_api' = Stage 1 Invite, 'qr_gateway' = Stage 2 Reminder, 'manual' = Stage 3 QR + Table
 let previewedGuestId = null;
 let isDispatchingBatch = false;
+
+function setDispatchSort(sortKey) {
+    activeDispatchSort = sortKey;
+    const sortSelect = document.getElementById('dispatchSortOrder');
+    if (sortSelect) sortSelect.value = sortKey;
+    renderDispatchTab();
+}
 
 // PASO 3: Showroom State for Couple & Planner View
 let currentDispatchDisplayMode = 'planner'; // 'planner' or 'showroom'
@@ -315,6 +323,19 @@ function renderDispatchTab() {
     const responseRate = totalFamilies > 0 ? Math.round(((confirmedCount + declinedCount) / totalFamilies) * 100) : 0;
     const sentRate = totalFamilies > 0 ? Math.round((sentGuests / totalFamilies) * 100) : 0;
 
+    // Toggle Destination Pay Header
+    const thDestPay = document.getElementById('thDispatchDestinationPay');
+    if (thDestPay) {
+        thDestPay.style.display = isDestWedding ? 'table-cell' : 'none';
+    }
+
+    // Sync Sidebar Badge
+    const sidebarBadge = document.getElementById('statDispatchPendingBadge');
+    if (sidebarBadge) {
+        sidebarBadge.innerText = `${pendingGuests} por mandar`;
+        sidebarBadge.className = pendingGuests > 0 ? 'menu-badge badge-warning' : 'menu-badge';
+    }
+
     // Update Master Metrics Cards
     const statTotalEl = document.getElementById('statDispatchTotal');
     const statTotalPaxEl = document.getElementById('statDispatchTotalPax');
@@ -362,15 +383,15 @@ function renderDispatchTab() {
     updateTemplateEditorView();
 
     // Filter list
-    let filtered = guests;
+    let filtered = [...guests];
     if (activeDispatchFilter === 'pending') {
-        filtered = guests.filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
+        filtered = filtered.filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
     } else if (activeDispatchFilter === 'sent') {
-        filtered = guests.filter(g => (g.dispatchStatus === 'sent' || g.sentDate) && g.status !== 'confirmed' && g.status !== 'declined');
+        filtered = filtered.filter(g => (g.dispatchStatus === 'sent' || g.sentDate) && g.status !== 'confirmed' && g.status !== 'declined');
     } else if (activeDispatchFilter === 'confirmed') {
-        filtered = guests.filter(g => g.status === 'confirmed');
+        filtered = filtered.filter(g => g.status === 'confirmed');
     } else if (activeDispatchFilter === 'declined') {
-        filtered = guests.filter(g => g.status === 'declined');
+        filtered = filtered.filter(g => g.status === 'declined');
     }
 
     if (dispatchSearchTerm) {
@@ -381,12 +402,21 @@ function renderDispatchTab() {
         );
     }
 
+    // A-Z / Z-A / Passes Sorting
+    if (activeDispatchSort === 'az') {
+        filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'es', { sensitivity: 'base' }));
+    } else if (activeDispatchSort === 'za') {
+        filtered.sort((a, b) => (b.name || '').localeCompare(a.name || '', 'es', { sensitivity: 'base' }));
+    } else if (activeDispatchSort === 'passes') {
+        filtered.sort((a, b) => (b.passes || 1) - (a.passes || 1));
+    }
+
     if (filtered.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="padding: 32px; text-align: center; color: #64748b;">
+                <td colspan="${isDestWedding ? 11 : 10}" style="padding: 32px; text-align: center; color: #64748b;">
                     <div style="font-size: 2rem; margin-bottom: 8px;">📭</div>
-                    <strong>No se encontraron invitados con este filtro</strong>
+                    <strong>No se encontraron familias con este filtro</strong>
                     <p style="font-size: 0.8rem; margin: 4px 0 0;">Intenta seleccionar "Todos" o verifica los términos de búsqueda.</p>
                 </td>
             </tr>
@@ -534,6 +564,45 @@ function renderDispatchTab() {
             ? `<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.74rem; padding:3px 8px; border-radius:6px; white-space:nowrap;">🪑 ${tableName}</span>`
             : `<span style="color:#94a3b8; font-size:0.74rem; font-style:italic;">Por asignar en 2D</span>`;
 
+        // Destination Wedding Payment Math
+        let destPayTd = '';
+        if (isDestWedding) {
+            const guestCostPerPerson = currentData.guestCost || 20000;
+            const totalRequired = (g.passes || 1) * guestCostPerPerson;
+            const paid = g.destinationPaid || (g.status === 'confirmed' ? (g.passes > 1 ? 20000 : 10000) : 0);
+            const remaining = Math.max(0, totalRequired - paid);
+            const pct = Math.min(100, Math.round((paid / totalRequired) * 100));
+            const isLiquidated = paid >= totalRequired;
+
+            destPayTd = `
+                <td style="padding:12px 16px; min-width:130px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; margin-bottom:2px;">
+                        <strong style="color:${isLiquidated ? '#15803d' : '#b45309'}; font-weight:800;">$${paid.toLocaleString('es-MX')}</strong>
+                        <span style="color:#64748b; font-size:0.7rem;">/ $${totalRequired.toLocaleString('es-MX')}</span>
+                    </div>
+                    <div style="background:#e2e8f0; height:5px; border-radius:99px; overflow:hidden; margin-bottom:3px;">
+                        <div style="background:${isLiquidated ? '#10b981' : '#f59e0b'}; width:${pct}%; height:100%;"></div>
+                    </div>
+                    <span style="font-size:0.68rem; font-weight:700; color:${isLiquidated ? '#15803d' : remaining > 0 ? '#b91c1c' : '#64748b'};">
+                        ${isLiquidated ? '✓ 100% Liquidado' : `Resta: $${remaining.toLocaleString('es-MX')} (${pct}%)`}
+                    </span>
+                </td>
+            `;
+        }
+
+        const actionsTd = `
+            <td style="padding:12px 14px; text-align:center; white-space:nowrap;">
+                <div style="display:inline-flex; gap:4px; align-items:center;">
+                    <button type="button" class="btn-action secondary" style="padding:5px 8px; font-size:0.75rem; font-weight:700; border-radius:6px;" onclick="editGuest('${g.id}')" title="Editar datos o preferencias de la familia">
+                        ✏️ Editar
+                    </button>
+                    <button type="button" class="btn-action secondary" style="padding:5px 7px; font-size:0.75rem; color:#dc2626; border-color:#fca5a5; background:#fff1f2; border-radius:6px;" onclick="deleteGuest('${g.id}')" title="Eliminar de la convocatoria">
+                        🗑️
+                    </button>
+                </div>
+            </td>
+        `;
+
         return `
             <tr style="border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding:12px 18px; text-align:center;">
@@ -555,6 +624,7 @@ function renderDispatchTab() {
                 <td style="padding:12px 16px;">
                     ${menuAllergyHtml}
                 </td>
+                ${destPayTd}
                 <td style="padding:12px 16px;">
                     ${dispatchStatusHtml}
                 </td>
@@ -564,6 +634,7 @@ function renderDispatchTab() {
                 <td style="padding:12px 18px; text-align:right; white-space:nowrap;">
                     ${actionBtnHtml}
                 </td>
+                ${actionsTd}
             </tr>
         `;
     }).join('');

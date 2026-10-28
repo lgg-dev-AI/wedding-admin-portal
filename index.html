@@ -170,18 +170,14 @@
                         <span class="accordion-chevron">▾</span>
                     </button>
                     <div class="menu-accordion-body" id="acc-body-guests">
-                        <button class="menu-item" onclick="showTab('guests')">
-                            <span class="sub-dot"></span>
-                            <span class="menu-text">Lista de Invitados &amp; Menú</span>
-                        </button>
                         <button class="menu-item" onclick="showTab('dispatch')">
                             <span class="sub-dot"></span>
-                            <span class="menu-text">Envíos WhatsApp</span>
-                            <span class="menu-badge badge-warning" id="statDispatchPendingBadge">27 por mandar</span>
+                            <span class="menu-text">📲 Convocatoria &amp; Envíos WhatsApp</span>
+                            <span class="menu-badge badge-warning" id="statDispatchPendingBadge">0 por mandar</span>
                         </button>
                         <button class="menu-item" onclick="showTab('seating')">
                             <span class="sub-dot"></span>
-                            <span class="menu-text">Distribución de Mesas 2D</span>
+                            <span class="menu-text">🪑 Distribución de Mesas 2D</span>
                             <span class="menu-badge" id="badgeSeatingPending">8 pendientes</span>
                         </button>
                     </div>
@@ -599,10 +595,10 @@
                 <div class="tab-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
                     <div style="flex:1; min-width:320px;">
                         <div class="d-flex align-center gap-2 mb-1" style="flex-wrap:wrap;">
-                            <h1 class="tab-title" style="margin:0;">📲 Envíos de Invitaciones (WhatsApp)</h1>
-                            <span class="badge-accent">Personalización Automática de Pases y Mesas</span>
+                            <h1 class="tab-title" style="margin:0;">📲 Convocatoria &amp; Envíos WhatsApp</h1>
+                            <span class="badge-accent">Padrón Maestro, Mensajes Oficiales &amp; Confirmaciones</span>
                         </div>
-                        <p class="tab-subtitle" style="margin:4px 0 0;">Elige la plantilla según la etapa de tu boda, revisa cómo le llegará el mensaje a cada familia con sus pases exactos y lleva el control de a quién ya se le envió y quién falta.</p>
+                        <p class="tab-subtitle" style="margin:4px 0 0;">Registra a tus invitados, revisa el mensaje oficial según la etapa de tu boda y lleva el control en tiempo real de envíos, confirmaciones y estancia.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex-shrink:0;">
                         <!-- SUBVIEW TOGGLE FOR PLANNER / DEV -->
@@ -614,7 +610,13 @@
                                 👁️ Showroom Novios
                             </button>
                         </div>
-                        <button class="btn-action secondary planner-only" onclick="printGuestsMasterReport()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
+                        <button type="button" class="btn-action" id="btnSyncWebRsvp" onclick="syncLiveWebRsvps(true)" style="background:#0f766e; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(15,118,110,0.25); padding:10px 14px;" title="Sincronizar confirmaciones recibidas en las invitaciones web">
+                            <span id="syncRsvpIcon">🔄</span> Sincronizar RSVPs Web
+                        </button>
+                        <button type="button" class="btn-action secondary planner-only" onclick="openImportGuestsModal()" style="border-color:#3b82f6; color:#1d4ed8; font-weight:700; padding:10px 14px;">
+                            📥 Importar Excel / CSV
+                        </button>
+                        <button class="btn-action secondary planner-only" onclick="printGuestsMasterReport()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 14px;">
                             <span>🖨️ Imprimir Bitácora (PDF)</span>
                         </button>
                         <button class="btn-action primary planner-only" id="btnBatchDispatch" onclick="openBatchDispatchModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:10px 16px;">
@@ -664,17 +666,42 @@
                         </div>
                     </div>
 
-                    <!-- SELECTOR DE PLANTILLA Y ETAPA CON TEXTO Y BOTONES ULTRA CLAROS -->
+                    <!-- PASO 1: PADRÓN MAESTRO DE CONVOCATORIA (REGISTRO RÁPIDO DE FAMILIAS & PASES) -->
+                    <div class="section-card mb-4" style="background:#ffffff; border:2px solid #cbd5e1; border-radius:14px; padding:22px 24px; box-shadow:0 4px 18px rgba(0,0,0,0.04);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                            <div style="max-width:760px;">
+                                <span style="font-size:0.75rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px;">
+                                    Paso 1 · Padrón Maestro de Convocatoria
+                                </span>
+                                <h3 style="margin:0; font-size:1.25rem; font-weight:900; color:#0f172a; font-family:'Playfair Display', serif;">
+                                    Registra a las familias e invitados para enviar su invitación
+                                </h3>
+                                <p style="margin:6px 0 0; font-size:0.84rem; color:#475569; line-height:1.5;">
+                                    Aquí das de alta a cada invitado únicamente con su <strong>nombre de familia</strong>, su número de <strong>WhatsApp</strong> y la cantidad de <strong>pases reservados</strong>. No te preocupes por nombres de acompañantes, menús ni alergias: esa información la llenan ellos mismos al abrir su invitación interactiva.
+                                </p>
+                            </div>
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" class="btn-action primary" onclick="showQuickAddModal()" style="font-size:0.88rem; font-weight:800; padding:12px 22px; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(16,185,129,0.25);">
+                                    <span>+ Registrar Familia / Invitado</span>
+                                </button>
+                                <button type="button" class="btn-action secondary planner-only" onclick="openImportGuestsModal()" style="font-size:0.82rem; font-weight:700; padding:10px 16px; border-color:#3b82f6; color:#1d4ed8;">
+                                    <span>📥 Importar Excel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 2: SELECTOR DE PLANTILLA Y ETAPA CON TEXTO Y BOTONES ULTRA CLAROS -->
                     <div class="section-card mb-4" style="background: #ffffff; border: 2px solid #cbd5e1; border-radius: 14px; padding: 22px 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.04);">
                         <div style="margin-bottom: 16px;">
                             <span style="font-size:0.75rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px;">
-                                Paso 1 · Selecciona la Etapa del Evento
+                                Paso 2 · Mensaje Oficial &amp; Etapas de Comunicación
                             </span>
                             <h3 style="margin:0; font-size:1.25rem; font-weight:900; color:#0f172a; font-family:'Playfair Display', serif;">
                                 ¿Qué mensaje deseas enviar a tus invitados?
                             </h3>
                             <p style="margin:4px 0 0; font-size:0.82rem; color:#64748b;">
-                                Elige la etapa de comunicación para cargar automáticamente los textos correspondientes.
+                                Posterior a registrar a tus familias, elige la etapa de la boda para cargar automáticamente los textos correspondientes.
                             </p>
                         </div>
 
@@ -790,10 +817,22 @@
                         </div>
                     </div>
 
-                    <!-- DATA-GRID MAESTRO DE INVITACIONES & RECORDATORIOS -->
+                    <!-- PASO 3: BITÁCORA MAESTRA DE ENVÍOS, CONFIRMACIONES & CONTROL DE ESTANCIA -->
                     <div class="section-card" style="background:#ffffff; border:1.5px solid #e2e8f0; padding:0; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+                        <div style="padding:16px 20px; background:#ffffff; border-bottom:1px solid #e2e8f0;">
+                            <span style="font-size:0.75rem; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:2px;">
+                                Paso 3 · Bitácora Maestra de Envíos &amp; Confirmaciones
+                            </span>
+                            <h4 style="margin:0; font-size:1.15rem; font-weight:800; color:#0f172a; font-family:'Playfair Display', serif;">
+                                Control de Entrega WhatsApp, Respuestas RSVP y Pases Confirmados
+                            </h4>
+                            <p style="margin:4px 0 0; font-size:0.78rem; color:#64748b;">
+                                Monitorea a quién se le ha enviado la invitación, qué familias ya confirmaron sus pases definitivos y el estatus de su mesa o estancia.
+                            </p>
+                        </div>
+
                         <!-- TOOLBAR & FILTERS -->
-                        <div style="padding:16px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div style="padding:14px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                             <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                                 <button class="dispatch-filter-pill active" onclick="filterDispatch('all')">📋 Todos (<span id="filterCountAll">10</span>)</button>
                                 <button class="dispatch-filter-pill" onclick="filterDispatch('pending')">🚨 Por Mandar (<span id="filterCountPending">0</span>)</button>
@@ -802,9 +841,17 @@
                                 <button class="dispatch-filter-pill" onclick="filterDispatch('declined')">❌ Declinaron (<span id="filterCountDeclined">0</span>)</button>
                             </div>
 
-                            <div style="display:flex; gap:10px; align-items:center;">
-                                <input type="text" id="dispatchSearchInput" placeholder="🔍 Buscar por nombre o teléfono..." onkeyup="searchDispatchGuests(this.value)" style="padding:8px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.82rem; min-width:240px; color:#0f172a; outline:none;">
-                                <button class="btn-action primary" onclick="showQuickAddModal()" style="font-size:0.8rem; padding:8px 14px;">+ Agregar Familia</button>
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.75rem; font-weight:800; color:#475569; text-transform:uppercase;">🔤 Orden:</span>
+                                    <select id="dispatchSortOrder" onchange="setDispatchSort(this.value)" class="form-select" style="font-size:0.78rem; font-weight:700; padding:6px 10px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                                        <option value="az">A ➔ Z (Alfabético A-Z)</option>
+                                        <option value="za">Z ➔ A (Alfabético Z-A)</option>
+                                        <option value="passes">Más Pases Primero</option>
+                                    </select>
+                                </div>
+                                <input type="text" id="dispatchSearchInput" placeholder="🔍 Buscar por nombre o teléfono..." onkeyup="searchDispatchGuests(this.value)" style="padding:7px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.82rem; min-width:200px; color:#0f172a; outline:none;">
+                                <button class="btn-action primary" onclick="showQuickAddModal()" style="font-size:0.8rem; padding:8px 14px;">+ Registrar Familia</button>
                             </div>
                         </div>
 
@@ -817,13 +864,15 @@
                                             <input type="checkbox" id="selectAllDispatch" onchange="toggleSelectAllDispatch(this.checked)" title="Seleccionar todos">
                                         </th>
                                         <th style="padding:12px 18px;">Invitado / Familia</th>
-                                        <th style="padding:12px 16px;">Teléfono</th>
+                                        <th style="padding:12px 16px;">WhatsApp</th>
                                         <th style="padding:12px 16px; text-align:center;">Pases</th>
                                         <th style="padding:12px 16px;">Mesa</th>
                                         <th style="padding:12px 16px;">Menú &amp; Alergias</th>
-                                        <th style="padding:12px 16px;">Estado de Envío</th>
+                                        <th id="thDispatchDestinationPay" style="display:none; padding:12px 16px;">🏖️ Pago Estancia</th>
+                                        <th style="padding:12px 16px;">Estado Envío</th>
                                         <th style="padding:12px 16px;">Estado RSVP</th>
                                         <th style="padding:12px 18px; text-align:right;">Acción WhatsApp</th>
+                                        <th style="padding:12px 16px; text-align:center;">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dispatchGuestsTableBody">
@@ -2713,72 +2762,7 @@
             </section>
 
 
-            <!-- TAB 3: CRM INVITADOS & MENÚ -->
-            <section id="tab-guests" class="tab-pane">
-                <div class="tab-header">
-                    <div>
-                        <h1 class="tab-title">👥 Lista Maestra de Invitados &amp; Menú</h1>
-                        <p class="tab-subtitle">Control de confirmación de asistencia, acompañantes, platillos y pases VIP con QR.</p>
-                    </div>
-                    <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button type="button" class="btn-action" id="btnSyncWebRsvp" onclick="syncLiveWebRsvps(true)" style="background:#0f766e; color:#ffffff; font-weight:700; border:none; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(15,118,110,0.25);" title="Sincronizar confirmaciones recibidas en las invitaciones web">
-                            <span id="syncRsvpIcon">🔄</span> Sincronizar RSVPs Web
-                        </button>
-                        <button type="button" class="btn-action secondary" onclick="openImportGuestsModal()" style="border-color:#3b82f6; color:#1d4ed8; font-weight:700;">📥 Importar Excel / CSV</button>
-                        <button class="btn-action secondary" onclick="printGuestsMasterReport()">🖨️ Imprimir Lista Maestra (PDF)</button>
-                        <button class="btn-action primary" onclick="showQuickAddModal()">+ Agregar Invitado</button>
-                    </div>
-                </div>
-
-                    <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; flex:1;">
-                            <div class="filter-search-wrap" style="flex:1; min-width:260px;">
-                                <input type="text" id="guestSearchInput" class="input-search" placeholder="🔍 Buscar por nombre, teléfono o mesa..." oninput="filterGuestTable()">
-                            </div>
-                            <div class="filter-pills">
-                                <button class="filter-pill active" onclick="setGuestFilter('all')">Todos (<span id="countAll">0</span>)</button>
-                                <button class="filter-pill" onclick="setGuestFilter('confirmed')">✓ Confirmados (<span id="countConf">0</span>)</button>
-                                <button class="filter-pill" onclick="setGuestFilter('pending')">⏳ Pendientes (<span id="countPend">0</span>)</button>
-                                <button class="filter-pill" onclick="setGuestFilter('declined')">✕ Declinados (<span id="countDecl">0</span>)</button>
-                            </div>
-                        </div>
-
-                        <!-- ORDENAMIENTO ALFABÉTICO Y FILTRO A-Z -->
-                        <div class="sort-guests-wrap" style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:0.75rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:0.04em;">🔤 Orden:</span>
-                            <select id="guestSortOrder" onchange="setGuestSort(this.value)" class="form-select" style="font-size:0.78rem; font-weight:700; padding:6px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
-                                <option value="az">A ➔ Z (Alfabético A-Z)</option>
-                                <option value="za">Z ➔ A (Alfabético Z-A)</option>
-                                <option value="default">Por Defecto (Orden de Registro)</option>
-                                <option value="passes">Más Pases (+1 primero)</option>
-                            </select>
-                            <button type="button" id="btnSortAZ" class="btn-action secondary" onclick="toggleQuickAZSort()" style="padding:6px 10px; font-size:0.78rem; font-weight:800; display:flex; align-items:center; gap:4px; background:#f8fafc; border:1.5px solid #cbd5e1;" title="Invertir orden alfabético A-Z / Z-A">
-                                <span id="iconSortAZ">⬇️ A-Z</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="data-table" id="guestsTable">
-                            <thead>
-                                <tr>
-                                    <th>Invitado Titular</th>
-                                    <th>Contacto (WhatsApp / Email)</th>
-                                    <th>Pases &amp; Acompañante</th>
-                                    <th>Menú Seleccionado</th>
-                                    <th>Restricciones / Alergias</th>
-                                    <th>Mesa</th>
-                                    <th id="thGuestDestinationPay" style="display:none;">🏖️ Pago Estancia</th>
-                                    <th>Estatus RSVP</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="guestsTableBody">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-            </section>
+            <!-- NOTA DE ARQUITECTURA: El módulo de Lista de Invitados & Menú fue unificado en 'tab-dispatch' (📲 Convocatoria & Envíos WhatsApp) en una suite integral de 3 pasos -->
 
 
             <!-- TAB 4: REDESIGNED LUXURY COMPROBANTES & REGALOS -->
@@ -3874,7 +3858,7 @@
 
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-dispatch.js?v=20261028_convocatoria_v1"></script>
+    <script src="scripts/admin-dispatch.js?v=20261028_convocatoria_v2"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261025_planner_shield_v9"></script>
@@ -3887,7 +3871,7 @@
     <script src="scripts/admin-budget-estimator.js?v=20261026_print_fix_v1"></script>
     <script src="scripts/admin-contracts.js?v=20261026_widescreen_v9"></script>
     <script src="scripts/admin-design-studio.js?v=20261026_print_fix_v1"></script>
-    <script src="scripts/admin-app.js?v=20261028_convocatoria_v1"></script>
+    <script src="scripts/admin-app.js?v=20261028_convocatoria_v2"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
