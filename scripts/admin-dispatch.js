@@ -46,12 +46,12 @@ const DEFAULT_WHATSAPP_TEMPLATES = {
     // ETAPA 1: INVITACIÓN OFICIAL & CONFIRMACIÓN (3 VARIANTES)
     // =========================================================================
     meta_api: {
-        // Opción 1: Aprobada Oficial en Meta (notificacion_reservas_bodas - APPROVED)
+        // Opción 1: Aprobada Oficial en Meta (notificacion_reservas_bodas - Formal y Detallada)
         opt1: `Estimado(a) {nombre_familia},\n\nLe notificamos que su registro de asistencia cuenta con {pases} reservados para el evento de {novios} ({fecha} en {lugar}).\n\nPara confirmar su asistencia y validar sus accesos, favor de ingresar a su enlace digital oficial:\n{link_invitacion}\n\nFavor de completar su registro. Gracias.`,
-        // Opción 2: Formal Ejecutivo
-        opt2: `Apreciable {nombre_familia},\n\nCon motivo del enlace matrimonial de *{novios}*, le informamos que tiene asignados {pases} de honor para la recepción en {lugar} este {fecha}.\n\nLe solicitamos validar su confirmación de lugares y requerimientos especiales en el portal:\n👉 {link_invitacion}\n\nEsperamos contar con su distinguida presencia.`,
-        // Opción 3: Cálido & Emotivo
-        opt3: `¡Hola {nombre_familia}! 💍✨\n\nCon inmensa alegría, *{novios}* te comparten su invitación para celebrar su boda el *{fecha}* en *{lugar}*.\n\nHemos reservado con mucho cariño: *{pases}*.\n\nPor favor ingresa a tu enlace interactivo para conocer el programa y confirmar tu asistencia:\n👉 {link_invitacion}\n\n¡Será un honor compartir este día contigo!`
+        // Opción 2: Aprobada Oficial en Meta (aviso_invitacion_boda - Cercano y Directo)
+        opt2: `Hola {nombre_familia},\n\nTe notificamos que tus {pases} reservados para la boda se encuentran listos para confirmacion en tu enlace digital:\n\n{link_invitacion}\n\nFavor de confirmar.`,
+        // Opción 3: Aprobada Oficial en Meta (invitacion_oficial_boda - Ejecutivo y Conciso)
+        opt3: `Estimado/a {nombre_familia},\n\nLe notificamos que sus {pases} reservados para la celebracion de la boda se encuentran listos para confirmacion en su enlace digital:\n\n{link_invitacion}\n\nFavor de confirmar su asistencia. Gracias.`
     },
 
     // =========================================================================
@@ -202,6 +202,120 @@ function buildPlannerWhatsAppText(guest, mode, data) {
         .replace(/{abono_sugerido}/g, suggestedMonthlyStr)
         .replace(/{fecha_limite}/g, deadlineStr)
         .replace(/{link_pagos}/g, linkPagosStr);
+}
+
+function getMetaCloudTemplatePayload(guest, mode, option, data) {
+    const liveUrl = (data && data.liveUrl) ? data.liveUrl : 'https://aura-wedding-experience.vercel.app';
+    const guestName = (guest && guest.name) ? guest.name : 'Familia Invitada';
+    const passCount = (guest && guest.passes) ? guest.passes : 2;
+    const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
+    const coupleText = (data && data.couple) ? data.couple : 'Sofía & Alejandro';
+    const dateText = (data && data.date) ? data.date : '24 de Octubre, 2027';
+    const venueText = (data && data.venue) ? data.venue : 'Hacienda Fundadores';
+
+    if (mode === 'meta_api' || mode === 'manual') {
+        if (option === 'opt2') {
+            return {
+                name: 'aviso_invitacion_boda',
+                language: 'es_MX',
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            { type: 'text', text: guestName },
+                            { type: 'text', text: passText },
+                            { type: 'text', text: liveUrl }
+                        ]
+                    }
+                ]
+            };
+        } else if (option === 'opt3') {
+            return {
+                name: 'invitacion_oficial_boda',
+                language: 'es_MX',
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            { type: 'text', text: guestName },
+                            { type: 'text', text: passText },
+                            { type: 'text', text: liveUrl }
+                        ]
+                    }
+                ]
+            };
+        } else {
+            return {
+                name: 'notificacion_reservas_bodas',
+                language: 'es_MX',
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            { type: 'text', text: guestName },
+                            { type: 'text', text: passText },
+                            { type: 'text', text: coupleText },
+                            { type: 'text', text: dateText },
+                            { type: 'text', text: venueText },
+                            { type: 'text', text: liveUrl }
+                        ]
+                    }
+                ]
+            };
+        }
+    } else if (mode === 'qr_gateway') {
+        if (option === 'opt2') {
+            return {
+                name: 'recordatorio_reserva_boda',
+                language: 'es_MX',
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            { type: 'text', text: guestName },
+                            { type: 'text', text: passText },
+                            { type: 'text', text: coupleText },
+                            { type: 'text', text: dateText },
+                            { type: 'text', text: liveUrl }
+                        ]
+                    }
+                ]
+            };
+        } else {
+            return {
+                name: 'notificacion_reserva_boda',
+                language: 'es_MX',
+                components: [
+                    {
+                        type: 'body',
+                        parameters: [
+                            { type: 'text', text: guestName },
+                            { type: 'text', text: passText },
+                            { type: 'text', text: liveUrl }
+                        ]
+                    }
+                ]
+            };
+        }
+    }
+
+    return {
+        name: 'notificacion_reservas_bodas',
+        language: 'es_MX',
+        components: [
+            {
+                type: 'body',
+                parameters: [
+                    { type: 'text', text: guestName },
+                    { type: 'text', text: passText },
+                    { type: 'text', text: coupleText },
+                    { type: 'text', text: dateText },
+                    { type: 'text', text: venueText },
+                    { type: 'text', text: liveUrl }
+                ]
+            }
+        ]
+    };
 }
 
 function renderWhatsAppPhonePreview(guest, data) {
@@ -867,23 +981,7 @@ async function sendSampleToCoupleWhatsApp() {
                 venue: currentData.venue || 'Hacienda Fundadores',
                 liveUrl: liveUrl,
                 message: rawText,
-                template: {
-                    name: 'notificacion_reservas_bodas',
-                    language: 'es_MX',
-                    components: [
-                        {
-                            type: 'body',
-                            parameters: [
-                                { type: 'text', text: 'Luis González Garza' },
-                                { type: 'text', text: '2 pases' },
-                                { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
-                                { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
-                                { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
-                                { type: 'text', text: liveUrl }
-                            ]
-                        }
-                    ]
-                }
+                template: getMetaCloudTemplatePayload({ name: 'Luis González Garza', passes: 2 }, currentGatewayMode, currentTemplateOption, currentData)
             })
         });
 
@@ -1123,23 +1221,7 @@ async function sendAutomatedSingleMessage(guestId) {
     const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
     const personalizedMessage = buildPlannerWhatsAppText(guest, currentGatewayMode, currentData);
 
-    const templatePayload = {
-        name: 'notificacion_reservas_bodas',
-        language: 'es_MX',
-        components: [
-            {
-                type: 'body',
-                parameters: [
-                    { type: 'text', text: guest.name || 'Familia' },
-                    { type: 'text', text: passText },
-                    { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
-                    { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
-                    { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
-                    { type: 'text', text: liveUrl }
-                ]
-            }
-        ]
-    };
+    const templatePayload = getMetaCloudTemplatePayload(guest, currentGatewayMode, currentTemplateOption, currentData);
 
     if (typeof showToast === 'function') {
         showToast(`🚀 Disparando mensaje oficial vía Meta Cloud API a ${guest.name}...`);
@@ -1208,15 +1290,21 @@ function openBatchDispatchModal() {
     const modal = document.getElementById('batchDispatchModal');
     if (!modal) return;
 
+    const optLabel = currentTemplateOption === 'opt2'
+        ? 'Opción 2 (Cercano & Directo - aviso_invitacion_boda)'
+        : currentTemplateOption === 'opt3'
+            ? 'Opción 3 (Ejecutivo & Conciso - invitacion_oficial_boda)'
+            : 'Opción 1 (Formal & Detallado - notificacion_reservas_bodas)';
+
     document.getElementById('batchPendingCount').innerText = `${pendingGuests.length} familias`;
     document.getElementById('batchEstCost').innerText = `Incluido en tu Plan`;
     document.getElementById('batchProgressBarInner').style.width = '0%';
     document.getElementById('batchLogConsole').innerHTML = `
         <div style="background:#064e3b; border:1.5px solid #10b981; color:#ecfdf5; padding:10px 14px; border-radius:8px; margin-bottom:10px; font-size:0.78rem; line-height:1.45;">
             🛡️ <strong style="color:#ffffff;">Modo Anti-Bloqueo de WhatsApp Activado:</strong><br>
-            <span style="color:#a7f3d0;">Para proteger tu número de WhatsApp y reputación de Meta, las invitaciones se despachan con una cadencia natural de seguridad entre cada contacto.</span>
+            <span style="color:#a7f3d0;">Plantilla activa: <strong>${optLabel}</strong>. Se despachará con pausa de seguridad natural entre contactos.</span>
         </div>
-        <div class="log-line info">⚡ Listo para enviar a las familias pendientes. Haz clic en "Iniciar Envío Automático".</div>`;
+        <div class="log-line info">⚡ Listo para enviar a las ${pendingGuests.length} familias pendientes usando "${optLabel}".</div>`;
 
     document.getElementById('btnStartBatchExecution').style.display = 'inline-flex';
     document.getElementById('btnCancelBatch').style.display = 'inline-flex';
@@ -1263,62 +1351,8 @@ async function startBatchExecution() {
             const passCount = guest.passes || 1;
             const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
 
-            // Mapeo a plantillas activas y 100% aprobadas en Meta Cloud API (APPROVED)
-            let templatePayload = null;
-            if (currentGatewayMode === 'meta_api' && currentTemplateOption === 'opt1') {
-                // Utiliza la plantilla maestra verificada notificacion_reservas_bodas (APPROVED)
-                templatePayload = {
-                    name: 'notificacion_reservas_bodas',
-                    language: 'es_MX',
-                    components: [
-                        {
-                            type: 'body',
-                            parameters: [
-                                { type: 'text', text: guest.name || 'Familia' },
-                                { type: 'text', text: passText },
-                                { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
-                                { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
-                                { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
-                                { type: 'text', text: liveUrl }
-                            ]
-                        }
-                    ]
-                };
-            } else if (currentGatewayMode === 'qr_gateway' && currentTemplateOption === 'opt1') {
-                // Utiliza la plantilla de recordatorio verificada notificacion_reserva_boda (APPROVED)
-                templatePayload = {
-                    name: 'notificacion_reserva_boda',
-                    language: 'es_MX',
-                    components: [
-                        {
-                            type: 'body',
-                            parameters: [
-                                { type: 'text', text: guest.name || 'Familia' },
-                                { type: 'text', text: passText },
-                                { type: 'text', text: liveUrl }
-                            ]
-                        }
-                    ]
-                };
-            } else if (currentGatewayMode === 'manual' && currentTemplateOption === 'opt1') {
-                templatePayload = {
-                    name: 'notificacion_reservas_bodas',
-                    language: 'es_MX',
-                    components: [
-                        {
-                            type: 'body',
-                            parameters: [
-                                { type: 'text', text: guest.name || 'Familia' },
-                                { type: 'text', text: passText },
-                                { type: 'text', text: currentData.couple || 'Sofía & Alejandro' },
-                                { type: 'text', text: currentData.date || '24 de Octubre, 2027' },
-                                { type: 'text', text: currentData.venue || 'Hacienda Fundadores' },
-                                { type: 'text', text: liveUrl }
-                            ]
-                        }
-                    ]
-                };
-            }
+            // Mapeo dinámico a plantillas oficiales según la opción seleccionada (opt1, opt2, opt3)
+            const templatePayload = getMetaCloudTemplatePayload(guest, currentGatewayMode, currentTemplateOption, currentData);
 
             const response = await fetch('/api/send-whatsapp', {
                 method: 'POST',
