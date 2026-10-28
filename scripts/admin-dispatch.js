@@ -473,12 +473,14 @@ function renderDispatchTab() {
         };
 
         const g1MenuText = formatMenuName(g.guest1Menu || g.menu);
-        const g1AllergyText = g.guest1Allergies || g.allergies || 'Ninguna';
-        const hasG1Allergy = g1AllergyText && g1AllergyText.toLowerCase() !== 'ninguna';
+        const g1AllergyText = g.guest1Allergies || g.allergies || '';
+        const hasG1Allergy = g1AllergyText && g1AllergyText.toLowerCase() !== 'ninguna' && g1AllergyText.trim() !== '';
 
         let menuAllergyHtml = '';
         if (g.status === 'declined') {
-            menuAllergyHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">No aplica (Declinó)</span>';
+            menuAllergyHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">No asiste</span>';
+        } else if (g.status === 'pending') {
+            menuAllergyHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">⏳ Por elegir en invitación</span>';
         } else if (passCount === 1) {
             menuAllergyHtml = `
                 <div>
@@ -490,8 +492,8 @@ function renderDispatchTab() {
             `;
         } else {
             const g2MenuText = formatMenuName(g.companionMenu || (g.menu === 'salmon' ? 'filete' : 'salmon'));
-            const g2AllergyText = g.companionAllergies || 'Ninguna';
-            const hasG2Allergy = g2AllergyText && g2AllergyText.toLowerCase() !== 'ninguna';
+            const g2AllergyText = g.companionAllergies || '';
+            const hasG2Allergy = g2AllergyText && g2AllergyText.toLowerCase() !== 'ninguna' && g2AllergyText.trim() !== '';
 
             menuAllergyHtml = `
                 <div style="display:flex; flex-direction:column; gap:4px; font-size:0.74rem;">
@@ -507,6 +509,31 @@ function renderDispatchTab() {
             `;
         }
 
+        // Passes badge
+        let passBadgeHtml = '';
+        if (g.status === 'declined') {
+            passBadgeHtml = `<span style="background:#fee2e2; color:#991b1b; font-weight:700; font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #fca5a5;">0 (${passCount} lib.)</span>`;
+        } else if (g.status === 'pending') {
+            passBadgeHtml = `
+                <span style="background:#fef3c7; color:#92400e; font-weight:800; font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #fde68a; display:inline-block;">
+                    🎟️ ${passCount} reservados
+                </span>
+                <small style="display:block; color:#64748b; font-size:0.68rem; margin-top:2px;">Por responder</small>
+            `;
+        } else {
+            const confirmedCount = g.confirmedPasses || passCount;
+            passBadgeHtml = `
+                <span style="background:#dcfce7; color:#15803d; font-weight:800; font-size:0.75rem; padding:3px 8px; border-radius:6px; border:1px solid #86efac; display:inline-block;">
+                    ✓ ${confirmedCount} de ${passCount}
+                </span>
+            `;
+        }
+
+        // Table label
+        const displayTableHtml = (g.status === 'confirmed' && g.tableId)
+            ? `<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.74rem; padding:3px 8px; border-radius:6px; white-space:nowrap;">🪑 ${tableName}</span>`
+            : `<span style="color:#94a3b8; font-size:0.74rem; font-style:italic;">Por asignar en 2D</span>`;
+
         return `
             <tr style="border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding:12px 18px; text-align:center;">
@@ -520,14 +547,10 @@ function renderDispatchTab() {
                     ${g.phone || '<span style="color:#94a3b8;">Sin teléfono</span>'}
                 </td>
                 <td style="padding:12px 16px; text-align:center;">
-                    <span style="background:#f1f5f9; color:#0f172a; font-weight:800; font-size:0.78rem; padding:3px 8px; border-radius:6px; border:1px solid #e2e8f0;">
-                        🎟️ ${passCount}
-                    </span>
+                    ${passBadgeHtml}
                 </td>
                 <td style="padding:12px 16px;">
-                    <span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.74rem; padding:3px 8px; border-radius:6px; white-space:nowrap;">
-                        🪑 ${tableName}
-                    </span>
+                    ${displayTableHtml}
                 </td>
                 <td style="padding:12px 16px;">
                     ${menuAllergyHtml}
@@ -785,12 +808,21 @@ function renderCoupleShowroomData() {
         const passCount = g.passes || 1;
 
         let rsvpStatusHtml = '';
+        let passBadgeHtml = '';
+        let tableBadgeHtml = '';
+
         if (g.status === 'confirmed') {
             rsvpStatusHtml = `<span style="background:#dcfce7; color:#15803d; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #86efac; display:inline-flex; align-items:center; gap:4px;">✅ Confirmado</span>`;
+            passBadgeHtml = `<span style="background:#dcfce7; color:#15803d; font-weight:800; font-size:0.78rem; padding:3px 10px; border-radius:12px;">✓ ${g.confirmedPasses || passCount} de ${passCount}</span>`;
+            tableBadgeHtml = `<span style="color:#334155; font-weight:600; font-size:0.8rem;">🪑 ${g.tableId ? tableName : 'Por asignar'}</span>`;
         } else if (g.status === 'declined') {
             rsvpStatusHtml = `<span style="background:#fee2e2; color:#991b1b; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #fca5a5; display:inline-flex; align-items:center; gap:4px;">❌ Declinó</span>`;
+            passBadgeHtml = `<span style="background:#fee2e2; color:#991b1b; font-weight:700; font-size:0.78rem; padding:3px 10px; border-radius:12px;">0 (${passCount} lib.)</span>`;
+            tableBadgeHtml = `<span style="color:#94a3b8; font-size:0.8rem;">—</span>`;
         } else {
             rsvpStatusHtml = `<span style="background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:6px; border:1px solid #fde68a; display:inline-flex; align-items:center; gap:4px;">⏳ Pendiente</span>`;
+            passBadgeHtml = `<span style="background:#fef3c7; color:#92400e; font-weight:800; font-size:0.78rem; padding:3px 10px; border-radius:12px;">🎟️ ${passCount} reservados</span>`;
+            tableBadgeHtml = `<span style="color:#94a3b8; font-size:0.8rem; font-style:italic;">Por asignar</span>`;
         }
 
         let sentStatusHtml = isSent 
@@ -804,14 +836,10 @@ function renderCoupleShowroomData() {
                     <small style="color:#64748b; font-size:0.75rem;">${g.phone || 'Sin teléfono'}</small>
                 </td>
                 <td style="padding:12px 14px; text-align:center;">
-                    <span style="background:#e0f2fe; color:#0369a1; font-weight:800; font-size:0.78rem; padding:3px 10px; border-radius:12px;">
-                        ${passCount} ${passCount === 1 ? 'pase' : 'pases'}
-                    </span>
+                    ${passBadgeHtml}
                 </td>
                 <td style="padding:12px 14px;">
-                    <span style="color:#334155; font-weight:600; font-size:0.8rem;">
-                        🪑 ${tableName}
-                    </span>
+                    ${tableBadgeHtml}
                 </td>
                 <td style="padding:12px 14px; text-align:center;">
                     ${sentStatusHtml}

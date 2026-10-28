@@ -923,23 +923,29 @@ function renderGuestTable() {
         }
 
         // Titular Preferences
+        const isPending = g.status === 'pending';
+        const isDeclined = g.status === 'declined';
         const titularMenu = g.guest1Menu || g.menu || 'filete';
         const titularAllergy = g.guest1Allergies || g.allergies || '';
         const hasTitularAllergy = titularAllergy && titularAllergy.toLowerCase() !== 'ninguna' && titularAllergy.trim() !== '';
 
         // Companion Preferences
-        const compName = g.companion || 'Acompañante';
+        const compName = g.companion || '';
         const compMenu = g.companionMenu || (titularMenu === 'salmon' ? 'filete' : 'salmon');
         const compAllergy = g.companionAllergies || '';
         const hasCompAllergy = compAllergy && compAllergy.toLowerCase() !== 'ninguna' && compAllergy.trim() !== '';
 
         // Menu Column HTML
         let menuHtml = '';
-        if (isCouple) {
+        if (isDeclined) {
+            menuHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">No asiste</span>';
+        } else if (isPending) {
+            menuHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">⏳ Por elegir en invitación</span>';
+        } else if (isCouple && compName) {
             menuHtml = `
                 <div style="display:flex; flex-direction:column; gap:4px; font-size:0.8rem;">
                     <div><span style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">1. Titular:</span> ${getMenuLabel(titularMenu)}</div>
-                    <div><span style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">2. Acompañante:</span> ${getMenuLabel(compMenu)}</div>
+                    <div><span style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">2. Acomp:</span> ${getMenuLabel(compMenu)}</div>
                 </div>
             `;
         } else {
@@ -948,25 +954,47 @@ function renderGuestTable() {
 
         // Allergies Column HTML
         let allergyHtml = '';
-        if (isCouple) {
+        if (isDeclined) {
+            allergyHtml = '<span style="color:#94a3b8; font-size:0.75rem;">—</span>';
+        } else if (isPending) {
+            allergyHtml = '<span style="color:#94a3b8; font-size:0.75rem; font-style:italic;">Sin declarar</span>';
+        } else if (isCouple && compName) {
             const part1 = hasTitularAllergy ? `<div><span style="font-size:0.68rem; font-weight:700; color:#64748b;">1:</span> <span style="background:#fee2e2; color:#991b1b; padding:1px 6px; border-radius:4px; font-weight:700; font-size:0.72rem;">⚠️ ${titularAllergy}</span></div>` : `<div><span style="font-size:0.68rem; font-weight:700; color:#64748b;">1:</span> <span style="color:#94a3b8; font-size:0.72rem;">Sin alergias</span></div>`;
             const part2 = hasCompAllergy ? `<div><span style="font-size:0.68rem; font-weight:700; color:#64748b;">2:</span> <span style="background:#fef3c7; color:#92400e; padding:1px 6px; border-radius:4px; font-weight:700; font-size:0.72rem;">⚠️ ${compAllergy}</span></div>` : `<div><span style="font-size:0.68rem; font-weight:700; color:#64748b;">2:</span> <span style="color:#94a3b8; font-size:0.72rem;">Sin alergias</span></div>`;
             allergyHtml = `<div style="display:flex; flex-direction:column; gap:4px;">${part1}${part2}</div>`;
         } else {
-            allergyHtml = hasTitularAllergy ? `<span style="background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; font-weight:700; font-size:0.75rem;">⚠️ ${titularAllergy}</span>` : '<span style="color:#94a3b8; font-size:0.75rem;">—</span>';
+            allergyHtml = hasTitularAllergy ? `<span style="background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; font-weight:700; font-size:0.75rem;">⚠️ ${titularAllergy}</span>` : '<span style="color:#94a3b8; font-size:0.75rem;">Sin alergias</span>';
+        }
+
+        // Passes Column HTML
+        let passesHtml = '';
+        if (isDeclined) {
+            passesHtml = `<span style="background:#fee2e2; color:#991b1b; font-weight:700; font-size:0.75rem; padding:3px 8px; border-radius:12px;">0 (${g.passes || 1} liberados)</span>`;
+        } else if (isPending) {
+            passesHtml = `
+                <span style="background:#fef3c7; color:#92400e; font-weight:800; font-size:0.75rem; padding:3px 8px; border-radius:12px;">
+                    🎟️ ${g.passes || 1} reservados
+                </span>
+                <div style="font-size:0.7rem; color:#64748b; margin-top:2px;">Por responder</div>
+            `;
+        } else {
+            const confirmedCount = g.confirmedPasses || g.passes || 1;
+            passesHtml = `
+                <span style="background:#dcfce7; color:#15803d; font-weight:800; font-size:0.75rem; padding:3px 8px; border-radius:12px;">
+                    ✓ ${confirmedCount} de ${g.passes || 1}
+                </span>
+                ${compName ? `<div style="font-size:0.74rem; color:#334155; font-weight:600; margin-top:2px;">👥 + ${compName}</div>` : ''}
+            `;
         }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${g.name}</strong></td>
             <td><div>${g.phone}</div><small style="color:#64748b;">${g.email || '—'}</small></td>
-            <td>
-                <span style="font-weight:700; color:#0f172a;">${g.passes} pase(s)</span>
-                ${isCouple ? `<div style="font-size:0.78rem; color:#475569; font-weight:600; margin-top:2px; display:flex; align-items:center; gap:4px;">👤 <span>${compName}</span></div>` : ''}
-            </td>
+            <td>${passesHtml}</td>
             <td>${menuHtml}</td>
             <td>${allergyHtml}</td>
-            <td>${tableName}</td>
+            <td>${g.tableId ? tableName : '<span style="color:#94a3b8; font-style:italic;">Por asignar en 2D</span>'}</td>
             ${isDestinationWedding ? destPayHtml : ''}
             <td>
                 <span class="status-badge ${g.status}">
@@ -1027,18 +1055,27 @@ function filterGuestTable() {
 
 // MODALS
 function showQuickAddModal() {
-    document.getElementById('formGuest').reset();
-    document.getElementById('editGuestId').value = '';
-    document.getElementById('modalGuestTitle').innerText = 'Agregar Nuevo Invitado';
-    document.getElementById('groupCompanion').style.display = 'none';
-    const compDietary = document.getElementById('groupCompanionDietary');
-    if (compDietary) compDietary.style.display = 'none';
-    document.getElementById('modalGuest').classList.add('show');
+    const form = document.getElementById('formGuest');
+    if (form) form.reset();
+    const editId = document.getElementById('editGuestId');
+    if (editId) editId.value = '';
+    const title = document.getElementById('modalGuestTitle');
+    if (title) title.innerText = 'Registrar Familia o Invitado';
+    const adv = document.getElementById('advancedGuestPreferences');
+    if (adv) adv.style.display = 'none';
+    const passes = document.getElementById('guestPasses');
+    if (passes) passes.value = '2';
+    const submitBtn = document.getElementById('btnSubmitGuestForm');
+    if (submitBtn) submitBtn.innerText = 'Guardar para Convocatoria';
+    const modal = document.getElementById('modalGuest');
+    if (modal) modal.classList.add('show');
 }
 
 function editGuest(id) {
-    const g = currentData.guests.find(item => item.id === id);
+    currentData = getWeddingState(currentWeddingId);
+    const g = (currentData.guests || []).find(item => item.id === id);
     if (!g) return;
+
     document.getElementById('editGuestId').value = g.id;
     document.getElementById('guestName').value = g.name;
 
@@ -1067,27 +1104,34 @@ function editGuest(id) {
     }
 
     document.getElementById('guestEmail').value = g.email || '';
-    document.getElementById('guestPasses').value = g.passes;
-    document.getElementById('guestCompanion').value = g.companion || '';
-    document.getElementById('guestMenu').value = g.menu;
-    document.getElementById('guestAllergies').value = g.allergies || '';
+    const passSelect = document.getElementById('guestPasses');
+    if (passSelect) passSelect.value = (g.passes || 1).toString();
 
-    const compMenuEl = document.getElementById('companionMenu');
-    if (compMenuEl) compMenuEl.value = g.companionMenu || (g.menu === 'salmon' ? 'filete' : 'salmon');
-    const compAllergiesEl = document.getElementById('companionAllergies');
-    if (compAllergiesEl) compAllergiesEl.value = g.companionAllergies || '';
+    const compInput = document.getElementById('guestCompanion');
+    if (compInput) compInput.value = g.companion || '';
 
-    toggleCompanionInput(g.passes);
-    document.getElementById('modalGuestTitle').innerText = 'Editar Invitado';
-    document.getElementById('modalGuest').classList.add('show');
+    const menuSelect = document.getElementById('guestMenu');
+    if (menuSelect && g.menu) menuSelect.value = g.menu;
+
+    const allergiesInput = document.getElementById('guestAllergies');
+    if (allergiesInput) allergiesInput.value = g.allergies || '';
+
+    // Show advanced preferences section if editing an existing guest
+    const adv = document.getElementById('advancedGuestPreferences');
+    if (adv) adv.style.display = 'block';
+
+    const title = document.getElementById('modalGuestTitle');
+    if (title) title.innerText = 'Editar Datos de Convocatoria';
+
+    const submitBtn = document.getElementById('btnSubmitGuestForm');
+    if (submitBtn) submitBtn.innerText = 'Actualizar Datos';
+
+    const modal = document.getElementById('modalGuest');
+    if (modal) modal.classList.add('show');
 }
 
 function toggleCompanionInput(val) {
-    const isCouple = val === '2' || val === 2;
-    const compGroup = document.getElementById('groupCompanion');
-    const compDietary = document.getElementById('groupCompanionDietary');
-    if (compGroup) compGroup.style.display = isCouple ? 'block' : 'none';
-    if (compDietary) compDietary.style.display = isCouple ? 'block' : 'none';
+    // Legacy support: not blocking anymore
 }
 
 function normalizeMexicanPhone(raw, countryCode = '+52') {
@@ -1108,21 +1152,20 @@ function normalizeMexicanPhone(raw, countryCode = '+52') {
 
 function saveGuestForm(e) {
     e.preventDefault();
+    currentData = getWeddingState(currentWeddingId);
+    if (!currentData) return;
+
     const id = document.getElementById('editGuestId').value;
     const name = (document.getElementById('guestName').value || '').trim();
     const rawPhone = (document.getElementById('guestPhone').value || '').trim();
     const countryCode = document.getElementById('guestCountryCode') ? document.getElementById('guestCountryCode').value : '+52';
     const phone = normalizeMexicanPhone(rawPhone, countryCode);
     const email = (document.getElementById('guestEmail').value || '').trim();
-    const passes = parseInt(document.getElementById('guestPasses').value);
-    const companion = passes === 2 ? (document.getElementById('guestCompanion').value || '').trim() : '';
-    const menu = document.getElementById('guestMenu').value;
-    const allergies = document.getElementById('guestAllergies').value;
+    const passes = parseInt(document.getElementById('guestPasses').value, 10) || 1;
 
-    // VALIDACIÓN 1: Nombre completo con nombre y apellido (mínimo 2 palabras y 7 caracteres)
-    const nameWords = name.split(/\s+/).filter(w => w.length > 0);
-    if (name.length < 7 || nameWords.length < 2) {
-        alert('⚠️ Por favor ingresa el NOMBRE COMPLETO del invitado titular (nombre y apellido, mín. 7 caracteres).\nEjemplo: "Lic. Laura Garza" o "Carlos Martínez".');
+    // VALIDACIÓN 1: Nombre de la familia o titular (mínimo 3 caracteres)
+    if (name.length < 3) {
+        alert('⚠️ Por favor ingresa el nombre de la familia o del invitado titular.');
         document.getElementById('guestName').focus();
         return;
     }
@@ -1135,55 +1178,65 @@ function saveGuestForm(e) {
         return;
     }
 
-    // VALIDACIÓN 3: Verificación estricta de NO duplicidad de número de WhatsApp
+    // VALIDACIÓN 3: Verificación de NO duplicidad de número de WhatsApp
     if (!currentData.guests) currentData.guests = [];
     const targetDigits = (countryCode + digitsOnly).replace(/\D/g, '');
     const duplicateGuest = currentData.guests.find(item => {
-        if (id && item.id === id) return false; // si estamos editando el mismo invitado, permitir
+        if (id && item.id === id) return false;
         const existingDigits = (item.phone || '').replace(/\D/g, '');
         return existingDigits && (existingDigits === targetDigits || (existingDigits.endsWith(digitsOnly) && digitsOnly.length >= 10));
     });
 
     if (duplicateGuest) {
-        alert(`🚫 ATENCIÓN: El número de WhatsApp (${phone}) ya está registrado para el invitado:\n\n👉 "${duplicateGuest.name}"\n\nNo es posible registrar dos familias con el mismo número para evitar envíos duplicados o triples.`);
+        alert(`🚫 ATENCIÓN: El número de WhatsApp (${phone}) ya está registrado para:\n\n👉 "${duplicateGuest.name}"\n\nNo es posible registrar dos familias con el mismo número para evitar envíos duplicados.`);
         document.getElementById('guestPhone').focus();
         return;
     }
 
-    // VALIDACIÓN 4: Si son 2 pases, validar que el acompañante también tenga nombre
-    if (passes === 2 && companion.length < 3) {
-        alert('⚠️ Por favor indica el nombre o parentesco del acompañante (Invitado 2).');
-        document.getElementById('guestCompanion').focus();
-        return;
-    }
-
-    const companionMenu = passes === 2 ? (document.getElementById('companionMenu')?.value || 'filete') : null;
-    const companionAllergies = passes === 2 ? (document.getElementById('companionAllergies')?.value || 'Ninguna') : null;
+    const companion = (document.getElementById('guestCompanion')?.value || '').trim();
+    const menu = document.getElementById('guestMenu')?.value || null;
+    const allergies = (document.getElementById('guestAllergies')?.value || '').trim();
 
     if (id) {
         const g = currentData.guests.find(item => item.id === id);
         if (g) {
-            Object.assign(g, { 
-                name, phone, email, passes, companion, menu, allergies,
-                guest1Menu: menu,
-                guest1Allergies: allergies,
-                companionMenu,
-                companionAllergies
-            });
+            g.name = name;
+            g.phone = phone;
+            g.email = email;
+            g.passes = passes;
+            if (companion) g.companion = companion;
+            if (menu) {
+                g.menu = menu;
+                g.guest1Menu = menu;
+            }
+            if (allergies) {
+                g.allergies = allergies;
+                g.guest1Allergies = allergies;
+            }
+            showToast('✓ Datos de invitado actualizados con éxito.');
         }
     } else {
+        // NUEVA FAMILIA: Nace limpia en estado 'pending' (Sin responder) y despacho 'pending' (Por Mandar)
         const newGuest = {
             id: 'g_' + Date.now(),
-            name, phone, email, passes, companion, menu, allergies,
-            guest1Menu: menu,
-            guest1Allergies: allergies,
-            companionMenu,
-            companionAllergies,
-            status: 'confirmed',
-            tableId: null,
-            dispatchStatus: 'pending'
+            name,
+            phone,
+            email,
+            passes, // Pases reservados para convocatoria
+            confirmedPasses: 0,
+            companion: companion || '',
+            menu: null,
+            allergies: null,
+            guest1Menu: null,
+            guest1Allergies: null,
+            status: 'pending', // ⏳ PENDIENTE DE INVITACIÓN
+            dispatchStatus: 'pending', // 🚨 POR MANDAR
+            sentDate: null,
+            tableId: null, // SIN MESA ASIGNADA HASTA CONFIRMAR
+            createdAt: new Date().toISOString()
         };
         currentData.guests.push(newGuest);
+        showToast(`🎉 ¡"${name}" registrado para convocatoria (${passes} pases reservados)!`);
     }
 
     saveWeddingState(currentWeddingId, currentData);
@@ -1192,7 +1245,6 @@ function saveGuestForm(e) {
     if (typeof renderDispatchTab === 'function') renderDispatchTab();
     if (typeof renderSeatingChart === 'function') renderSeatingChart();
     renderDashboard();
-    showToast(`Invitado guardado con éxito.`);
 }
 
 function addNewTableModal() {

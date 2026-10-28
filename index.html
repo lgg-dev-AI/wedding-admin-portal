@@ -3438,10 +3438,10 @@
         <div class="app-modal-card">
             <div class="modal-header">
                 <div class="d-flex align-center gap-2">
-                    <span class="modal-icon">👤</span>
+                    <span class="modal-icon">👥</span>
                     <div>
-                        <h3 class="modal-title" id="modalGuestTitle" style="color:#ffffff !important; font-weight:800;">Agregar Nuevo Invitado</h3>
-                        <p class="modal-sub" style="color:#cbd5e1 !important;">Registra los datos de contacto, pases asignados y menú.</p>
+                        <h3 class="modal-title" id="modalGuestTitle" style="color:#ffffff !important; font-weight:800;">Registrar Familia o Invitado</h3>
+                        <p class="modal-sub" style="color:#cbd5e1 !important;">Captura el contacto y pases reservados para enviar su invitación oficial.</p>
                     </div>
                 </div>
                 <button class="btn-close-modal" onclick="closeModal('modalGuest')">✕</button>
@@ -3449,13 +3449,15 @@
             <form id="formGuest" onsubmit="saveGuestForm(event)">
                 <div class="modal-body">
                     <input type="hidden" id="editGuestId">
+                    
                     <div class="form-group mb-3">
-                        <label class="form-label">Nombre Completo del Invitado Titular</label>
-                        <input type="text" id="guestName" class="form-input" required placeholder="Ej. Dr. Roberto Elizondo">
+                        <label class="form-label" style="font-weight:700;">Nombre Completo de la Familia o Invitado Titular *</label>
+                        <input type="text" id="guestName" class="form-input" required placeholder="Ej. María Cruz o Familia Cruz Garza">
                     </div>
+
                     <div class="form-row-2 mb-3">
                         <div class="form-group">
-                            <label class="form-label">Teléfono WhatsApp</label>
+                            <label class="form-label" style="font-weight:700;">Teléfono WhatsApp Oficial *</label>
                             <div style="display:grid; grid-template-columns: 125px 1fr; gap:6px;">
                                 <select id="guestCountryCode" class="form-select" style="padding:8px 6px; font-size:0.8rem;">
                                     <option value="+52" selected>🇲🇽 +52 (MX)</option>
@@ -3477,64 +3479,67 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Correo Electrónico</label>
-                            <input type="email" id="guestEmail" class="form-input" placeholder="invitado@correo.com">
-                        </div>
-                    </div>
-                    <div class="form-row-2 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Pases Asignados</label>
-                            <select id="guestPasses" class="form-select" onchange="toggleCompanionInput(this.value)">
-                                 <option value="1">1 Pase (Individual)</option>
-                                 <option value="2">2 Pases (+ Acompañante)</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="groupCompanion" style="display:none;">
-                            <label class="form-label">Nombre del Acompañante (Invitado 2)</label>
-                            <input type="text" id="guestCompanion" class="form-input" placeholder="Ej. Lic. Laura Cantú">
+                            <label class="form-label" style="font-weight:700;">Correo Electrónico (Opcional)</label>
+                            <input type="email" id="guestEmail" class="form-input" placeholder="familia@correo.com">
                         </div>
                     </div>
 
-                    <!-- PREFERENCIAS DEL TITULAR (INVITADO 1) -->
-                    <div class="form-row-2 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Menú Preferido (Titular)</label>
-                            <select id="guestMenu" class="form-select">
-                                <option value="filete">🥩 Filete Mignon</option>
-                                <option value="salmon">🐟 Salmón Rosé</option>
-                                <option value="risotto">🍄 Risotto Vegano</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Restricciones / Alergias (Titular)</label>
-                            <input type="text" id="guestAllergies" class="form-input" placeholder="Ej. Celíaco, sin gluten...">
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:700;">Pases Reservados para esta Familia / Invitado *</label>
+                        <select id="guestPasses" class="form-select" style="font-size:0.9rem; font-weight:700; padding:10px 14px; border:1.5px solid #cbd5e1;">
+                             <option value="1">🎟️ 1 Pase (Individual)</option>
+                             <option value="2" selected>🎟️ 2 Pases (Pareja / Matrimonio)</option>
+                             <option value="3">🎟️ 3 Pases (Familia de 3)</option>
+                             <option value="4">🎟️ 4 Pases (Familia de 4)</option>
+                             <option value="5">🎟️ 5 Pases (Familia de 5)</option>
+                             <option value="6">🎟️ 6 Pases (Familia grande de 6)</option>
+                             <option value="7">🎟️ 7 Pases (Grupo de 7)</option>
+                             <option value="8">🎟️ 8 Pases (Mesa casi completa / 8)</option>
+                             <option value="9">🎟️ 9 Pases (Grupo de 9)</option>
+                             <option value="10">🎟️ 10 Pases (Mesa Completa / 10)</option>
+                        </select>
+                        <small style="display:block; color:#64748b; font-size:0.75rem; margin-top:4px;">
+                            Indica cuántos lugares máximos tiene autorizados esta familia. Cuando confirmen en su invitación web, ellos elegirán cuántos de estos pases ocuparán.
+                        </small>
+                    </div>
+
+                    <!-- TIP INFORMATIVO DE CICLO DE VIDA REAL -->
+                    <div style="background:#f0fdf4; border:1.5px dashed #86efac; border-radius:10px; padding:12px 14px; margin-bottom:12px; display:flex; align-items:flex-start; gap:10px;">
+                        <span style="font-size:1.2rem; line-height:1;">💡</span>
+                        <div style="font-size:0.78rem; color:#166534; line-height:1.45;">
+                            <strong>Convocatoria Ágil &amp; Sin Fricción:</strong><br>
+                            Los nombres de acompañantes, selección de platillos y alergias se registrarán automáticamente cuando el invitado confirme desde su enlace de WhatsApp. La mesa se asignará en el plano 2D una vez confirmada su asistencia.
                         </div>
                     </div>
 
-                    <!-- PREFERENCIAS DEL ACOMPAÑANTE (INVITADO 2 - CONDICIONAL) -->
-                    <div id="groupCompanionDietary" style="display:none; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px; padding:12px; margin-bottom:1rem;">
-                        <div style="font-size:0.75rem; font-weight:700; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                            <span>👥</span> <strong>Preferencias del Acompañante (Invitado 2):</strong>
+                    <!-- SECCIÓN AVANZADA OPCIONAL (SOLO PARA EDICIÓN MANUAL DE PLANNER SI YA CONFIRMÓ) -->
+                    <div id="advancedGuestPreferences" style="display:none; border-top:1px solid #e2e8f0; padding-top:14px; margin-top:10px;">
+                        <span style="font-size:0.75rem; font-weight:800; color:#475569; text-transform:uppercase; display:block; margin-bottom:8px;">
+                            ⚙️ Preferencias Registradas por el Invitado (Opcional):
+                        </span>
+                        <div class="form-group mb-2" id="groupCompanion">
+                            <label class="form-label">Acompañante(s) Registrado(s)</label>
+                            <input type="text" id="guestCompanion" class="form-input" placeholder="Ej. Roberto Carlos + Juan Manuel">
                         </div>
-                        <div class="form-row-2">
+                        <div class="form-row-2 mb-2">
                             <div class="form-group">
-                                <label class="form-label">Menú Preferido (Acompañante)</label>
-                                <select id="companionMenu" class="form-select">
+                                <label class="form-label">Menú Seleccionado</label>
+                                <select id="guestMenu" class="form-select">
                                     <option value="filete">🥩 Filete Mignon</option>
                                     <option value="salmon">🐟 Salmón Rosé</option>
                                     <option value="risotto">🍄 Risotto Vegano</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Restricciones / Alergias (Acompañante)</label>
-                                <input type="text" id="companionAllergies" class="form-input" placeholder="Ej. Alérgica a mariscos, nueces...">
+                                <label class="form-label">Alergias o Restricciones</label>
+                                <input type="text" id="guestAllergies" class="form-input" placeholder="Ej. Ninguna / Celíaco">
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-modal secondary" onclick="closeModal('modalGuest')">Cancelar</button>
-                    <button type="submit" class="btn-modal primary">Guardar Invitado</button>
+                    <button type="submit" id="btnSubmitGuestForm" class="btn-modal primary">Guardar para Convocatoria</button>
                 </div>
             </form>
         </div>
@@ -3869,7 +3874,7 @@
 
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-dispatch.js?v=20261027_showroom_v1"></script>
+    <script src="scripts/admin-dispatch.js?v=20261028_convocatoria_v1"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261025_planner_shield_v9"></script>
@@ -3882,7 +3887,7 @@
     <script src="scripts/admin-budget-estimator.js?v=20261026_print_fix_v1"></script>
     <script src="scripts/admin-contracts.js?v=20261026_widescreen_v9"></script>
     <script src="scripts/admin-design-studio.js?v=20261026_print_fix_v1"></script>
-    <script src="scripts/admin-app.js?v=20261027_showroom_v1"></script>
+    <script src="scripts/admin-app.js?v=20261028_convocatoria_v1"></script>
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
