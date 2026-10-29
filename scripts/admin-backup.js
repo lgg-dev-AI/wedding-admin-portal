@@ -21,7 +21,7 @@ function exportWeddingBackup() {
     const dateStr = new Date().toISOString().split('T')[0];
     
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `WeddingPlannerOS_Backup_${safeName}_${dateStr}.json`);
+    downloadAnchor.setAttribute("download", `PaseBoda_Backup_${safeName}_${dateStr}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -52,7 +52,7 @@ function exportMasterAgencyBackup() {
     const dateStr = new Date().toISOString().split('T')[0];
     
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `WeddingPlannerOS_MASTER_AGENCY_BACKUP_${dateStr}.json`);
+    downloadAnchor.setAttribute("download", `PaseBoda_MASTER_AGENCY_BACKUP_${dateStr}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();

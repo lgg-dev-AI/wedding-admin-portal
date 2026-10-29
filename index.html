@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PaseBoda &amp; Couple Portal — Control Central</title>
-    <link rel="icon" type="image/png" href="assets/img/paseboda-logo.png">
+    <link rel="icon" type="image/png" href="assets/img/paseboda-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
@@ -63,9 +63,9 @@
         <div class="nav-left">
             <div class="logo-wrap">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="assets/img/paseboda-logo.png" alt="PaseBoda" class="brand-logo-img" style="height:36px; width:auto; border-radius:8px; object-fit:contain; background:#ffffff; padding:2px; box-shadow:0 2px 8px rgba(0,0,0,0.18);">
+                    <img src="assets/img/paseboda-icon.png" alt="PaseBoda" class="brand-logo-img" style="height:38px; width:38px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.35));">
                     <div class="logo-text">
-                        <span class="brand-title">PASEBODA</span>
+                        <span class="brand-title" style="font-size:1.15rem; letter-spacing:0.02em; font-family:'Playfair Display', Georgia, serif;"><span style="color:#ffffff; font-weight:700;">Pase</span><span style="color:#e2a891; font-weight:700;">Boda</span></span>
                         <span class="brand-badge">SaaS Suite 3.0</span>
                     </div>
                 </div>
@@ -122,8 +122,8 @@
         <aside class="app-sidebar" id="appSidebarDrawer">
             <div class="mobile-drawer-header">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:1.25rem;">💍</span>
-                    <strong style="font-size:0.9rem; color:#0f172a; letter-spacing:0.04em;">MÓDULOS PASEBODA</strong>
+                    <img src="assets/img/paseboda-icon.png" alt="PaseBoda" style="width:28px; height:28px; object-fit:contain;">
+                    <strong style="font-size:0.95rem; color:#0f172a; letter-spacing:0.03em;">MÓDULOS PASEBODA</strong>
                 </div>
                 <button type="button" class="btn-close-drawer" onclick="closeMobileSidebar()" aria-label="Cerrar menú">✕</button>
             </div>
@@ -319,7 +319,7 @@
                 <!-- EMPTY STATE CUANDO UN PLANNER NO TIENE BODAS -->
                 <div id="dashboardEmptyState" style="display:none; text-align:center; padding: 60px 24px; background: #ffffff; border-radius: 16px; border: 2px dashed #cbd5e1; margin-top: 20px;">
                     <div style="font-size: 3.5rem; margin-bottom: 16px;">✨💍</div>
-                    <h2 style="font-size: 1.6rem; color: #0f172a; font-weight: 800; margin-bottom: 8px;">¡Bienvenido a tu suite PaseBoda!</h2>
+                    <h2 style="font-size: 1.6rem; color: #0f172a; font-weight: 800; margin-bottom: 8px;">¡Bienvenido a PaseBoda!</h2>
                     <p style="color: #64748b; font-size: 1rem; max-width: 540px; margin: 0 auto 24px; line-height: 1.5;">
                         Tu espacio de trabajo está listo y completamente limpio. Para comenzar a gestionar tu primera pareja, invitaciones interactivas, mesas y presupuestos, haz clic en el botón de abajo.
                     </p>
@@ -1921,7 +1921,7 @@
                                 <b style="color:#0f172a;">1. Crear el Bot:</b>
                                 <ol style="margin:4px 0 0 18px; padding:0;">
                                     <li>Abre Telegram y busca <b>@BotFather</b>.</li>
-                                    <li>Envía <code>/newbot</code> y dale un nombre (ej. <i>Antigravity Wedding Alerts</i>).</li>
+                                    <li>Envía <code>/newbot</code> y dale un nombre (ej. <i>PaseBoda Alerts</i>).</li>
                                     <li>Copia el <b>Token</b> generado y pégalo arriba.</li>
                                 </ol>
                             </div>
@@ -5148,8 +5148,8 @@
             }
         </script>
         <div class="auth-card-glass">
-            <div class="auth-brand-logo" style="width:68px; height:68px; padding:4px; background:#ffffff; border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; box-shadow:0 8px 22px rgba(197, 168, 128, 0.28); border:1px solid rgba(197, 168, 128, 0.45);">
-                <img src="assets/img/paseboda-logo.png" alt="PaseBoda" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
+            <div class="auth-brand-logo" style="width:auto; height:auto; padding:0; background:transparent; border:none; box-shadow:none; margin:0 auto 12px;">
+                <img src="assets/img/paseboda-logo.png" alt="PaseBoda" style="width:190px; height:auto; object-fit:contain; display:block; margin:0 auto;">
             </div>
             <div class="auth-badge-shield">
                 <span>PaseBoda · Professional Suite</span>
@@ -5157,8 +5157,7 @@
 
             <!-- VIEW 1: STANDARD LOGIN -->
             <div id="authViewLogin">
-                <h2 class="auth-title">PaseBoda</h2>
-                <p class="auth-subtitle">Acceso exclusivo a la suite de gestión, invitaciones interactivas y control de bodas.</p>
+                <p class="auth-subtitle" style="margin-top:4px;">Acceso exclusivo a la suite de gestión, invitaciones interactivas y control de bodas.</p>
 
                 <div id="loginErrorMsg" class="auth-error-banner"></div>
                 <div id="loginSuccessMsg" class="auth-success-banner"></div>

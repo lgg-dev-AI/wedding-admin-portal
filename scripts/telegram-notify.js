@@ -175,7 +175,7 @@ async function sendTelegramNewAgencyAlert(clientData) {
 💵 <b>Cuota Mensual:</b> $${Number(monthlyFee).toLocaleString('es-MX')} MXN
 📅 <b>Fecha de Alta:</b> ${timestamp} hrs
 ━━━━━━━━━━━━━━━━━━━━
-🔐 <i>Aprovisionada en Antigravity Wedding SaaS</i>
+🔐 <i>Aprovisionada en PaseBoda</i>
 `.trim();
 
     return await sendTelegramMessage(messageHtml);
@@ -257,7 +257,7 @@ async function testTelegramNotification() {
     const testMessage = `
 🔔 <b>¡CONEXIÓN TELEGRAM EXITOSA!</b> 🚀
 ━━━━━━━━━━━━━━━━━━━━
-🤖 Tu Bot de notificaciones para <b>Antigravity Wedding SaaS</b> está activo y conectado correctamente.
+🤖 Tu Bot de notificaciones para <b>PaseBoda</b> está activo y conectado correctamente.
 ✨ A partir de ahora recibirás alertas instantáneas cada vez que un Wedding Planner se suscriba a un plan o realice un pago.
 ━━━━━━━━━━━━━━━━━━━━
 📅 ${new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Mexico_City' })} hrs
