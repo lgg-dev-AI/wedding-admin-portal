@@ -928,7 +928,7 @@ function getWelcomeMessageTemplate(client) {
     return `¡Hola ${client.plannerName}! 🥂 Te damos la bienvenida a tu portal oficial de *Wedding Planner OS* por *Antigravity Web Studio*.
 
 ✨ *Tus Credenciales de Acceso Maestro:*
-🌐 Portal: https://wedding-admin-portal.vercel.app
+🌐 Portal: https://paseboda.com
 📧 Usuario / Correo: ${client.email}
 🔑 Contraseña Temporal de Primer Acceso: *${client.tempPassword}* (Válida para 3 usos iniciales)
 💳 Mensualidad Activa: $${(client.monthlyFee || 0).toLocaleString('es-MX')} MXN/mes

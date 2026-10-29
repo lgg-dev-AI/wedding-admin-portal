@@ -27,7 +27,7 @@ const KNOWLEDGE_BASE = [
         keywords: ['novios', 'vista novios', 'que ven los novios', 'portal novios', 'pareja', 'proceso novios', 'como entran'],
         answer: `👰🤵 <strong>PROCESO Y EXPERIENCIA PARA LOS NOVIOS</strong><br><br>
         <strong>¿Cómo funciona su acceso?</strong><br>
-        1. La wedding planner les entrega su link exclusivo (<em>https://wedding-admin-portal.vercel.app</em>) con su usuario y contraseña personalizados.<br>
+        1. La wedding planner les entrega su link exclusivo (<em>https://paseboda.com</em>) con su usuario y contraseña personalizados.<br>
         2. Al iniciar sesión, la pareja entra directamente a su <strong>Portal de Novios</strong> sin ver controles de administración.<br><br>
         <strong>¿Qué pueden ver y hacer los novios?</strong><br>
         ✓ Consultar su <strong>Lista de Invitados</strong> y ver quién ya confirmó en tiempo real.<br>
@@ -233,7 +233,7 @@ function findBestKnowledgeMatch(userText) {
                     `📍 <strong>¿Dónde cambiarlas o configurarlas?</strong><br>` +
                     `1. En <strong>"⚙️ Configuración & Planes"</strong> (tarjeta <em>Credenciales de Acceso</em>).<br>` +
                     `2. O en el menú lateral haciendo clic en <strong>"✏️ Datos & Accesos Novios"</strong>.<br><br>` +
-                    `📲 Los novios ingresan desde cualquier celular o PC en: <em>https://wedding-admin-portal.vercel.app</em>.`,
+                    `📲 Los novios ingresan desde cualquier celular o PC en: <em>https://paseboda.com</em>.`,
             actionTab: 'settings',
             actionModal: 'openEditActiveWeddingModal',
             actionLabel: '✏️ Abrir Ventana de Accesos'
@@ -435,7 +435,7 @@ function buildLiveTableQrUrl(tableObj) {
 
     const origin = (window.location.origin && window.location.origin.startsWith('http'))
         ? window.location.origin
-        : 'https://wedding-admin-portal.vercel.app';
+        : 'https://paseboda.com';
 
     return `${origin}/album.html?wedding=${encodeURIComponent(wId)}&couple=${encodeURIComponent(couple)}&table=${encodeURIComponent(tId)}&tableName=${encodeURIComponent(tName)}`;
 }

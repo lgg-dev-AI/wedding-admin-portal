@@ -775,7 +775,7 @@ function renderAlbumGridAndBanner(photos) {
     if (banner) {
         const origin = (window.location.origin && window.location.origin.startsWith('http'))
             ? window.location.origin
-            : 'https://wedding-admin-portal.vercel.app';
+            : 'https://paseboda.com';
         const sampleQrUrl = currentWeddingId
             ? `${origin}/album.html?wedding=${encodeURIComponent(currentWeddingId)}&table=t1`
             : '#';

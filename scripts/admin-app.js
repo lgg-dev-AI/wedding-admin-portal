@@ -1605,7 +1605,7 @@ function copyCoupleCredentialsForWhatsApp() {
     const couplePass = (document.getElementById('editWCouplePass') ? document.getElementById('editWCouplePass').value.trim() : '') || 'boda2027';
     const coupleNames = (document.getElementById('editWCouple') ? document.getElementById('editWCouple').value.trim() : '') || 'Novios';
 
-    const text = `👰🤵 *¡Hola ${coupleNames}!* Les compartimos sus accesos directos al panel exclusivo de su boda:\n\n🔗 *Portal:* https://wedding-admin-portal.vercel.app\n👤 *Usuario:* ${coupleUser}\n🔑 *Contraseña:* ${couplePass}\n\nDesde aquí podrán consultar en tiempo real quién ha confirmado, el menú elegido y los avances de su gran día. ✨`;
+    const text = `👰🤵 *¡Hola ${coupleNames}!* Les compartimos sus accesos directos al panel exclusivo de su boda:\n\n🔗 *Portal:* https://paseboda.com\n👤 *Usuario:* ${coupleUser}\n🔑 *Contraseña:* ${couplePass}\n\nDesde aquí podrán consultar en tiempo real quién ha confirmado, el menú elegido y los avances de su gran día. ✨`;
 
     navigator.clipboard.writeText(text).then(() => {
         showToast('📲 ¡Credenciales copiadas al portapapeles!');
@@ -1625,7 +1625,7 @@ function quickSendGuestWhatsApp(guestId) {
 
     const phoneClean = (guest.phone || '').replace(/\D/g, '');
     const coupleName = currentData.couple || 'Los Novios';
-    const webUrl = `https://wedding-admin-portal.vercel.app?portal=${guest.id}`;
+    const webUrl = `https://paseboda.com?portal=${guest.id}`;
     
     let msg = `Hola *${guest.name}* ✨\n\nTe saludamos con mucho cariño. Acompaña a *${coupleName}* en su boda consultando los detalles de tu asistencia, hospedaje y registro aquí:\n\n🔗 *Tu enlace personalizado:* ${webUrl}\n\n¡Esperamos verte y celebrar juntos!`;
     const encoded = encodeURIComponent(msg);

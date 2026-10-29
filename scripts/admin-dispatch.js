@@ -198,7 +198,7 @@ function buildPlannerWhatsAppText(guest, mode, data) {
     const suggestedMonthlyStr = `$${suggestedMonthlyNumber.toLocaleString('es-MX')} MXN`;
     const deadlineStr = (data && data.deadlineMonth) ? data.deadlineMonth : 'Julio 2027';
     const guestIdParam = guest && guest.id ? guest.id : 'g4';
-    const linkPagosStr = `https://wedding-admin-portal.vercel.app?portal=${guestIdParam}`;
+    const linkPagosStr = `https://paseboda.com?portal=${guestIdParam}`;
 
     return templateRaw
         .replace(/{nombre_familia}/g, guestName)
@@ -823,7 +823,7 @@ function renderCoupleWhatsAppSimulator() {
     const dateText = (currentData && currentData.date) ? currentData.date : '24 de Octubre, 2026';
     const liveUrl = (currentData && currentData.liveUrl && currentData.liveUrl.trim()) ? currentData.liveUrl.trim() : 'https://aura-wedding-experience.vercel.app';
     const guestWebUrl = `${liveUrl.replace(/\/+$/, '')}/?guest=ramon-garza`;
-    const paymentsWebUrl = `https://wedding-admin-portal.vercel.app?pago=ramon-garza`;
+    const paymentsWebUrl = `https://paseboda.com?pago=ramon-garza`;
 
     // Retrieve template from DEFAULT_WHATSAPP_TEMPLATES or custom
     const stageTemplates = DEFAULT_WHATSAPP_TEMPLATES[coupleShowroomStage] || DEFAULT_WHATSAPP_TEMPLATES.meta_api;
@@ -889,7 +889,7 @@ function getFinishedCoupleSampleRawText() {
     const dateText = (currentData && currentData.date) ? currentData.date : '24 de Octubre, 2026';
     const liveUrl = (currentData && currentData.liveUrl && currentData.liveUrl.trim()) ? currentData.liveUrl.trim() : 'https://aura-wedding-experience.vercel.app';
     const guestWebUrl = `${liveUrl.replace(/\/+$/, '')}/?guest=ramon-garza`;
-    const paymentsWebUrl = `https://wedding-admin-portal.vercel.app?pago=ramon-garza`;
+    const paymentsWebUrl = `https://paseboda.com?pago=ramon-garza`;
 
     const stageTemplates = DEFAULT_WHATSAPP_TEMPLATES[coupleShowroomStage] || DEFAULT_WHATSAPP_TEMPLATES.meta_api;
     let templateText = stageTemplates[coupleShowroomTone] || stageTemplates.opt1;

@@ -86,7 +86,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
                                 Este es un correo automático de seguridad generado por <strong>Wedding Planner OS</strong>.
                             </p>
                             <p style="margin:0; font-size:11px; color:#475569;">
-                                © 2026 Antigravity Web Studio · Todos los derechos reservados · <a href="${portalUrl}" style="color:#94a3b8; text-decoration:underline;">wedding-admin-portal.vercel.app</a>
+                                © 2026 Antigravity Web Studio · Todos los derechos reservados · <a href="${portalUrl}" style="color:#94a3b8; text-decoration:underline;">paseboda.com</a>
                             </p>
                         </td>
                     </tr>
@@ -125,7 +125,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ ok: false, error: 'Faltan parámetros requeridos: email y password' });
         }
 
-        const portalUrl = 'https://wedding-admin-portal.vercel.app';
+        const portalUrl = 'https://paseboda.com';
         const loginUrl = `${portalUrl}`;
 
         const htmlContent = buildRecoveryEmailHtml({
