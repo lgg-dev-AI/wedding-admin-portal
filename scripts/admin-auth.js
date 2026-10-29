@@ -389,7 +389,7 @@ function submitFullLogin(e) {
 
     // CHECK IF CLIENT ACCOUNT IS SUSPENDED (MANUAL OR AUTO-LOCK AFTER GRACE PERIOD)
     if (client.isSuspended) {
-        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago mensual vía SPEI y remite tu comprobante a <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
+        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago con tarjeta vía Stripe o contacta a soporte en <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
         return;
     }
 

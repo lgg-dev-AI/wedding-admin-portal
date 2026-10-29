@@ -541,14 +541,11 @@ RESUMEN DE FACTURACIÓN
 • Fecha Límite de Pago: ${client.nextDueDate}
 
 ==================================================
-DATOS BANCARIOS PARA TRANSFERENCIA SPEI
+PAGO EN LÍNEA CON TARJETA (STRIPE)
 ==================================================
-• Banco: BBVA Bancomer
-• Beneficiario: Antigravity Web Studio
-• Cuenta CLABE: 012 180 0158 9923 4410
-• Concepto / Referencia: ${client.agencyName.substring(0, 18)}
-
-Una vez realizada su transferencia, le solicitamos responder a este correo o enviar su comprobante a antigravitywebstudio@hotmail.com para aplicar la autorización inmediata de su ciclo mensual y mantener la continuidad operativa de sus cuentas sin ninguna interrupción.
+• Portal de Pago: https://paseboda.com (Sección "Configuración & Planes")
+• Método de Pago: Tarjeta de Crédito o Débito vía Stripe (Cifrado 256-Bit SSL)
+• Activación: Automática e instantánea al procesar su pago en plataforma.
 
 Agradecemos de antemano su confianza y preferencia.
 
@@ -599,14 +596,9 @@ Mantener su mensualidad autorizada en tiempo y forma evita cualquier interrupci�
 3. Recepción en tiempo real de confirmaciones de asistencia (RSVP) y acomodo de mesas.
 
 ==================================================
-DATOS DE TRANSFERENCIA SPEI
+RENOVACIÓN AUTOMÁTICA CON TARJETA (STRIPE)
 ==================================================
-• Banco: BBVA Bancomer
-• Beneficiario: Antigravity Web Studio
-• Cuenta CLABE: 012 180 0158 9923 4410
-• Concepto: Renovación ${client.agencyName.substring(0, 15)}
-
-Favor de remitir su comprobante a este correo (antigravitywebstudio@hotmail.com) para autorizar su cuenta a la brevedad.
+• Ingrese a https://paseboda.com en el módulo "Configuración & Planes" y realice el pago seguro con tarjeta vía Stripe para renovar su suscripción de forma inmediata.
 
 Atentamente,
 Departamento de Facturación & Operaciones
@@ -770,14 +762,9 @@ Como cortesía operativa, el sistema otorga un TIEMPO DE GRACIA DE 24 HORAS adic
 Si el comprobante correspondiente no es remitido y validado antes de esta hora límite, el sistema ejecutará de forma AUTOMÁTICA el BLOQUEO TOTAL de acceso a su panel de administración y la suspensión temporal de las invitaciones interactivas de sus parejas.
 
 ==================================================
-DATOS PARA TRANSFERENCIA SPEI INMEDIATA
+PAGO INMEDIATO CON TARJETA VÍA STRIPE
 ==================================================
-• Banco: BBVA Bancomer
-• Beneficiario: Antigravity Web Studio
-• Cuenta CLABE: 012 180 0158 9923 4410
-• Concepto: Pago Urgente ${client.agencyName.substring(0, 14)}
-
-Favor de responder con su comprobante de pago a antigravitywebstudio@hotmail.com antes del corte de gracia para mantener su servicio ininterrumpido.
+• Ingrese a https://paseboda.com en la sección "Configuración & Planes" y procese su pago con tarjeta vía Stripe antes del corte de gracia para mantener su servicio ininterrumpido de forma automática.
 
 Atentamente,
 Dirección de Infraestructura y Finanzas

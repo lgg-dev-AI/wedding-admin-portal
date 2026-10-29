@@ -868,21 +868,6 @@ function selectUpgradePlan(tier) {
 
     const targetCard = document.getElementById(`speiCard_${tier}`);
     if (targetCard) targetCard.classList.add('active');
-
-    let amount = 1990;
-    let planName = 'Signature Pro (1-10 Bodas · Invitaciones Web)';
-    if (tier === 'elite') {
-        amount = 3290;
-        planName = 'Atelier Elite (1-15 Bodas · Marca Blanca Total)';
-    }
-
-    const amountEl = document.getElementById('speiSelectedAmount');
-    const planNameEl = document.getElementById('speiSelectedPlanName');
-    const conceptEl = document.getElementById('speiConceptText');
-
-    if (amountEl) amountEl.innerText = `$${amount.toLocaleString('es-MX')} MXN/mes`;
-    if (planNameEl) planNameEl.innerText = planName;
-    if (conceptEl) conceptEl.innerText = `Plan ${tier.toUpperCase()} ${Date.now().toString().slice(-4)}`;
 }
 
 function submitUploadSpeiProof(e) {

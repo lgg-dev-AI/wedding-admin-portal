@@ -5533,87 +5533,53 @@
     <!-- MODAL: CONTRATACIÓN / UPGRADE DE PLAN VÍA SPEI ($800, $2,000, $3,500 MXN) -->
     <!-- ========================================================================== -->
     <div id="modalSpeiUpgrade" class="app-modal-overlay">
-        <div class="app-modal-card" style="max-width: 580px;">
+        <div class="app-modal-card" style="max-width: 540px;">
             <div class="modal-header" style="background:#1e1b4b !important; border-bottom-color:#4f46e5 !important;">
                 <div class="d-flex align-center gap-2">
                     <span class="modal-icon">💎</span>
                     <div>
                         <h3 class="modal-title">Suscripción PaseBoda</h3>
-                        <p class="text-xs" style="color:#c7d2fe; margin:0;">Elige tu plan y realiza tu transferencia bancaria SPEI</p>
+                        <p class="text-xs" style="color:#c7d2fe; margin:0;">Elige tu plan ideal y activa al instante con tarjeta vía Stripe</p>
                     </div>
                 </div>
                 <button class="btn-close-modal" onclick="closeSpeiUpgradeModal()">✕</button>
             </div>
 
             <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                <!-- PLAN SELECTION CARDS (2 PLANES PREMIUM) -->
-                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:18px;">
+                <!-- PLAN SELECTION CARDS -->
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:14px;">
                     <div id="speiCard_intermediate" class="spei-plan-card active" onclick="selectUpgradePlan('intermediate')">
                         <span style="font-size:0.7rem; color:#d97706; font-weight:800;">🥈 SIGNATURE PRO</span>
-                        <strong style="display:block; font-size:1.15rem; color:#0f172a; margin:4px 0;">$1,990</strong>
+                        <strong style="display:block; font-size:1.15rem; color:#0f172a; margin:4px 0;">$1,990 <small style="font-size:0.68rem; color:#64748b;">/mes</small></strong>
                         <span style="font-size:0.68rem; color:#64748b;">1-10 Bodas · Invitaciones Web</span>
                     </div>
 
                     <div id="speiCard_elite" class="spei-plan-card" onclick="selectUpgradePlan('elite')">
-                        <span style="font-size:0.7rem; color:#7c3aed; font-weight:700;">🥇 ATELIER ELITE</span>
-                        <strong style="display:block; font-size:1.15rem; color:#0f172a; margin:4px 0;">$3,290</strong>
+                        <span style="font-size:0.7rem; color:#7c3aed; font-weight:700;">👑 ATELIER ELITE</span>
+                        <strong style="display:block; font-size:1.15rem; color:#0f172a; margin:4px 0;">$3,290 <small style="font-size:0.68rem; color:#64748b;">/mes</small></strong>
                         <span style="font-size:0.68rem; color:#64748b;">1-15 Bodas · Marca Blanca Total</span>
                     </div>
                 </div>
 
+                <div id="speiCard_single_wedding" class="spei-plan-card" onclick="selectUpgradePlan('single_wedding')" style="margin-bottom:18px; text-align:left; display:flex; justify-content:space-between; align-items:center; padding:12px 16px;">
+                    <div>
+                        <span style="font-size:0.7rem; color:#0f172a; font-weight:800;">💍 PASE BODA ÚNICA (PAGO ÚNICO 12 MESES)</span>
+                        <span style="display:block; font-size:0.72rem; color:#64748b;">1 sola boda · Sin mensualidades · WhatsApp + Mesas 2D + QR</span>
+                    </div>
+                    <strong style="font-size:1.15rem; color:#0f172a; white-space:nowrap; margin-left:12px;">$4,820 <small style="font-size:0.68rem; color:#64748b;">MXN</small></strong>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.78rem; color:#475569; display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">🔒</span>
+                    <span>Procesamiento bancario automatizado con cifrado <strong>256-Bit SSL vía Stripe</strong>. Activación inmediata en servidor al confirmar tu pago.</span>
+                </div>
+
                 <!-- STRIPE CARD DIRECT BUTTON -->
-                <div style="margin-bottom:16px;">
-                    <button type="button" onclick="closeSpeiUpgradeModal(); openStripeCheckoutModal(window.currentSelectedUpgradeTier || 'intermediate');" style="width:100%; background:linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color:#ffffff; padding:12px 18px; border-radius:10px; border:none; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 14px rgba(99,102,241,0.35); display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <span>💳 Pagar con Tarjeta vía Stripe (Activación Instantánea)</span> →
+                <div>
+                    <button type="button" onclick="closeSpeiUpgradeModal(); openStripeCheckoutModal(window.currentSelectedUpgradeTier || 'intermediate');" style="width:100%; background:linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color:#ffffff; padding:14px 18px; border-radius:10px; border:none; font-weight:800; font-size:0.92rem; cursor:pointer; box-shadow:0 4px 14px rgba(99,102,241,0.35); display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>💳 Continuar al Pago con Tarjeta (Stripe)</span> →
                     </button>
-                    <div style="text-align:center; margin-top:8px;">
-                        <span style="font-size:0.72rem; color:#94a3b8;">Ó transfiere vía SPEI a continuación:</span>
-                    </div>
                 </div>
-
-                <!-- BANK TRANSFER DETAILS -->
-                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-bottom:16px;">
-                    <div class="d-flex justify-between align-center mb-2">
-                        <span style="font-size:0.78rem; font-weight:700; color:#334155;">💳 DATOS DE TRANSFERENCIA SPEI</span>
-                        <span id="speiSelectedAmount" style="font-size:0.95rem; font-weight:800; color:#0f172a;">$1,990 MXN/mes</span>
-                    </div>
-                    <div style="font-size:0.8rem; color:#475569; line-height:1.5;">
-                        <div>• <strong>Banco:</strong> BBVA Bancomer</div>
-                        <div class="d-flex justify-between align-center my-1" style="background:#ffffff; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1;">
-                            <code>CLABE: 012 180 0158 9923 4410</code>
-                            <button type="button" class="btn-dev-action-mini authorize" onclick="copyTextToClipboard('012180015899234410', 'CLABE BBVA copiada')">📋 Copiar</button>
-                        </div>
-                        <div>• <strong>Beneficiario:</strong> Antigravity Web Studio</div>
-                        <div>• <strong>Concepto:</strong> <span id="speiConceptText">Suscripción PaseBoda</span></div>
-                    </div>
-                </div>
-
-                <!-- PROOF UPLOAD / WHATSAPP SUBMIT -->
-                <form onsubmit="submitUploadSpeiProof(event)">
-                    <div class="form-group mb-2">
-                        <label class="form-label" style="font-size:0.78rem;">Nombre de tu Agencia:</label>
-                        <input type="text" id="speiProofAgencyName" class="form-input" placeholder="ej. Aura Weddings" required>
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label class="form-label" style="font-size:0.78rem;">Correo para Enviar Acceso:</label>
-                        <input type="email" id="speiProofEmail" class="form-input" placeholder="contacto@agencia.com" required>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="form-label" style="font-size:0.78rem;">Adjuntar Captura / Comprobante SPEI:</label>
-                        <input type="file" id="speiProofFileInput" class="form-input" accept="image/*,application/pdf" required style="padding:6px;">
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn-modal primary" style="flex:1; background:#4f46e5; border-color:#4338ca;">
-                            <span>📤 Subir Comprobante</span>
-                        </button>
-                        <button type="button" class="btn-modal secondary" onclick="sendSpeiProofByWhatsApp()" style="background:#22c55e; color:#fff; border-color:#16a34a;" title="Enviar directamente a WhatsApp">
-                            <span>🟢 Enviar por WhatsApp</span>
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
