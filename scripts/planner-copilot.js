@@ -43,7 +43,7 @@ const KNOWLEDGE_BASE = [
     {
         keywords: ['vender', 'cotizar', 'servicios digitales', 'cuanto cobrar', 'precios novios', 'servicios extra', 'empaquetar'],
         answer: `💡 <strong>CÓMO VENDER Y COTIZAR SERVICIOS DIGITALES A LOS NOVIOS</strong><br><br>
-        Wedding OS te permite monetizar cada boda como un producto digital:<br><br>
+        PaseBoda te permite monetizar cada boda como un producto digital:<br><br>
         1. Ve a <strong>"⚙️ Configuración & Planes"</strong> &rarr; sección <strong>"Personalizar Portal de Novios"</strong>.<br>
         2. Configura los precios que cobrarás por cada servicio adicional (ej: WhatsApp masivo $1,000 MXN, Acomodo 2D $2,500 MXN, Álbum QR $1,000 MXN, o $0 si se lo incluyes de cortesía).<br>
         3. El sistema calcula en vivo la <strong>Inversión Total Cotizada</strong>.<br>
@@ -52,7 +52,7 @@ const KNOWLEDGE_BASE = [
     },
     {
         keywords: ['nombres', 'secciones', 'mapa', 'ventanas', 'pantallas', 'donde esta', 'menu'],
-        answer: `🧭 <strong>MAPA COMPLETO DE VENTANAS Y MÓDULOS DE WEDDING OS</strong><br><br>
+        answer: `🧭 <strong>MAPA COMPLETO DE VENTANAS Y MÓDULOS DE PASEBODA</strong><br><br>
         • <strong>📊 Torre de Control (Dash):</strong> Resumen ejecutivo, métricas clave y botón para editar datos de la boda.<br><br>
         <strong>Fase 1: Convocatoria & Mesas</strong><br>
         • <strong>👥 Lista de Invitados & Menú:</strong> CRM de confirmaciones, platillos y dietas.<br>
@@ -159,7 +159,7 @@ const KNOWLEDGE_BASE = [
     },
     {
         keywords: ['planes', 'essential', 'signature', 'atelier', 'precios', 'upgrade', 'costo', 'stripe'],
-        answer: '⚙️ <strong>¿Cuáles son los 3 planes de Wedding OS?</strong><br><br>• <strong>🥉 Essential ($800 MXN/mes):</strong> 1-3 bodas · Hasta 50 invitados por boda · CRM, regalos y confirmaciones manuales.<br>• <strong>🥈 Signature Pro ($1,500 MXN/mes):</strong> 1-10 bodas · Hasta 100 invitados · WhatsApp masivo, Plano 2D, Check-in QR Hostess y Playlist.<br>• <strong>👑 Atelier Elite ($2,800 MXN/mes):</strong> Hasta 15 bodas · Invitados ilimitados · Minuta Día D, Barra, Proveedores y Marca Blanca.',
+        answer: '⚙️ <strong>¿Cuáles son los planes de PaseBoda?</strong><br><br>• <strong>🥉 Essential ($800 MXN/mes):</strong> 1-3 bodas · Hasta 50 invitados por boda · CRM, regalos y confirmaciones manuales.<br>• <strong>🥈 Signature Pro ($1,500 MXN/mes):</strong> 1-10 bodas · Hasta 100 invitados · WhatsApp masivo, Plano 2D, Check-in QR Hostess y Playlist.<br>• <strong>👑 Atelier Elite ($2,800 MXN/mes):</strong> Hasta 15 bodas · Invitados ilimitados · Minuta Día D, Barra, Proveedores y Marca Blanca.',
         actionTab: 'settings'
     },
     {

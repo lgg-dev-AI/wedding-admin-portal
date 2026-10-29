@@ -1,5 +1,5 @@
 /**
- * Wedding Planner OS - Design Studio (Ficha de Estilo & Moodboard Colaborativo)
+ * PaseBoda - Design Studio (Ficha de Estilo & Moodboard Colaborativo)
  * Paleta de colores oficial, referencias por zonas y exportación a PDF para proveedores.
  * 100% responsivo para Móvil, Tablet y Computadora.
  */

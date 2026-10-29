@@ -1,6 +1,6 @@
 // ==========================================================================
 // EXECUTIVE PDF REPORT GENERATOR & LUXURY PRINTABLE REPORTS SUITE
-// FOR WEDDING PLANNER OS & MASTER DEVELOPER CONSOLE
+// FOR PASEBODA & MASTER DEVELOPER CONSOLE
 // ==========================================================================
 
 function openLuxuryReportModal(modalTitleText, documentHtml) {
@@ -194,7 +194,7 @@ function generateAndPreviewPDF() {
 
         <div class="pdf-footer-signature">
             <div>
-                <strong>AURA WEDDINGS MANAGEMENT · WEDDING PLANNER OS</strong>
+                <strong>AURA WEDDINGS MANAGEMENT · PASEBODA</strong>
                 <p style="font-size:0.75rem; color:#888;">Gestión Operativa Integral · Antigravity Web Studio</p>
             </div>
             <div style="text-align:right;">
@@ -396,7 +396,7 @@ function printVendorsReport() {
 
         <div class="pdf-footer-signature">
             <div>
-                <strong>CONTROL DE PRODUCCIÓN &amp; FINANZAS · WEDDING PLANNER OS</strong>
+                <strong>CONTROL DE PRODUCCIÓN &amp; FINANZAS · PASEBODA</strong>
                 <p style="font-size:0.75rem; color:#888;">Documento válido para acceso de proveedores en caseta de seguridad y conciliación con novios.</p>
             </div>
         </div>
@@ -859,7 +859,7 @@ function printMasterDeveloperSaaSReport() {
                 <span class="pdf-badge-gold">CORTE CONTABLE SAAS &amp; CARTERA DE AGENCIAS (MASTER DEVELOPER)</span>
                 <span class="pdf-date-issued">Emitido: ${new Date().toLocaleDateString('es-MX')}</span>
             </div>
-            <h1 class="pdf-wedding-title">Antigravity Web Studio · Wedding Planner OS</h1>
+            <h1 class="pdf-wedding-title">Antigravity Web Studio · PaseBoda</h1>
             <p class="pdf-wedding-meta">🛡️ Reporte Financiero Confidencial · Master Admin: antigravitywebstudio@hotmail.com</p>
         </div>
 
@@ -945,7 +945,7 @@ function printExecutiveReport(paperId = 'pdfDocumentPaper') {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Reporte Oficial — Wedding Planner OS</title>
+            <title>Reporte Oficial — PaseBoda</title>
             <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
             <style>
                 * { box-sizing: border-box; }

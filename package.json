@@ -1,7 +1,7 @@
 {
   "name": "wedding-admin-portal",
   "version": "2.0.0",
-  "description": "Unified Multi-Tenant Wedding Planner OS & Couple Portal with Drag & Drop Seating Chart and Payment Verification",
+  "description": "Unified Multi-Tenant PaseBoda & Couple Portal with Drag & Drop Seating Chart and Payment Verification",
   "scripts": {
     "start": "npx serve ."
   }

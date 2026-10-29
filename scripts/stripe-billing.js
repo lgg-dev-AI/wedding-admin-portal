@@ -454,7 +454,7 @@ function closePaymentSuccessModal() {
     if (typeof renderSettingsTab === 'function') renderSettingsTab();
     if (typeof populateWeddingSelectorForUser === 'function') populateWeddingSelectorForUser();
     if (typeof showTab === 'function') showTab('dashboard');
-    if (typeof showToast === 'function') showToast('🌟 ¡Plan activado exitosamente! Tu suite de Wedding Planner OS está lista.');
+    if (typeof showToast === 'function') showToast('🌟 ¡Plan activado exitosamente! Tu suite de PaseBoda está lista.');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

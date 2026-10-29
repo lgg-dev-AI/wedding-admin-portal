@@ -2159,7 +2159,7 @@ function copyCoupleWhatsAppSummary() {
     msg += `🪑 *DISTRIBUCIÓN DE MESAS:*\n`;
     msg += `• Asignados a mesa: *${seatedCount} de ${confPasses} confirmados* (${seatedPct}%)\n\n`;
 
-    msg += `📲 _Generado en tiempo real desde Wedding Planner OS_`;
+    msg += `📲 _Generado en tiempo real desde PaseBoda_`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(msg).then(() => {

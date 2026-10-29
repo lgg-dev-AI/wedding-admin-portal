@@ -21,7 +21,7 @@ function buildDeactivationEmailHtml({
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desactivación de Plan · Wedding Planner OS</title>
+    <title>Desactivación de Plan · PaseBoda</title>
 </head>
 <body style="margin:0; padding:0; background-color:#0b0f19; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#f8fafc;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#0b0f19; width:100%; padding:32px 16px;">
@@ -45,7 +45,7 @@ function buildDeactivationEmailHtml({
                                 Plan Desactivado por Wedding Planner
                             </h1>
                             <p style="margin:0; font-size:12px; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase; font-weight:700;">
-                                Notificación para Master Developer · Wedding Planner OS
+                                Notificación para Master Developer · PaseBoda
                             </p>
                         </td>
                     </tr>
@@ -113,7 +113,7 @@ function buildDeactivationEmailHtml({
                     <tr>
                         <td style="padding:16px 36px 28px; text-align:center; border-top:1px solid #1f2937;">
                             <p style="margin:0 0 6px; font-size:12px; color:#64748b;">
-                                Wedding Planner OS · Sistema de Suscripciones SaaS Antigravity
+                                PaseBoda · Sistema de Suscripciones SaaS Antigravity
                             </p>
                             <p style="margin:0; font-size:11px; color:#475569;">
                                 Notificación automática generada en tiempo real.
@@ -183,7 +183,7 @@ module.exports = async (req, res) => {
 
                 for (const recipient of targetRecipients) {
                     const resendPayload = JSON.stringify({
-                        from: 'Wedding Planner OS <onboarding@resend.dev>',
+                        from: 'PaseBoda <onboarding@resend.dev>',
                         to: [recipient],
                         subject: `🛑 [Baja de Plan] ${agencyName} desactivó su suscripción (${planName})`,
                         html: htmlContent

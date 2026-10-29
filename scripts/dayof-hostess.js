@@ -794,7 +794,7 @@ function copyChefReportToWhatsApp() {
         waText += `✓ *Alergias:* No se reportaron alergias médicas.\n`;
     }
 
-    waText += `\n_Generado automáticamente desde Antigravity Wedding OS._`;
+    waText += `\n_Generado automáticamente desde PaseBoda._`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(waText).then(() => {
@@ -905,7 +905,7 @@ function submitUploadSpeiProof(e) {
 function sendSpeiProofByWhatsApp() {
     const amount = document.getElementById('speiSelectedAmount')?.innerText || '$2,000 MXN';
     const plan = document.getElementById('speiSelectedPlanName')?.innerText || 'Signature Pro';
-    const msg = `¡Hola Luis! 🥂 Acabo de realizar mi transferencia SPEI de ${amount} para activar el *${plan}* en Wedding Planner OS. Adjunto mi comprobante en este chat para autorización.`;
+    const msg = `¡Hola Luis! 🥂 Acabo de realizar mi transferencia SPEI de ${amount} para activar el *${plan}* en PaseBoda. Adjunto mi comprobante en este chat para autorización.`;
     window.open(`https://wa.me/528189901122?text=${encodeURIComponent(msg)}`, '_blank');
 }
 

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Briefing & Levantamiento de Invitación • Wedding Planner OS</title>
+    <title>Briefing & Levantamiento de Invitación • PaseBoda</title>
+    <link rel="icon" type="image/png" href="assets/img/paseboda-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -1661,7 +1662,7 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
             const data = collectBriefingData();
             unlockModulesInERP();
 
-            // Guardar persistentemente en localStorage para sincronización inmediata con Wedding OS
+            // Guardar persistentemente en localStorage para sincronización inmediata con PaseBoda
             const weddingKey = currentLoadedWeddingId || 'aura';
             localStorage.setItem(`briefing_data_${weddingKey}`, JSON.stringify(data));
             localStorage.setItem(`briefing_done_${weddingKey}`, 'true');
@@ -1740,7 +1741,7 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
                             <div>📅 <strong>Fecha:</strong> ${data.date}</div>
                             <div>📍 <strong>Venue:</strong> ${data.cityVenue}</div>
                             <div>🎨 <strong>Estilo:</strong> ${data.theme}</div>
-                            <div>🛡️ <strong>Estado en Wedding OS:</strong> Módulos Desbloqueados</div>
+                            <div>🛡️ <strong>Estado en PaseBoda:</strong> Módulos Desbloqueados</div>
                         </div>
 
                         <div style="display:flex; flex-direction:column; gap:10px;">

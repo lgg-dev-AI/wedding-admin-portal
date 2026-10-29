@@ -1,5 +1,5 @@
 /**
- * Wedding Planner OS - Estimador Inteligente de Presupuesto (Smart Budget Estimator)
+ * PaseBoda - Estimador Inteligente de Presupuesto (Smart Budget Estimator)
  * Gráfica interactiva de dona/pastel, desglose por rubros estándar y responsive en móvil, tablet y PC.
  */
 
@@ -404,7 +404,7 @@ function printBudgetBreakdownPDF() {
                 </table>
 
                 <div class="footer">
-                    Documento emitido por Wedding OS · Sistema de Coordinación Ejecutiva para Wedding Planners.
+                    Documento emitido por PaseBoda · Sistema de Coordinación Ejecutiva para Wedding Planners.
                 </div>
                 <div class="no-print" style="text-align:center; margin-top:16px;">
                     <button onclick="window.print()" style="padding:10px 20px; background:#0f172a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">🖨️ Imprimir Documento</button>

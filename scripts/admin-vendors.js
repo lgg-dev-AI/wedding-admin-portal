@@ -554,7 +554,7 @@ function rebuildReminderMessage() {
               `• Banco: ${activeReminderData.vendorBank}\n` +
               `• CLABE: ${activeReminderData.vendorClabe}\n` +
               `• Beneficiario: ${activeReminderData.vendorName}\n\n` +
-              `Por favor ayúdenme compartiéndome su comprobante en cuanto realicen la transferencia para conciliarlo en Wedding Planner OS. ¡Muchas gracias! ✨`;
+              `Por favor ayúdenme compartiéndome su comprobante en cuanto realicen la transferencia para conciliarlo en PaseBoda. ¡Muchas gracias! ✨`;
     } else {
         msg = `🏢 *Coordinación de Pagos · Boda ${activeReminderData.couple}*\n` +
               `Hola ${activeReminderData.contactName || activeReminderData.vendorName}! Te saluda la coordinación de Wedding Planner de la boda de ${activeReminderData.couple} 💍\n\n` +

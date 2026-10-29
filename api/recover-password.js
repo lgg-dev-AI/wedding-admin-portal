@@ -11,7 +11,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperación de Contraseña · Wedding Planner OS</title>
+    <title>Recuperación de Contraseña · PaseBoda</title>
 </head>
 <body style="margin:0; padding:0; background-color:#0b0f19; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#f8fafc;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#0b0f19; width:100%; padding:32px 16px;">
@@ -32,7 +32,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
                                 💎
                             </div>
                             <h1 style="margin:0 0 6px; font-size:22px; font-weight:800; color:#ffffff; letter-spacing:-0.02em;">
-                                Wedding Planner OS
+                                PaseBoda
                             </h1>
                             <p style="margin:0; font-size:13px; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase; font-weight:600;">
                                 Antigravity Developer &amp; Planner Suite
@@ -48,7 +48,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
                                     Hola <strong style="color:#fbbf24;">${name || 'Wedding Planner'}</strong>,
                                 </p>
                                 <p style="margin:0 0 20px; font-size:14px; color:#cbd5e1; line-height:1.6;">
-                                    Recibimos una solicitud para recuperar tu contraseña de acceso a la plataforma <strong>Wedding Planner OS</strong> vinculada a tu correo <strong>${email}</strong>.
+                                    Recibimos una solicitud para recuperar tu contraseña de acceso a la plataforma <strong>PaseBoda</strong> vinculada a tu correo <strong>${email}</strong>.
                                 </p>
 
                                 <!-- Credentials Box -->
@@ -67,7 +67,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
                                 <!-- CTA Button -->
                                 <div style="text-align:center; margin:28px 0 10px;">
                                     <a href="${loginUrl}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#ffffff; font-weight:700; font-size:14px; padding:14px 32px; border-radius:10px; text-decoration:none; box-shadow:0 8px 20px rgba(217,119,6,0.35); letter-spacing:0.02em;">
-                                        ✨ Iniciar Sesión en Wedding OS →
+                                        ✨ Iniciar Sesión en PaseBoda →
                                     </a>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@ function buildRecoveryEmailHtml({ name, email, password, portalUrl, loginUrl }) 
                     <tr>
                         <td style="padding:20px 36px 32px; background:#0b0f19; border-top:1px solid #1f2937; text-align:center;">
                             <p style="margin:0 0 6px; font-size:12px; color:#64748b;">
-                                Este es un correo automático de seguridad generado por <strong>Wedding Planner OS</strong>.
+                                Este es un correo automático de seguridad generado por <strong>PaseBoda</strong>.
                             </p>
                             <p style="margin:0; font-size:11px; color:#475569;">
                                 © 2026 Antigravity Web Studio · Todos los derechos reservados · <a href="${portalUrl}" style="color:#94a3b8; text-decoration:underline;">paseboda.com</a>
@@ -156,9 +156,9 @@ module.exports = async (req, res) => {
 
                 for (const recipient of targetRecipients) {
                     const resendPayload = JSON.stringify({
-                        from: 'Wedding Planner OS <onboarding@resend.dev>',
+                        from: 'PaseBoda <onboarding@resend.dev>',
                         to: [recipient],
-                        subject: '🔐 Tu Contraseña de Acceso · Wedding Planner OS',
+                        subject: '🔐 Tu Contraseña de Acceso · PaseBoda',
                         html: htmlContent
                     });
 

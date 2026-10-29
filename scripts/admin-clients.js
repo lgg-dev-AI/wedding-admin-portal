@@ -530,7 +530,7 @@ function sendWeek3Reminder(clientId) {
 
 Esperamos que tus eventos y proyectos de boda se encuentren marchando de manera excelente.
 
-Por medio del presente correo institucional, le hacemos un cordial recordatorio de que la mensualidad correspondiente a su plataforma Wedding Planner OS está programada para su renovación el próximo ${client.nextDueDate}.
+Por medio del presente correo institucional, le hacemos un cordial recordatorio de que la mensualidad correspondiente a su plataforma PaseBoda está programada para su renovación el próximo ${client.nextDueDate}.
 
 ==================================================
 RESUMEN DE FACTURACIÓN
@@ -577,10 +577,10 @@ function send72hPreLockWarning(clientId) {
     const client = clients.find(c => c.id === clientId);
     if (!client) return;
 
-    const emailSubject = `[Aviso Preventivo 72h] Renovación de Servicio Wedding Planner OS - ${client.agencyName}`;
+    const emailSubject = `[Aviso Preventivo 72h] Renovación de Servicio PaseBoda - ${client.agencyName}`;
     const emailBody = `Estimada ${client.plannerName} (${client.agencyName}),
 
-Le notificamos que restan únicamente 72 HORAS (3 días hábiles) para la fecha límite de pago de su suscripción a Wedding Planner OS (${client.nextDueDate}).
+Le notificamos que restan únicamente 72 HORAS (3 días hábiles) para la fecha límite de pago de su suscripción a PaseBoda (${client.nextDueDate}).
 
 ==================================================
 DETALLE DE ESTADO
@@ -671,7 +671,7 @@ PLAN ATELIER ELITE (Hasta 15 Bodas · Invitados Ilimitados · Marca Blanca)
     const emailSubject = `🎁 ¡Reconocimiento de Lealtad (3 Meses)! Descuento Especial de Upgrade para ${client.agencyName}`;
     const emailBody = `¡Hola ${client.plannerName}!
 
-Queremos agradecerte sinceramente por formar parte de Antigravity Wedding OS durante más de 3 meses. Tu confianza y preferencia como wedding planner profesional hacen posible que sigamos innovando y brindándote la mejor tecnología para tus bodas.
+Queremos agradecerte sinceramente por formar parte de PaseBoda durante más de 3 meses. Tu confianza y preferencia como wedding planner profesional hacen posible que sigamos innovando y brindándote la mejor tecnología para tus bodas.
 
 Como muestra de nuestro agradecimiento por tu lealtad y compromiso continuo, hemos preparado un beneficio exclusivo y permanente para tu agencia:
 
@@ -760,7 +760,7 @@ function submitSendSuspensionWarning(e) {
 
 Estimada ${client.plannerName} (${client.agencyName}),
 
-Le notificamos que el periodo regular de facturación para su cuenta de Wedding Planner OS por el monto de $${(client.monthlyFee || 0).toLocaleString('es-MX')} MXN (${client.nextDueDate}) ha concluido sin confirmación de pago.
+Le notificamos que el periodo regular de facturación para su cuenta de PaseBoda por el monto de $${(client.monthlyFee || 0).toLocaleString('es-MX')} MXN (${client.nextDueDate}) ha concluido sin confirmación de pago.
 
 ==================================================
 TIEMPO DE GRACIA Y BLOQUEO AUTOMÁTICO
@@ -925,7 +925,7 @@ function deleteClientPlanner(clientId) {
 }
 
 function getWelcomeMessageTemplate(client) {
-    return `¡Hola ${client.plannerName}! 🥂 Te damos la bienvenida a tu portal oficial de *Wedding Planner OS* por *Antigravity Web Studio*.
+    return `¡Hola ${client.plannerName}! 🥂 Te damos la bienvenida a tu portal oficial de *PaseBoda* por *Antigravity Web Studio*.
 
 ✨ *Tus Credenciales de Acceso Maestro:*
 🌐 Portal: https://paseboda.com

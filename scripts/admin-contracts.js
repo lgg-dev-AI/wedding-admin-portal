@@ -1,5 +1,5 @@
 /**
- * Wedding Planner OS - Bóveda de Contratos & Expediente Digital Escaneado
+ * PaseBoda - Bóveda de Contratos & Expediente Digital Escaneado
  * Permite adjuntar, escanear con la cámara o subir contratos firmados en PDF/Imágenes,
  * registrar montos, cláusulas clave, contrapartes y visualizarlos en móvil, tablet y PC.
  */
@@ -10,7 +10,7 @@ const DEFAULT_SCANNED_CONTRACTS = [
         title: "Contrato Oficial de Prestación de Servicios (Wedding Planning)",
         category: "planning",
         categoryLabel: "💍 Wedding Planning",
-        counterparty: "Mariana Garza / Wedding Planner OS",
+        counterparty: "Mariana Garza / PaseBoda",
         totalAmount: 48000,
         signDate: "15 de Septiembre, 2026",
         status: "signed", // 'signed', 'review', 'pending'
@@ -122,7 +122,7 @@ function renderContractsTab() {
                 <span style="font-size:1.4rem;">⚖️</span>
                 <div style="font-size:0.78rem; color:#475569; line-height:1.5;">
                     <strong style="color:#0f172a; display:block; margin-bottom:2px;">Deslinde Legal de la Plataforma (SaaS Vault Disclaimer):</strong>
-                    Wedding OS y su equipo desarrollador actúan estrictamente como un repositorio tecnológico de almacenamiento y consulta privada de documentos para la Wedding Planner y los Novios. Wedding OS no redacta ni certifica la validez intrínseca de los contratos adjuntos, ni asume responsabilidad civil, mercantil, laboral o fiscal alguna sobre los acuerdos celebrados entre los firmantes y sus proveedores.
+                    PaseBoda y su equipo desarrollador actúan estrictamente como un repositorio tecnológico de almacenamiento y consulta privada de documentos para la Wedding Planner y los Novios. PaseBoda no redacta ni certifica la validez intrínseca de los contratos adjuntos, ni asume responsabilidad civil, mercantil, laboral o fiscal alguna sobre los acuerdos celebrados entre los firmantes y sus proveedores.
                 </div>
             </div>
         </div>
@@ -630,7 +630,7 @@ function shareContractWhatsApp(contractId) {
     const data = (typeof getWeddingState === 'function' ? getWeddingState(window.currentWeddingId) : window.currentData) || {};
     const couple = data.couple || "Novios";
 
-    const text = `📋 *Expediente de Contrato Firmado*\nBoda: *${couple}*\nDocumento: *${c.title}*\nProveedor: *${c.counterparty}*\nImporte: *${formatMXNCurrency(c.totalAmount)}*\nFecha de Firma: *${c.signDate}*\n\nNotas clave: ${c.notes || 'En resguardo en Wedding OS'}`;
+    const text = `📋 *Expediente de Contrato Firmado*\nBoda: *${couple}*\nDocumento: *${c.title}*\nProveedor: *${c.counterparty}*\nImporte: *${formatMXNCurrency(c.totalAmount)}*\nFecha de Firma: *${c.signDate}*\n\nNotas clave: ${c.notes || 'En resguardo en PaseBoda'}`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 }

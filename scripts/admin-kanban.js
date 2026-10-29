@@ -1,5 +1,5 @@
 /**
- * Wedding Planner OS - CRM de Actividades & Roadmap (Kanban Drag & Drop)
+ * PaseBoda - CRM de Actividades & Roadmap (Kanban Drag & Drop)
  * Ultra-fácil de usar, cero configuración requerida, pre-cargado desde el día 1.
  */
 

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Planner OS &amp; Couple Portal — Control Central</title>
+    <title>PaseBoda &amp; Couple Portal — Control Central</title>
+    <link rel="icon" type="image/png" href="assets/img/paseboda-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
@@ -49,7 +50,7 @@
     <div id="demoFloatingBanner" class="demo-floating-banner" style="display: none;">
         <div class="d-flex align-center gap-2">
             <span class="demo-pulse-dot">🎭</span>
-            <span id="demoBannerText"><strong>MODO DEMO INTERACTIVO:</strong> Estás probando Wedding Planner OS como agencia invitada.</span>
+            <span id="demoBannerText"><strong>MODO DEMO INTERACTIVO:</strong> Estás probando PaseBoda como agencia invitada.</span>
         </div>
         <div class="d-flex align-center gap-2">
             <button class="btn-demo-upgrade" onclick="showTab('settings')" style="background:linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">💎 Ver y Elegir Planes</button>
@@ -62,10 +63,10 @@
         <div class="nav-left">
             <div class="logo-wrap">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="logo-gem">💍</span>
+                    <img src="assets/img/paseboda-logo.png" alt="PaseBoda" class="brand-logo-img" style="height:36px; width:auto; border-radius:8px; object-fit:contain; background:#ffffff; padding:2px; box-shadow:0 2px 8px rgba(0,0,0,0.18);">
                     <div class="logo-text">
-                        <span class="brand-title">WEDDING PLANNER OS</span>
-                        <span class="brand-badge">Multi-Tenant 3.0</span>
+                        <span class="brand-title">PASEBODA</span>
+                        <span class="brand-badge">SaaS Suite 3.0</span>
                     </div>
                 </div>
                 <button type="button" id="btnMobileMenuToggle" class="btn-mobile-hamburger" onclick="toggleMobileSidebar()" aria-label="Abrir menú de módulos">
@@ -122,7 +123,7 @@
             <div class="mobile-drawer-header">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:1.25rem;">💍</span>
-                    <strong style="font-size:0.9rem; color:#0f172a; letter-spacing:0.04em;">MÓDULOS WEDDING OS</strong>
+                    <strong style="font-size:0.9rem; color:#0f172a; letter-spacing:0.04em;">MÓDULOS PASEBODA</strong>
                 </div>
                 <button type="button" class="btn-close-drawer" onclick="closeMobileSidebar()" aria-label="Cerrar menú">✕</button>
             </div>
@@ -318,7 +319,7 @@
                 <!-- EMPTY STATE CUANDO UN PLANNER NO TIENE BODAS -->
                 <div id="dashboardEmptyState" style="display:none; text-align:center; padding: 60px 24px; background: #ffffff; border-radius: 16px; border: 2px dashed #cbd5e1; margin-top: 20px;">
                     <div style="font-size: 3.5rem; margin-bottom: 16px;">✨💍</div>
-                    <h2 style="font-size: 1.6rem; color: #0f172a; font-weight: 800; margin-bottom: 8px;">¡Bienvenido a tu Wedding Planner OS!</h2>
+                    <h2 style="font-size: 1.6rem; color: #0f172a; font-weight: 800; margin-bottom: 8px;">¡Bienvenido a tu suite PaseBoda!</h2>
                     <p style="color: #64748b; font-size: 1rem; max-width: 540px; margin: 0 auto 24px; line-height: 1.5;">
                         Tu espacio de trabajo está listo y completamente limpio. Para comenzar a gestionar tu primera pareja, invitaciones interactivas, mesas y presupuestos, haz clic en el botón de abajo.
                     </p>
@@ -2021,7 +2022,7 @@
                         <div class="d-flex justify-between align-center mb-3">
                             <div>
                                 <h3 class="card-heading" style="margin-bottom:2px;">📅 Altas Recientes &amp; Cronología de Clientes</h3>
-                                <p class="text-xs text-muted" style="margin:0;">Últimas wedding planners integradas a Wedding OS con su fecha de inicio.</p>
+                                <p class="text-xs text-muted" style="margin:0;">Últimas wedding planners integradas a PaseBoda con su fecha de inicio.</p>
                             </div>
                         </div>
 
@@ -3686,7 +3687,7 @@
                     <input type="number" id="newWBudget" value="850000">
                 </div>
                 <div class="form-group">
-                    <label>Enlace de Invitación Digital (Opcional - Wedding OS o link externo de Canva / PDF / Wix)</label>
+                    <label>Enlace de Invitación Digital (Opcional - PaseBoda o link externo de Canva / PDF / Wix)</label>
                     <input type="url" id="newWLiveUrl" placeholder="https://canva.com/... o dejar en blanco para usar la nativa">
                     <small style="display:block; font-size:0.7rem; color:#64748b; margin-top:2px;">Se usará automáticamente en los envíos de WhatsApp para los invitados.</small>
                 </div>
@@ -4035,7 +4036,7 @@
             
             <div class="modal-body legal-text-scroll">
                 <h4>1. Naturaleza Exclusivamente Tecnológica del Servicio</h4>
-                <p>El sistema "Wedding Planner OS" es desarrollado y operado por <strong>Antigravity Web Developer</strong> en modalidad de Software como Servicio (SaaS). El Usuario (Wedding Planner, Novios e Invitados) reconoce y acepta que Antigravity es un proveedor tecnológico independiente y <strong>NO actúa como organizador de eventos, wedding planner, banquetero, intermediario de transporte, seguridad ni custodio de fondos</strong>.</p>
+                <p>El sistema "PaseBoda" es desarrollado y operado por <strong>Antigravity Web Developer</strong> en modalidad de Software como Servicio (SaaS). El Usuario (Wedding Planner, Novios e Invitados) reconoce y acepta que Antigravity es un proveedor tecnológico independiente y <strong>NO actúa como organizador de eventos, wedding planner, banquetero, intermediario de transporte, seguridad ni custodio de fondos</strong>.</p>
 
                 <h4>2. Exención de Responsabilidad Médica y Alergias Alimentarias</h4>
                 <p>La plataforma provee herramientas informativas para que los invitados declaren restricciones alimentarias (celiaquía, alergias a frutos secos, mariscos, etc.). La verificación, manipulación, preparación de alimentos y prevención de contaminación cruzada es responsabilidad exclusiva del proveedor de banquete/catering y de los organizadores físicos del evento. <strong>Antigravity queda totalmente eximido de cualquier responsabilidad médica, civil o penal por reacciones alérgicas o intoxicaciones</strong>.</p>
@@ -4075,7 +4076,7 @@
             
             <div class="modal-body legal-text-scroll">
                 <h4>1. Identidad y Domicilio del Responsable</h4>
-                <p><strong>Antigravity Web Developer</strong>, con domicilio digital y portal de operaciones, es responsable del tratamiento y protección de sus datos personales en la plataforma Wedding Planner OS.</p>
+                <p><strong>Antigravity Web Developer</strong>, con domicilio digital y portal de operaciones, es responsable del tratamiento y protección de sus datos personales en la plataforma PaseBoda.</p>
 
                 <h4>2. Datos Personales Recabados</h4>
                 <p>Para la operación del servicio se recaban: nombre completo, número de teléfono celular (WhatsApp), correo electrónico, asignación de pases y preferencias de asistencia.</p>
@@ -5044,7 +5045,7 @@
                 <div class="d-flex align-center gap-2">
                     <span class="modal-icon">💳</span>
                     <div>
-                        <h3 class="modal-title">Autorizar Mensualidad de Wedding OS</h3>
+                        <h3 class="modal-title">Autorizar Mensualidad de PaseBoda</h3>
                         <p class="text-xs" style="color:#a7f3d0; margin:0;" id="authPayAgencyName">Agencia</p>
                     </div>
                 </div>
@@ -5147,20 +5148,16 @@
             }
         </script>
         <div class="auth-card-glass">
-            <div class="auth-brand-logo">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 3h12l4 6-10 12L2 9z"/>
-                    <path d="M11 3L8 9l4 12 4-12-3-6"/>
-                    <path d="M2 9h20"/>
-                </svg>
+            <div class="auth-brand-logo" style="width:68px; height:68px; padding:4px; background:#ffffff; border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; box-shadow:0 8px 22px rgba(197, 168, 128, 0.28); border:1px solid rgba(197, 168, 128, 0.45);">
+                <img src="assets/img/paseboda-logo.png" alt="PaseBoda" style="width:100%; height:100%; object-fit:contain; border-radius:12px;">
             </div>
             <div class="auth-badge-shield">
-                <span>Wedding Planner OS · Professional Suite</span>
+                <span>PaseBoda · Professional Suite</span>
             </div>
 
             <!-- VIEW 1: STANDARD LOGIN -->
             <div id="authViewLogin">
-                <h2 class="auth-title">Wedding Planner OS</h2>
+                <h2 class="auth-title">PaseBoda</h2>
                 <p class="auth-subtitle">Acceso exclusivo a la suite de gestión, invitaciones interactivas y control de bodas.</p>
 
                 <div id="loginErrorMsg" class="auth-error-banner"></div>
@@ -5191,7 +5188,7 @@
                     </div>
 
                     <button type="submit" class="btn-auth-submit" id="btnLoginSubmit">
-                        <span>Iniciar Sesión en Wedding OS</span> →
+                        <span>Iniciar Sesión en PaseBoda</span> →
                     </button>
 
                     <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); text-align:center;">
@@ -5270,7 +5267,7 @@
             <!-- VIEW 4: PLANNER REGISTRATION & ONBOARDING -->
             <div id="authViewRegister" style="display: none;">
                 <h2 class="auth-title">Crear Cuenta de Wedding Planner</h2>
-                <p class="auth-subtitle">Registra tu agencia gratis para acceder a explorar la suite interactiva de Wedding OS.</p>
+                <p class="auth-subtitle">Registra tu agencia gratis para acceder a explorar la suite interactiva de PaseBoda.</p>
 
                 <div id="registerErrorMsg" class="auth-error-banner"></div>
 
@@ -5328,7 +5325,7 @@
                         <div style="display:flex; align-items:flex-start; gap:8px;">
                             <input type="checkbox" id="regAcceptTerms" checked required style="margin-top:2px;">
                             <label for="regAcceptTerms" style="cursor:pointer; color:#1c1917;">
-                                Acepto los <a href="javascript:void(0)" onclick="openLegalTermsModal()" style="color:#9a7337; text-decoration:underline; font-weight:600;">Términos de Servicio SaaS</a> y Aviso de Privacidad de Wedding OS.
+                                Acepto los <a href="javascript:void(0)" onclick="openLegalTermsModal()" style="color:#9a7337; text-decoration:underline; font-weight:600;">Términos de Servicio SaaS</a> y Aviso de Privacidad de PaseBoda.
                             </label>
                         </div>
                     </div>
@@ -5542,7 +5539,7 @@
                 <div class="d-flex align-center gap-2">
                     <span class="modal-icon">💎</span>
                     <div>
-                        <h3 class="modal-title">Suscripción Wedding Planner OS</h3>
+                        <h3 class="modal-title">Suscripción PaseBoda</h3>
                         <p class="text-xs" style="color:#c7d2fe; margin:0;">Elige tu plan y realiza tu transferencia bancaria SPEI</p>
                     </div>
                 </div>
@@ -5588,7 +5585,7 @@
                             <button type="button" class="btn-dev-action-mini authorize" onclick="copyTextToClipboard('012180015899234410', 'CLABE BBVA copiada')">📋 Copiar</button>
                         </div>
                         <div>• <strong>Beneficiario:</strong> Antigravity Web Studio</div>
-                        <div>• <strong>Concepto:</strong> <span id="speiConceptText">Suscripción Wedding OS</span></div>
+                        <div>• <strong>Concepto:</strong> <span id="speiConceptText">Suscripción PaseBoda</span></div>
                     </div>
                 </div>
 
@@ -5693,7 +5690,7 @@
             <div style="font-size:3.2rem; margin:12px 0 6px;">🎉</div>
             <span style="font-size:0.75rem; color:#059669; font-weight:800; text-transform:uppercase; letter-spacing:1px;">¡Pago Aprobado con Éxito!</span>
             <h2 style="font-size:1.3rem; color:#0f172a; margin:6px 0 2px;">Suscripción Activada</h2>
-            <p style="font-size:0.8rem; color:#64748b; margin:0 0 16px;">Tu cuenta de Wedding Planner OS ha sido habilitada por 30 días.</p>
+            <p style="font-size:0.8rem; color:#64748b; margin:0 0 16px;">Tu cuenta de PaseBoda ha sido habilitada por 30 días.</p>
 
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; text-align:left; font-size:0.82rem; margin-bottom:16px;">
                 <div class="d-flex justify-between mb-2">
@@ -5715,7 +5712,7 @@
             </div>
 
             <button type="button" class="btn-modal primary" onclick="closePaymentSuccessModal()" style="width:100%; background:#10b981; border-color:#059669;">
-                <span>🚀 Entrar a Mi Suite de Wedding OS</span>
+                <span>🚀 Entrar a Mi Suite de PaseBoda</span>
             </button>
         </div>
     </div>
@@ -5846,7 +5843,7 @@
                 <!-- CONTENT TAB 1: TÉRMINOS DE SERVICIO -->
                 <div id="legalContentTerms">
                     <h4 style="color:#0f172a; margin-top:0;">1. Objeto y Licencia de Software SaaS</h4>
-                    <p>El presente instrumento regula el uso de la plataforma digital <strong>Wedding Planner OS</strong> desarrollada y operada por <strong>Antigravity Web Studio</strong>. Al acceder o contratar cualquier plan, la Wedding Planner o Agencia adquiere una licencia de uso de software en la nube (SaaS), revocable, no exclusiva y temporal.</p>
+                    <p>El presente instrumento regula el uso de la plataforma digital <strong>PaseBoda</strong> desarrollada y operada por <strong>Antigravity Web Studio</strong>. Al acceder o contratar cualquier plan, la Wedding Planner o Agencia adquiere una licencia de uso de software en la nube (SaaS), revocable, no exclusiva y temporal.</p>
 
                     <h4 style="color:#0f172a;">2. Procesamiento Seguro de Pagos &amp; Blindaje PCI-DSS</h4>
                     <p style="background:#f8fafc; border-left:3px solid #6366f1; padding:8px 12px; border-radius:4px;">
@@ -5981,7 +5978,7 @@
                                 <span style="font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:6px; font-weight:700;">Para WhatsApp Masivo</span>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
-                                <label style="font-size:0.76rem; color:#334155; font-weight:700;">URL de Invitación Web (Wedding OS, Canva, Wix o PDF)</label>
+                                <label style="font-size:0.76rem; color:#334155; font-weight:700;">URL de Invitación Web (PaseBoda, Canva, Wix o PDF)</label>
                                 <input type="url" id="editWLiveUrl" placeholder="https://canva.com/... o https://tu-boda.com" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 10px; font-size:0.82rem;">
                                 <small style="display:block; font-size:0.7rem; color:#64748b; margin-top:4px;">
                                     💡 Si los novios tienen su invitación en Canva, PDF o sitio externo, pega aquí su link para que se envíe automáticamente por WhatsApp a cada invitado.
@@ -6516,7 +6513,7 @@
     <!-- ========================================================================== -->
     <div id="plannerCopilotContainer" class="planner-only">
         <!-- Floating Chat Bubble Trigger -->
-        <button id="btnOpenPlannerCopilot" onclick="togglePlannerCopilot()" title="Pregúntale al Asistente Virtual de Wedding OS" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#ffffff; border:none; box-shadow:0 8px 24px rgba(217,119,6,0.4); display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; z-index:99999; transition:transform 0.2s ease;">
+        <button id="btnOpenPlannerCopilot" onclick="togglePlannerCopilot()" title="Pregúntale al Asistente Virtual de PaseBoda" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#ffffff; border:none; box-shadow:0 8px 24px rgba(217,119,6,0.4); display:flex; align-items:center; justify-content:center; font-size:1.6rem; cursor:pointer; z-index:99999; transition:transform 0.2s ease;">
             <span>🤖</span>
         </button>
 
@@ -6527,7 +6524,7 @@
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:36px; height:36px; border-radius:50%; background:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🤖</div>
                     <div>
-                        <strong style="font-size:0.95rem; display:block;">Wedding Planner Copilot</strong>
+                        <strong style="font-size:0.95rem; display:block;">PaseBoda Copilot</strong>
                         <span style="font-size:0.75rem; color:#94a3b8;">Asistente en vivo 24/7</span>
                     </div>
                 </div>
@@ -6548,7 +6545,7 @@
             <div id="copilotMessagesBox" style="flex:1; padding:16px; overflow-y:auto; background:#ffffff;">
                 <div class="copilot-msg-row bot" style="margin-bottom:12px; display:flex; flex-direction:column; align-items:flex-start;">
                     <div class="copilot-bubble bot" style="max-width:90%; padding:12px 14px; border-radius:14px 14px 14px 2px; background:#f1f5f9; color:#1e293b; font-size:0.86rem; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        👋 ¡Hola! Soy tu <strong>Wedding Planner Copilot</strong>.<br><br>
+                        👋 ¡Hola! Soy tu <strong>PaseBoda Copilot</strong>.<br><br>
                         Estoy entrenado para guiarte en cada fase del evento. Si estás arrancando un nuevo proyecto, presiona el botón naranja arriba <strong>"🚀 Boda desde 0 (Paso a Paso)"</strong> o pregúntame cualquier duda sobre invitados, mesas, WhatsApp o proveedores.
                     </div>
                 </div>

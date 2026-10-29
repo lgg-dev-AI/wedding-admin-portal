@@ -1,5 +1,5 @@
 // ==========================================================================
-// WEDDING OS & ANTIGRAVITY SECURITY: LOGIN, ROLES & 25-MIN AUTO-LOCK ENGINE
+// PASEBODA & ANTIGRAVITY SECURITY: LOGIN, ROLES & 25-MIN AUTO-LOCK ENGINE
 // ==========================================================================
 
 const AUTH_CONFIG = {
@@ -389,7 +389,7 @@ function submitFullLogin(e) {
 
     // CHECK IF CLIENT ACCOUNT IS SUSPENDED (MANUAL OR AUTO-LOCK AFTER GRACE PERIOD)
     if (client.isSuspended) {
-        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a Wedding OS para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago mensual vía SPEI y remite tu comprobante a <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
+        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago mensual vía SPEI y remite tu comprobante a <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
         return;
     }
 
@@ -693,7 +693,7 @@ function submitSetPermanentPassword(e) {
     resetInactivityTimer();
 
     if (typeof showToast === 'function') {
-        showToast(`🎉 ¡Contraseña actualizada con éxito! Has ingresado a Wedding OS.`);
+        showToast(`🎉 ¡Contraseña actualizada con éxito! Has ingresado a PaseBoda.`);
     }
 }
 
@@ -859,7 +859,7 @@ function submitUnlockSession(e) {
 }
 
 function logoutManual() {
-    if (confirm('¿Deseas cerrar tu sesión actual de Wedding OS?')) {
+    if (confirm('¿Deseas cerrar tu sesión actual de PaseBoda?')) {
         sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEY);
         sessionStorage.removeItem(AUTH_CONFIG.USER_KEY);
         sessionStorage.removeItem(AUTH_CONFIG.ROLE_KEY);

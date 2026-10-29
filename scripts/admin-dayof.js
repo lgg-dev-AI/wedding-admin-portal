@@ -723,7 +723,7 @@ function printDayOfSheet() {
             ${sectionsHtml}
 
             <div class="print-footer-info">
-                <span>Wedding Planner OS • Antigravity Enterprise</span>
+                <span>PaseBoda • Antigravity Enterprise</span>
                 <span>Firma de Conformidad: ____________________________________ (Lead Planner)</span>
             </div>
 

@@ -7,7 +7,7 @@
 function exportWeddingBackup() {
     const data = getWeddingState(currentWeddingId);
     const exportPayload = {
-        app: "Wedding Planner OS",
+        app: "PaseBoda",
         version: "3.0.0",
         exportTimestamp: new Date().toISOString(),
         exportedBy: currentRole === 'planner' ? 'Wedding Planner (Admin)' : 'Novios (Cliente)',
@@ -40,7 +40,7 @@ function exportMasterAgencyBackup() {
     });
 
     const exportPayload = {
-        app: "Wedding Planner OS - Master Agency Backup",
+        app: "PaseBoda - Master Agency Backup",
         version: "3.0.0",
         exportTimestamp: new Date().toISOString(),
         totalWeddings: keys.length,
@@ -97,7 +97,7 @@ function handleBackupFileUpload(event) {
 
         } catch (err) {
             console.error(err);
-            alert("❌ Error al restaurar el archivo. Asegúrate de que sea un archivo .json válido generado por Wedding Planner OS.");
+            alert("❌ Error al restaurar el archivo. Asegúrate de que sea un archivo .json válido generado por PaseBoda.");
         }
     };
     reader.readAsText(file);
