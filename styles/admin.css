@@ -130,9 +130,24 @@ body.admin-body {
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
 
 /* VIEWPORT */
-.app-viewport { flex: 1; padding: 30px; overflow-y: auto; max-height: calc(100vh - 65px); }
+.app-viewport { 
+    flex: 1; 
+    padding: 30px; 
+    overflow-y: auto; 
+    max-height: calc(100vh - 65px); 
+    background: var(--bg-main);
+    transform: translateZ(0);
+}
 .tab-pane { display: none; }
-.tab-pane.active { display: block; }
+.tab-pane.active { 
+    display: block; 
+    animation: fadeInTab 0.1s ease-out;
+}
+
+@keyframes fadeInTab {
+    from { opacity: 0.95; }
+    to { opacity: 1; }
+}
 .tab-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; gap: 20px; }
 .tab-title { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
 .tab-subtitle { font-size: 0.88rem; color: var(--text-muted); margin-top: 4px; }

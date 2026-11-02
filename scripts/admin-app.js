@@ -529,6 +529,7 @@ function showTab(tabName) {
     const viewport = document.querySelector('.app-viewport');
     if (viewport) {
         viewport.scrollTop = 0;
+        requestAnimationFrame(() => { void viewport.offsetHeight; });
     }
 
     const btn = Array.from(document.querySelectorAll('.menu-item')).find(b => {
