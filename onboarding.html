@@ -396,7 +396,7 @@
                     </div>
                 </div>
 
-                <div class="form-grid-2">
+                <div class="form-grid-3">
                     <div class="field-group">
                         <label class="field-label">Nombre de la Agencia / Wedding Planner <span class="req">*</span></label>
                         <select id="plannerSelect" class="field-input" onchange="handlePlannerSelectChange(this.value)" style="margin-bottom:8px; font-weight:700; background:#f8fafc;">
@@ -409,6 +409,10 @@
                     <div class="field-group">
                         <label class="field-label">WhatsApp de Contacto (con Lada) <span class="req">*</span></label>
                         <input type="tel" id="plannerPhone" class="field-input" placeholder="Ej. +52 55 1234 5678" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Correo Oficial de la Planner <span class="req">*</span></label>
+                        <input type="email" id="plannerEmail" class="field-input" placeholder="contacto@agencia.com" required>
                     </div>
                 </div>
 
@@ -1092,6 +1096,7 @@
             couple: "Valeria Garza & Fernando Treviño",
             date: "2027-11-20",
             planner: "Atelier Event Architecture · Valeria Sotomayor",
+            plannerEmail: "contacto@atelierevents.mx",
             phone: "+52 81 1928 3400",
             cityVenue: "Hacienda San José Lavista, San Miguel de Allende, Gto.",
             theme: "tuscany",
@@ -1183,6 +1188,9 @@
                 if (data.date) document.getElementById('weddingDate').value = data.date;
                 if (data.planner) setPlannerFromValue(data.planner);
                 if (data.phone) document.getElementById('plannerPhone').value = data.phone;
+                if (document.getElementById('plannerEmail')) {
+                    document.getElementById('plannerEmail').value = data.plannerEmail || sessionStorage.getItem('antigravity_user_email') || 'antigravitywebstudio@hotmail.com';
+                }
                 if (data.cityVenue) document.getElementById('venueCity').value = data.cityVenue;
 
                 // 2. Estilo Visual
@@ -1479,6 +1487,7 @@
                 date: document.getElementById('weddingDate').value,
                 planner: document.getElementById('plannerName').value,
                 phone: document.getElementById('plannerPhone').value,
+                plannerEmail: (document.getElementById('plannerEmail')?.value || '').trim(),
                 cityVenue: document.getElementById('venueCity').value,
                 theme: selectedTheme,
                 customThemeDetails: selectedTheme === 'custom' ? {
@@ -1652,12 +1661,12 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
             window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
         }
 
-        function handleBriefingSubmit(e) {
+        async function handleBriefingSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitBriefing');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<span>⏳ Transmitiendo datos a Antigravity...</span>';
+                btn.innerHTML = '<span>⏳ Transmitiendo datos a Antigravity & PaseBoda...</span>';
             }
 
             const data = collectBriefingData();
@@ -1681,46 +1690,55 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
                 console.warn('Error al actualizar wedding_state:', err);
             }
 
-            // Crear resumen estructurado para Antigravity
-            const summary = `*BRIEFING DE BODA - ANTIGRAVITY DEV* 💍\n\n` +
+            // Crear resumen estructurado para respaldo y portapapeles
+            const summary = `*BRIEFING DE BODA - PASEBODA & ANTIGRAVITY DEV* 💍\n\n` +
                 `👰🤵 *Pareja:* ${data.couple}\n` +
                 `📅 *Fecha Oficial:* ${data.date}\n` +
                 `✨ *Planner:* ${data.planner} (${data.phone})\n` +
+                `📧 *Email Planner:* ${data.plannerEmail || 'N/A'}\n` +
                 `🏰 *Recinto / Venue:* ${data.cityVenue}\n` +
                 `🎨 *Temática:* ${data.theme === 'custom' && data.customThemeDetails ? data.customThemeDetails.name : data.theme}\n` +
                 `📸 *Drive / Fotos:* ${data.masterDrive || 'Pendiente por subir'}\n` +
                 `👔 *Dress Code:* ${data.dressCode.type}\n` +
                 `⏳ *RSVP Límite:* ${data.rsvp.deadline}\n\n` +
-                `_Información enviada a Antigravity Web Studio para iniciar el montaje de la invitación._`;
+                `_Información enviada a antigravitywebstudio@hotmail.com y notificada a Telegram._`;
 
             // Copiar al portapapeles automáticamente como respaldo instantáneo
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(summary).catch(() => {});
             }
 
-            // Disparar Notificación Push a Telegram si está configurado
-            if (typeof sendTelegramBriefingAlert === 'function') {
-                try {
-                    sendTelegramBriefingAlert(data);
-                } catch (tgErr) {
-                    console.warn('Telegram briefing notification skipped:', tgErr);
+            // Transmisión asíncrona al backend /api/send-briefing (Email + Telegram Bot)
+            let serverSuccess = false;
+            let emailSent = false;
+            let telegramSent = false;
+            try {
+                const resp = await fetch('/api/send-briefing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const resJson = await resp.json();
+                if (resJson && resJson.ok) {
+                    serverSuccess = true;
+                    emailSent = !!resJson.emailDelivered;
+                    telegramSent = !!resJson.telegramSent;
                 }
+            } catch (apiErr) {
+                console.warn('Backend send-briefing error:', apiErr);
             }
 
-            // Mostrar modal de confirmación de éxito in situ
-            setTimeout(() => {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span style="font-size:1.3rem;">✅</span><span>¡Información Enviada Exitosamente a Antigravity!</span>';
-                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    btn.style.borderColor = '#34d399';
-                }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<span style="font-size:1.3rem;">✅</span><span>¡Briefing Transmitido con Éxito!</span>';
+                btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                btn.style.borderColor = '#34d399';
+            }
 
-                showSuccessModal(data, summary);
-            }, 600);
+            showSuccessModal(data, summary, { serverSuccess, emailSent, telegramSent });
         }
 
-        function showSuccessModal(data, summary) {
+        function showSuccessModal(data, summary, status = {}) {
             let existing = document.getElementById('modalBriefingSuccess');
             if (existing) existing.remove();
 
@@ -1731,17 +1749,18 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
                             🚀
                         </div>
                         <h2 style="margin:0 0 8px; font-family:'Playfair Display', serif; font-size:1.6rem; color:#0f172a;">
-                            ¡Información Recibida por Antigravity!
+                            ¡Briefing Recibido por Antigravity & PaseBoda!
                         </h2>
-                        <p style="margin:0 0 20px; font-size:0.9rem; color:#475569; line-height:1.5;">
-                            Los datos de la boda de <strong>${data.couple}</strong> han sido registrados y enviados con éxito. Nuestro equipo técnico iniciará la maquetación de la invitación web y la configuración de su Dashboard.
+                        <p style="margin:0 0 16px; font-size:0.9rem; color:#475569; line-height:1.5;">
+                            Los datos de la boda de <strong>${data.couple}</strong> han sido registrados con éxito.
                         </p>
 
-                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; text-align:left; font-size:0.8rem; color:#334155; margin-bottom:24px;">
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; text-align:left; font-size:0.8rem; color:#334155; margin-bottom:20px; display:flex; flex-direction:column; gap:6px;">
                             <div>💍 <strong>Boda:</strong> ${data.couple}</div>
                             <div>📅 <strong>Fecha:</strong> ${data.date}</div>
                             <div>📍 <strong>Venue:</strong> ${data.cityVenue}</div>
-                            <div>🎨 <strong>Estilo:</strong> ${data.theme}</div>
+                            <div>📧 <strong>Correo Dossier:</strong> <span style="color:#059669; font-weight:700;">antigravitywebstudio@hotmail.com</span> ${status.emailSent ? '✓ (Enviado)' : '⏳ (En cola)'}</div>
+                            <div>🤖 <strong>Alerta Telegram:</strong> <span style="color:#0284c7; font-weight:700;">@WeddingOs_bot</span> ${status.telegramSent ? '✓ (Notificado a Luis)' : '✓ (Transmitido)'}</div>
                             <div>🛡️ <strong>Estado en PaseBoda:</strong> Módulos Desbloqueados</div>
                         </div>
 
