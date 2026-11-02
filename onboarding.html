@@ -1728,6 +1728,16 @@ Por favor maquetar la estructura y colocar los marcadores de las 15 fotos corres
                 console.warn('Backend send-briefing error:', apiErr);
             }
 
+            // Respaldo de despacho directo a Telegram (Garantiza entrega de auditoría + archivo adjunto)
+            if (!telegramSent && typeof sendTelegramBriefingAlert === 'function') {
+                try {
+                    await sendTelegramBriefingAlert(data);
+                    telegramSent = true;
+                } catch (tgClientErr) {
+                    console.warn('Telegram direct client alert error:', tgClientErr);
+                }
+            }
+
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = '<span style="font-size:1.3rem;">✅</span><span>¡Briefing Transmitido con Éxito!</span>';

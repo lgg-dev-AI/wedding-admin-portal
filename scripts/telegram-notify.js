@@ -183,45 +183,188 @@ async function sendTelegramNewAgencyAlert(clientData) {
 
 /**
  * Enviar alerta cuando una Wedding Planner envía o actualiza el Briefing de una boda
+ * Realiza auditoría de 8 bloques y despacha mensaje estructurado + archivo del expediente a Telegram.
  */
 async function sendTelegramBriefingAlert(briefingData) {
     const config = getTelegramConfig();
     if (config.enabled === false) return;
+
+    const botToken = config.botToken || DEFAULT_TELEGRAM_BOT_TOKEN;
+    const chatId = config.chatId || DEFAULT_TELEGRAM_CHAT_ID;
 
     const {
         couple = 'Pareja',
         date = 'Sin fecha',
         planner = 'Planner',
         phone = '',
+        plannerEmail = '',
         cityVenue = 'Sin recinto',
         theme = 'Elegante',
         masterDrive = '',
-        menuType = 'choice'
+        itinerary = {},
+        dressCode = {},
+        giftRegistry = {},
+        rsvp = {},
+        transport = {}
     } = briefingData || {};
 
-    const menuLabel = (menuType === 'fixed') ? 'Menú Fijo de Gala (Sin elección)' : 'A Elección de Invitados';
+    // 1. Auditoría de 8 Bloques en cliente
+    const blocks = [];
+    
+    // B1: Datos Generales
+    const b1Ok = !!(couple && couple.length >= 4 && date && planner && phone && plannerEmail && cityVenue);
+    blocks.push({
+        num: 1, title: 'Datos Generales & Contacto', ok: b1Ok,
+        summary: b1Ok ? `${couple} · ${date} · ${planner}` : 'Faltan campos de contacto o recinto'
+    });
+
+    // B2: Temática
+    const b2Ok = !!theme;
+    blocks.push({
+        num: 2, title: 'Temática & Estilo Visual', ok: b2Ok,
+        summary: b2Ok ? `Línea: ${theme.toUpperCase()}` : 'Sin estilo seleccionado'
+    });
+
+    // B3: Fotos & Drive
+    const b3Ok = !!(masterDrive && /^https?:\/\//i.test(masterDrive));
+    blocks.push({
+        num: 3, title: 'Blueprint Fotos (15 Tomas)', ok: b3Ok,
+        summary: b3Ok ? 'Repositorio de imágenes adjunto' : 'Pendiente link de fotos/Drive'
+    });
+
+    // B4: Itinerario
+    const b4Ok = !!(itinerary?.ceremony?.start || itinerary?.reception?.dinner);
+    blocks.push({
+        num: 4, title: 'Itinerario & Cronograma', ok: b4Ok,
+        summary: b4Ok ? `Ceremonia ${itinerary?.ceremony?.start || '--:--'} · Banquete ${itinerary?.reception?.dinner || '--:--'}` : 'Horarios pendientes'
+    });
+
+    // B5: Dress Code
+    const b5Ok = !!(dressCode?.type);
+    blocks.push({
+        num: 5, title: 'Código de Vestimenta', ok: b5Ok,
+        summary: b5Ok ? `Etiqueta: ${dressCode.type}` : 'Nivel de etiqueta no definido'
+    });
+
+    // B6: Mesa de Regalos
+    const clabeClean = (giftRegistry?.clabe || '').replace(/\s+/g, '');
+    const b6Ok = (clabeClean.length === 18) || !!giftRegistry?.store || !!giftRegistry?.amazon || !!giftRegistry?.envelope;
+    blocks.push({
+        num: 6, title: 'Mesa de Regalos & Cuenta', ok: b6Ok,
+        summary: clabeClean.length === 18 ? `CLABE 18 dígitos validada (${giftRegistry.bank || 'Banco'})` : (b6Ok ? 'Mesa en tienda o sobre activa' : 'Sin mesa de regalos')
+    });
+
+    // B7: RSVP & Menú
+    const b7Ok = !!(rsvp?.deadline);
+    blocks.push({
+        num: 7, title: 'RSVP, Menú & Alergias', ok: b7Ok,
+        summary: b7Ok ? `Límite: ${rsvp.deadline} · ${rsvp.kidsPolicy === 'adults_only' ? 'Solo Adultos' : 'Niños permitidos'}` : 'Fecha límite de confirmación pendiente'
+    });
+
+    // B8: Transporte
+    const hasShuttle = transport?.hasShuttle === 'yes' || transport?.hasShuttle === true;
+    blocks.push({
+        num: 8, title: 'Transporte & Hoteles', ok: true,
+        summary: hasShuttle ? `Shuttles activos desde ${transport.pickup || 'punto acordado'}` : 'Sin shuttles programados'
+    });
+
+    const approvedCount = blocks.filter(b => b.ok).length;
+    const isFullPass = approvedCount === blocks.length;
+    const score = `${approvedCount}/${blocks.length}`;
+
     const timestamp = new Date().toLocaleString('es-MX', {
         dateStyle: 'medium',
         timeStyle: 'short',
         timeZone: 'America/Mexico_City'
     });
 
-    const messageHtml = `
-💌 <b>¡NUEVO FORMULARIO DE BRIEFING RECIBIDO!</b> 📋
-━━━━━━━━━━━━━━━━━━━━
-👰🤵 <b>Pareja:</b> ${escapeHtml(couple)}
-📅 <b>Fecha Boda:</b> ${escapeHtml(date)}
-🏰 <b>Recinto:</b> ${escapeHtml(cityVenue)}
-✨ <b>Planner:</b> ${escapeHtml(planner)} ${phone ? '(' + escapeHtml(phone) + ')' : ''}
-🎨 <b>Temática:</b> ${escapeHtml(theme)}
-🍽️ <b>Modalidad Menú:</b> ${escapeHtml(menuLabel)}
-📁 <b>Material / Drive:</b> ${masterDrive ? '<a href="' + escapeHtml(masterDrive) + '">Ver Fotos/Drive</a>' : 'No proporcionado'}
-🕒 <b>Recibido:</b> ${timestamp} hrs
-━━━━━━━━━━━━━━━━━━━━
-💡 <i>Listo para comenzar el diseño de la invitación en Antigravity Studio.</i>
-`.trim();
+    // 2. Construir mensaje de texto enriquecido con checks
+    let auditLines = [];
+    auditLines.push(`💍 <b>NUEVO BRIEFING RECIBIDO · PASEBODA</b> 📋`);
+    auditLines.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    auditLines.push(`👰🤵 <b>Pareja:</b> ${escapeHtml(couple)}`);
+    auditLines.push(`📅 <b>Fecha:</b> ${escapeHtml(date)}`);
+    auditLines.push(`✨ <b>Planner:</b> ${escapeHtml(planner)} ${phone ? '(' + escapeHtml(phone) + ')' : ''}`);
+    auditLines.push(`📧 <b>Email:</b> ${escapeHtml(plannerEmail || 'N/A')}`);
+    auditLines.push(`🏰 <b>Recinto:</b> ${escapeHtml(cityVenue)}`);
+    auditLines.push(`🕒 <b>Registrado:</b> ${timestamp} hrs`);
+    auditLines.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    auditLines.push(`🧠 <b>AUDITORÍA INTELIGENTE DE 8 BLOQUES:</b>\n`);
 
-    return await sendTelegramMessage(messageHtml);
+    blocks.forEach(b => {
+        const icon = b.ok ? '✅' : '⚠️';
+        auditLines.push(`${icon} <b>${b.num}. ${b.title}:</b>`);
+        auditLines.push(`   └ <i>${b.summary}</i>`);
+    });
+
+    auditLines.push(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    auditLines.push(`🎯 <b>SCORE: ${score} BLOQUES APROBADOS</b>`);
+    auditLines.push(isFullPass ? `✨ <b>STATUS: LISTO PARA PRODUCCIÓN</b>` : `⚠️ <b>STATUS: REVISAR OBSERVACIONES</b>`);
+    auditLines.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    auditLines.push(`📎 <i>Se adjuntó el expediente en archivo para abrir con 1 tap.</i>`);
+
+    const fullMessage = auditLines.join('\n');
+
+    // 3. Despachar mensaje de auditoría
+    await sendTelegramMessage(fullMessage, botToken, chatId);
+
+    // 4. Generar y enviar el archivo del expediente (sendDocument)
+    try {
+        const cleanCouple = couple.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+        const fileName = `Dossier_Briefing_${cleanCouple || 'Boda'}.html`;
+        
+        const docHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Expediente · ${escapeHtml(couple)} · PaseBoda</title>
+<style>
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0b0f19; color:#f8fafc; padding:24px; margin:0; }
+.card { max-width:760px; margin:0 auto; background:#111827; border:1px solid #1f2937; border-radius:16px; padding:32px; box-shadow:0 20px 40px rgba(0,0,0,0.5); }
+h1 { margin:0 0 8px; color:#fff; font-size:24px; }
+.badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; background:rgba(16,185,129,0.2); color:#34d399; margin-bottom:20px; }
+.block { background:#090d16; border:1px solid #1e293b; border-radius:10px; padding:14px; margin-bottom:12px; }
+.block h3 { margin:0 0 6px; font-size:14px; color:#d97706; }
+.val { font-size:13px; color:#cbd5e1; }
+a { color:#38bdf8; }
+</style>
+</head>
+<body>
+<div class="card">
+    <div style="border-bottom:2px solid #d97706; padding-bottom:12px; margin-bottom:20px;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#e2a891; font-weight:800;">PaseBoda · Expediente Oficial</span>
+        <h1>${escapeHtml(couple)}</h1>
+        <div class="badge">Auditoría: ${score} Bloques Aprobados</div>
+    </div>
+    <div class="block"><h3>1. Datos Generales</h3><div class="val">Fecha: ${escapeHtml(date)}<br>Recinto: ${escapeHtml(cityVenue)}<br>Planner: ${escapeHtml(planner)} (${escapeHtml(phone)})<br>Email: ${escapeHtml(plannerEmail)}</div></div>
+    <div class="block"><h3>2. Estilo & Temática</h3><div class="val">Línea: ${escapeHtml(theme)}</div></div>
+    <div class="block"><h3>3. Blueprint Fotos</h3><div class="val">${masterDrive ? '<a href="' + escapeHtml(masterDrive) + '" target="_blank">Abrir Google Drive</a>' : 'No adjunto'}</div></div>
+    <div class="block"><h3>4. Itinerario</h3><div class="val">Ceremonia: ${escapeHtml(itinerary?.ceremony?.start || '--')} (${escapeHtml(itinerary?.ceremony?.venue || cityVenue)})<br>Banquete: ${escapeHtml(itinerary?.reception?.dinner || '--')}</div></div>
+    <div class="block"><h3>5. Dress Code</h3><div class="val">Etiqueta: ${escapeHtml(dressCode?.type || 'Formal')}<br>Reservados: ${escapeHtml(dressCode?.reserved || 'Blanco novias')}</div></div>
+    <div class="block"><h3>6. Mesa de Regalos</h3><div class="val">Banco: ${escapeHtml(giftRegistry?.bank || 'N/A')}<br>CLABE: ${escapeHtml(giftRegistry?.clabe || 'N/A')}<br>Lluvia de Sobres: ${giftRegistry?.envelope ? 'Sí' : 'No'}</div></div>
+    <div class="block"><h3>7. RSVP & Menú</h3><div class="val">Límite RSVP: ${escapeHtml(rsvp?.deadline || 'N/A')}<br>Política Niños: ${rsvp?.kidsPolicy === 'adults_only' ? 'Solo Adultos' : 'Niños permitidos'}</div></div>
+    <div class="block"><h3>8. Transporte & Hoteles</h3><div class="val">Shuttles: ${hasShuttle ? 'Sí (' + escapeHtml(transport?.pickup || '') + ')' : 'No'}<br>Hotel: ${escapeHtml(transport?.hotel1 || 'N/A')}</div></div>
+</div>
+</body>
+</html>`;
+
+        const form = new FormData();
+        form.append('chat_id', chatId);
+        form.append('caption', `📎 <b>Expediente Adjunto:</b> Boda ${escapeHtml(couple)} (${score} Bloques)`);
+        form.append('parse_mode', 'HTML');
+        
+        const blob = new Blob([docHtml], { type: 'text/html' });
+        form.append('document', blob, fileName);
+
+        await fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, {
+            method: 'POST',
+            body: form
+        });
+    } catch (docErr) {
+        console.warn('Error sending dossier document to Telegram:', docErr);
+    }
+
+    return { success: true };
 }
 
 /**
