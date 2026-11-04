@@ -1103,7 +1103,7 @@ function setGatewayMode(mode) {
     currentGatewayMode = mode;
     
     // Update large cards
-    const modeKeys = ['meta_api', 'qr_gateway', 'destination_payment', 'manual'];
+    const modeKeys = ['meta_api', 'qr_gateway', 'destination_payment'];
     modeKeys.forEach(m => {
         const card = document.getElementById(`card_mode_${m}`);
         if (!card) return;
@@ -1127,8 +1127,6 @@ function setGatewayMode(mode) {
         showToast('🔔 Etapa 2 activa: Recordatorio RSVP (Indecisos)');
     } else if (mode === 'destination_payment') {
         showToast('🏖️ Etapa 3 activa: Abono de Estancia & SPEI Boda Destino');
-    } else {
-        showToast('🎟️ Etapa 4 activa: Pase QR & Mesa Asignada');
     }
 
     updateTemplateEditorView();
