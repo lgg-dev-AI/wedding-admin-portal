@@ -4,7 +4,7 @@
 // ==========================================================================
 
 const STRIPE_CONFIG = {
-    PUBLISHABLE_KEY: 'pk_test_51UNz29AKkeuI6eHKGuy4tzROd1CqKrAAd7XVHjJdRfodX4RTsUufZ3cKfKtCIntfz012dYiih9lckumK6AaOSRXQ00rEE1Oo87',
+    PUBLISHABLE_KEY: 'pk_live_51UNz1uAdpeAmDZgy15MIhQs94SBjzasX0IpvLxzdjfGAHhklKepycExYLsCcmpxpZVMO1bew0N9FoHaTIRZ3dTfl00YiZe5dYz',
     PLANS: {
         intermediate: { id: 'price_signature', name: 'Plan Signature Pro (1-10 Bodas · Mensual)', amount: 1990, currency: 'mxn', maxWeddings: 10, period: 'month', durationDays: 30 },
         intermediate_annual: { id: 'price_signature_annual', name: 'Plan Signature Pro (1-10 Bodas · Anual · 2 Meses Gratis)', amount: 19900, currency: 'mxn', maxWeddings: 10, period: 'year', durationDays: 365 },

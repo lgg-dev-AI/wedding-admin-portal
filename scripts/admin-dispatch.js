@@ -215,27 +215,31 @@ function buildPlannerWhatsAppText(guest, mode, data) {
 }
 
 function getMetaCloudTemplatePayload(guest, mode, option, data) {
-    const liveUrl = (data && data.liveUrl) ? data.liveUrl : 'https://aura-wedding-experience.vercel.app';
+    const liveUrl = (data && data.liveUrl) ? data.liveUrl : 'https://paseboda.com';
     const guestName = (guest && guest.name) ? guest.name : 'Familia Invitada';
     const passCount = (guest && guest.passes) ? guest.passes : 2;
     const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
     const coupleText = (data && data.couple) ? data.couple : 'Sofía & Alejandro';
     const dateText = (data && data.date) ? data.date : '24 de Octubre, 2027';
     const venueText = (data && data.venue) ? data.venue : 'Hacienda Fundadores';
+    const tableName = getGuestTableName(guest, data);
 
+    const opt = option || currentTemplateOption || 'opt1';
+
+    // 1. RECORDATORIOS DE ASISTENCIA RSVP (3 Variantes)
     if (mode === 'qr_gateway') {
-        // Recordatorio oficial con Novios, Fecha y Enlace (5 parámetros)
+        const tplName = opt === 'opt2' ? 'paseboda_recordatorio_2' : (opt === 'opt3' ? 'paseboda_recordatorio_3' : 'paseboda_recordatorio_1');
         return {
-            name: 'recordatorio_reserva_boda',
+            name: tplName,
             language: 'es_MX',
             components: [
                 {
                     type: 'body',
                     parameters: [
                         { type: 'text', text: guestName },
-                        { type: 'text', text: passText },
                         { type: 'text', text: coupleText },
                         { type: 'text', text: dateText },
+                        { type: 'text', text: passText },
                         { type: 'text', text: liveUrl }
                     ]
                 }
@@ -243,27 +247,52 @@ function getMetaCloudTemplatePayload(guest, mode, option, data) {
         };
     }
 
-    // Invitación oficial completa con Novios, Fecha, Lugar, Pases y Enlace (6 parámetros)
-    return {
-        name: 'notificacion_reservas_bodas',
-        language: 'es_MX',
-        components: [
-            {
-                type: 'body',
-                parameters: [
-                    { type: 'text', text: guestName },
-                    { type: 'text', text: passText },
-                    { type: 'text', text: coupleText },
-                    { type: 'text', text: dateText },
-                    { type: 'text', text: venueText },
-                    { type: 'text', text: liveUrl }
-                ]
-            }
-        ]
-    };
+    // 2. PASE QR Y MESA ASIGNADA (Día del Evento)
+    if (mode === 'manual') {
+        return {
+            name: 'paseboda_pase_mesa_1',
+            language: 'es_MX',
+            components: [
+                {
+                    type: 'body',
+                    parameters: [
+                        { type: 'text', text: guestName },
+                        { type: 'text', text: coupleText },
+                        { type: 'text', text: venueText },
+                        { type: 'text', text: passText },
+                        { type: 'text', text: tableName },
+                        { type: 'text', text: liveUrl }
+                    ]
+                }
+            ]
+        };
+    }
 
+    // 3. BODA DESTINO / ABONO Y HOSPEDAJE
+    if (mode === 'destination_payment') {
+        const tplName = opt === 'opt2' ? 'paseboda_destino_2' : 'paseboda_destino_1';
+        return {
+            name: tplName,
+            language: 'es_MX',
+            components: [
+                {
+                    type: 'body',
+                    parameters: [
+                        { type: 'text', text: guestName },
+                        { type: 'text', text: coupleText },
+                        { type: 'text', text: venueText },
+                        { type: 'text', text: passText },
+                        { type: 'text', text: liveUrl }
+                    ]
+                }
+            ]
+        };
+    }
+
+    // 4. INVITACIÓN OFICIAL INICIAL (3 Variantes de Tono)
+    const tplName = opt === 'opt2' ? 'paseboda_invitacion_2' : (opt === 'opt3' ? 'paseboda_invitacion_3' : 'paseboda_invitacion_1');
     return {
-        name: 'notificacion_reservas_bodas',
+        name: tplName,
         language: 'es_MX',
         components: [
             {
@@ -299,20 +328,22 @@ function renderWhatsAppPhonePreview(guest, data) {
     const coupleNames = (data && data.couple) ? data.couple : 'Sofía & Alejandro';
     const dateText = (data && data.date) ? data.date : '24 de Octubre, 2027';
     const venueText = (data && data.venue) ? data.venue : 'Hacienda San Gabriel';
-    const liveUrl = (data && data.liveUrl) ? data.liveUrl : 'https://aura-wedding-experience.vercel.app';
+    const liveUrl = (data && data.liveUrl) ? data.liveUrl : 'https://paseboda.com';
     const passesCount = targetGuest.passes || 2;
     const passText = passesCount > 1 ? `${passesCount} Pases de Honor` : '1 Pase Individual';
     const tableName = getGuestTableName(targetGuest, data);
 
+    const optNum = currentTemplateOption === 'opt2' ? '2' : (currentTemplateOption === 'opt3' ? '3' : '1');
+
     if (titleEl) titleEl.innerText = `Para: ${targetGuest.name}`;
     if (subEl) {
         subEl.innerText = currentGatewayMode === 'qr_gateway'
-            ? 'Plantilla 2: Recordatorio de Cierre de Mesas'
+            ? `Plantilla Oficial Meta: paseboda_recordatorio_${optNum}`
             : currentGatewayMode === 'destination_payment'
-                ? 'Plantilla 3: Abono de Estancia & SPEI Boda Destino'
+                ? `Plantilla Oficial Meta: paseboda_destino_${currentTemplateOption === 'opt2' ? '2' : '1'}`
                 : currentGatewayMode === 'manual'
-                    ? 'Plantilla 4: Pase QR y Mesa Asignada'
-                    : 'Plantilla 1: Invitación Oficial & Pases';
+                    ? 'Plantilla Oficial Meta: paseboda_pase_mesa_1'
+                    : `Plantilla Oficial Meta: paseboda_invitacion_${optNum}`;
     }
     if (btnEl) btnEl.href = liveUrl;
 
