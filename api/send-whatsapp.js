@@ -16,8 +16,8 @@ const TEMPLATE_MAPPING = {
     'paseboda_invitacion_3': 'muestras_op3_invitacion',
     'paseboda_recordatorio_1': 'muestras_op1_recordatorio',
     'paseboda_recordatorio_2': 'muestras_op2_recordatorio',
-    'paseboda_recordatorio_3': 'muestras_op3_recordatorio',
-    'paseboda_pase_mesa_1': 'notificacion_reservas_bodas',
+    'paseboda_recordatorio_3': 'recordatorio_reserva_boda',
+    'paseboda_pase_mesa_1': 'aviso_logistica_evento_boda',
     'paseboda_destino_1': 'muestras_op1_invitacion',
     'paseboda_destino_2': 'muestras_op2_invitacion'
 };
