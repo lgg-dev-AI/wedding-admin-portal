@@ -9,6 +9,19 @@ const PHONE_NUMBER_ID = process.env.META_PHONE_NUMBER_ID || '1386603407867954';
 const WABA_ID = process.env.META_WABA_ID || '2076905906364029';
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || 'EAAZBXEyuLd6cBSlrXbP3YamgCxhzI004IfWyJEiuNuJvEStc1xkyRx03wdawBKmlYU4O7fSH5IMKwFjas8Xd5w1BjVGNpR27MxYScnhYocDvpPQLHqDHeJJUAXPWNuSwZCeXYpCBzOtx1M6hQmJX4H4Efe7SDSl2OAxkAJ4KYghecQ2Etci0c1Q3gxI2Q50wZDZD';
 
+// Mapeo automático de nombres estandarizados de PaseBoda a las plantillas oficiales aprobadas en Meta
+const TEMPLATE_MAPPING = {
+    'paseboda_invitacion_1': 'muestras_op1_invitacion',
+    'paseboda_invitacion_2': 'muestras_op2_invitacion',
+    'paseboda_invitacion_3': 'muestras_op3_invitacion',
+    'paseboda_recordatorio_1': 'muestras_op1_recordatorio',
+    'paseboda_recordatorio_2': 'muestras_op2_recordatorio',
+    'paseboda_recordatorio_3': 'muestras_op3_recordatorio',
+    'paseboda_pase_mesa_1': 'notificacion_reservas_bodas',
+    'paseboda_destino_1': 'muestras_op1_invitacion',
+    'paseboda_destino_2': 'muestras_op2_invitacion'
+};
+
 function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null, extraData = {}) {
     return new Promise((resolve, reject) => {
         let cleanDigits = (toPhone || '').replace(/[^0-9]/g, '');
@@ -22,13 +35,14 @@ function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null, extraDat
         // para garantizar entrega inmediata fuera de la ventana de 24h
         let payloadObj;
         if (templatePayload && templatePayload.name) {
+            const mappedName = TEMPLATE_MAPPING[templatePayload.name] || templatePayload.name;
             payloadObj = {
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
                 to: cleanDigits,
                 type: 'template',
                 template: {
-                    name: templatePayload.name,
+                    name: mappedName,
                     language: { code: templatePayload.language || 'es_MX' },
                     components: templatePayload.components || []
                 }
