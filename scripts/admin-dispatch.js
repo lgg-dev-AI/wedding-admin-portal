@@ -1384,9 +1384,12 @@ async function startBatchExecution() {
         bar.style.width = `${pct}%`;
         log.scrollTop = log.scrollHeight;
 
-        // Pausa natural anti-saturación de 1.5s
+        // Pausa de seguridad natural anti-saturación de 6 a 8 segundos (Recomendada por Meta Cloud API)
         if (i < pendingGuests.length - 1) {
-            await new Promise(r => setTimeout(r, 1500));
+            const delaySec = Math.floor(Math.random() * 3) + 6; // 6, 7 u 8 segundos
+            log.innerHTML += `<div class="log-line" style="color:#64748b; font-size:0.75rem;">🛡️ Pausa de seguridad Meta Cloud API (${delaySec}s) para entrega natural y segura...</div>`;
+            log.scrollTop = log.scrollHeight;
+            await new Promise(r => setTimeout(r, delaySec * 1000));
         }
     }
 
