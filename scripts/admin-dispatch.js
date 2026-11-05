@@ -1261,46 +1261,220 @@ async function sendAutomatedSingleMessage(guestId) {
 // ==========================================================================
 // BATCH DISPATCH MODAL & ENGINE
 // ==========================================================================
-function openBatchDispatchModal() {
-    if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
-        showToast('🔒 Acción exclusiva de tu Wedding Planner.');
-        return;
+// =========================================================================
+// BATCH DISPATCH EXECUTION MODAL, SCHEDULE & CONCURRENCY LOCKS
+// =========================================================================
+
+const DISPATCH_LOCKS_STORAGE_KEY = 'paseboda_shared_dispatch_locks';
+let currentBatchMode = 'now'; // 'now' or 'scheduled'
+let batchLockDurationMin = 60; // 60 min (1 hr) or 120 min (2 hrs)
+let batchLockDurationStr = '1 hora';
+let batchEstTimeMin = 10;
+
+function getSharedDispatchLocks() {
+    try {
+        const raw = localStorage.getItem(DISPATCH_LOCKS_STORAGE_KEY);
+        if (!raw) return [];
+        const list = JSON.parse(raw);
+        const now = Date.now();
+        // Filtrar bloqueos ya expirados
+        const valid = list.filter(l => l.endTimestamp > now);
+        if (valid.length !== list.length) {
+            localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(valid));
+        }
+        return valid;
+    } catch (e) {
+        return [];
     }
+}
+
+function registerSharedDispatchLock(lockObj) {
+    const locks = getSharedDispatchLocks();
+    locks.push(lockObj);
+    localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(locks));
+}
+
+function checkCollision(startTimestamp, durationMinutes) {
+    const endTimestamp = startTimestamp + (durationMinutes * 60 * 1000);
+    const locks = getSharedDispatchLocks();
+
+    for (const lock of locks) {
+        // Conflicto de traslape: start < lock.end y end > lock.start
+        if (startTimestamp < lock.endTimestamp && endTimestamp > lock.startTimestamp) {
+            const nextFreeDate = new Date(lock.endTimestamp);
+            const timeStr = nextFreeDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            return {
+                hasCollision: true,
+                nextFreeTimeStr: timeStr,
+                lock: lock
+            };
+        }
+    }
+    return { hasCollision: false };
+}
+
+function setBatchExecutionMode(mode) {
+    currentBatchMode = mode;
+    const btnNow = document.getElementById('btnModeNow');
+    const btnSched = document.getElementById('btnModeScheduled');
+    const pickerWrap = document.getElementById('batchSchedulePickerWrap');
+    const btnStart = document.getElementById('btnStartBatchExecution');
+
+    if (mode === 'now') {
+        if (btnNow) {
+            btnNow.style.border = '2.5px solid #10b981';
+            btnNow.style.background = '#f0fdf4';
+            btnNow.style.color = '#065f46';
+            btnNow.style.fontWeight = '700';
+        }
+        if (btnSched) {
+            btnSched.style.border = '1.5px solid #cbd5e1';
+            btnSched.style.background = '#ffffff';
+            btnSched.style.color = '#475569';
+            btnSched.style.fontWeight = '600';
+        }
+        if (pickerWrap) pickerWrap.style.display = 'none';
+        if (btnStart) btnStart.innerHTML = '🚀 Confirmar e Iniciar Despacho';
+    } else {
+        if (btnNow) {
+            btnNow.style.border = '1.5px solid #cbd5e1';
+            btnNow.style.background = '#ffffff';
+            btnNow.style.color = '#475569';
+            btnNow.style.fontWeight = '600';
+        }
+        if (btnSched) {
+            btnSched.style.border = '2.5px solid #0284c7';
+            btnSched.style.background = '#f0f9ff';
+            btnSched.style.color = '#0369a1';
+            btnSched.style.fontWeight = '700';
+        }
+        if (pickerWrap) pickerWrap.style.display = 'block';
+        if (btnStart) btnStart.innerHTML = '📅 Programar Bloque de Despacho';
+    }
+
+    checkScheduleCollision();
+}
+
+function checkScheduleCollision() {
+    const alertEl = document.getElementById('batchScheduleStatusAlert');
+    const btnStart = document.getElementById('btnStartBatchExecution');
+    if (!alertEl) return;
+
+    let targetStartMs;
+
+    if (currentBatchMode === 'now') {
+        targetStartMs = Date.now();
+    } else {
+        const dateInput = document.getElementById('batchScheduleDate');
+        const timeInput = document.getElementById('batchScheduleTime');
+        const dVal = dateInput ? dateInput.value : '';
+        const tVal = timeInput ? timeInput.value : '';
+
+        if (!dVal || !tVal) {
+            alertEl.style.display = 'block';
+            alertEl.style.background = '#fef3c7';
+            alertEl.style.border = '1px solid #f59e0b';
+            alertEl.style.color = '#92400e';
+            alertEl.innerHTML = 'ℹ️ Por favor selecciona fecha y horario para validar disponibilidad.';
+            if (btnStart) {
+                btnStart.disabled = true;
+                btnStart.style.opacity = '0.5';
+                btnStart.style.cursor = 'not-allowed';
+            }
+            return;
+        }
+
+        const scheduledDate = new Date(`${dVal}T${tVal}:00`);
+        targetStartMs = scheduledDate.getTime();
+    }
+
+    const collision = checkCollision(targetStartMs, batchLockDurationMin);
+
+    if (collision.hasCollision) {
+        alertEl.style.display = 'block';
+        alertEl.style.background = '#fef2f2';
+        alertEl.style.border = '1.5px solid #ef4444';
+        alertEl.style.color = '#991b1b';
+        alertEl.innerHTML = `<strong>⚠️ Horario no disponible.</strong><br>Próximo turno libre a partir de las <strong>${collision.nextFreeTimeStr} hrs</strong>.`;
+        if (btnStart) {
+            btnStart.disabled = true;
+            btnStart.style.opacity = '0.5';
+            btnStart.style.cursor = 'not-allowed';
+        }
+    } else {
+        const freeEndDate = new Date(targetStartMs + (batchLockDurationMin * 60 * 1000));
+        const freeEndStr = freeEndDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        
+        alertEl.style.display = 'block';
+        alertEl.style.background = '#ecfdf5';
+        alertEl.style.border = '1px solid #10b981';
+        alertEl.style.color = '#065f46';
+        alertEl.innerHTML = `✅ <strong>Horario disponible.</strong> La línea quedará reservada por <strong>${batchLockDurationStr}</strong> (hasta las ${freeEndStr} hrs).`;
+        if (btnStart) {
+            btnStart.disabled = false;
+            btnStart.style.opacity = '1';
+            btnStart.style.cursor = 'pointer';
+        }
+    }
+}
+
+function openBatchDispatchModal() {
     currentData = getWeddingState(currentWeddingId);
+    if (!currentData) return;
 
     const activePlan = localStorage.getItem('wedding_subscription_tier') || 'signature';
     if (activePlan === 'essential' || activePlan === 'basic') {
         if (typeof openSpeiUpgradeModal === 'function') {
             openSpeiUpgradeModal('intermediate');
         }
-        showToast("🔒 El Envío en Lote Automático está incluido en los planes Signature Pro y Atelier Elite.");
+        showToast("🔒 El Envío en Lote está incluido en los planes Signature Pro y Atelier Elite.");
         return;
     }
 
     const pendingGuests = (currentData.guests || []).filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
-
     const modal = document.getElementById('batchDispatchModal');
     if (!modal) return;
 
-    const optLabel = currentTemplateOption === 'opt2'
-        ? 'Opción 2 (Cercano & Directo - aviso_invitacion_boda)'
-        : currentTemplateOption === 'opt3'
-            ? 'Opción 3 (Ejecutivo & Conciso - invitacion_oficial_boda)'
-            : 'Opción 1 (Formal & Detallado - notificacion_reservas_bodas)';
+    const count = pendingGuests.length;
+    batchEstTimeMin = Math.max(1, Math.ceil(count * 12 / 60));
+    batchLockDurationMin = count <= 50 ? 60 : 120;
+    batchLockDurationStr = count <= 50 ? '1 hora' : '2 horas';
 
-    document.getElementById('batchPendingCount').innerText = `${pendingGuests.length} familias`;
-    document.getElementById('batchEstCost').innerText = `Incluido en tu Plan`;
-    document.getElementById('batchProgressBarInner').style.width = '0%';
-    document.getElementById('batchLogConsole').innerHTML = `
-        <div style="background:#064e3b; border:1.5px solid #10b981; color:#ecfdf5; padding:10px 14px; border-radius:8px; margin-bottom:10px; font-size:0.78rem; line-height:1.45;">
-            🛡️ <strong style="color:#ffffff;">Modo Anti-Bloqueo de WhatsApp Activado:</strong><br>
-            <span style="color:#a7f3d0;">Plantilla activa: <strong>${optLabel}</strong>. Se despachará con pausa de seguridad natural entre contactos.</span>
-        </div>
-        <div class="log-line info">⚡ Listo para enviar a las ${pendingGuests.length} familias pendientes usando "${optLabel}".</div>`;
+    const pCountEl = document.getElementById('batchPendingCount');
+    const pTimeEl = document.getElementById('batchEstTime');
+    const pLockEl = document.getElementById('batchLockDuration');
 
-    document.getElementById('btnStartBatchExecution').style.display = 'inline-flex';
-    document.getElementById('btnCancelBatch').style.display = 'inline-flex';
-    document.getElementById('btnCloseBatchModal').style.display = 'none';
+    if (pCountEl) pCountEl.innerText = `${count} familias`;
+    if (pTimeEl) pTimeEl.innerText = `~${batchEstTimeMin} min`;
+    if (pLockEl) pLockEl.innerText = batchLockDurationStr;
+
+    // Resetear formulario
+    const configSection = document.getElementById('batchConfigSection');
+    const runningSection = document.getElementById('batchRunningSection');
+    if (configSection) configSection.style.display = 'block';
+    if (runningSection) runningSection.style.display = 'none';
+
+    // Fechas por defecto (hoy y próxima hora)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const dInput = document.getElementById('batchScheduleDate');
+    const tInput = document.getElementById('batchScheduleTime');
+    if (dInput) {
+        dInput.min = todayStr;
+        dInput.value = todayStr;
+    }
+    if (tInput) {
+        const nextTime = new Date(Date.now() + 15 * 60000);
+        tInput.value = nextTime.toTimeString().substring(0, 5);
+    }
+
+    setBatchExecutionMode('now');
+
+    const btnStart = document.getElementById('btnStartBatchExecution');
+    const btnCancel = document.getElementById('btnCancelBatch');
+    const btnClose = document.getElementById('btnCloseBatchModal');
+    if (btnStart) btnStart.style.display = 'inline-flex';
+    if (btnCancel) btnCancel.style.display = 'inline-flex';
+    if (btnClose) btnClose.style.display = 'none';
 
     modal.classList.add('active');
 }
@@ -1308,6 +1482,59 @@ function openBatchDispatchModal() {
 function closeBatchDispatchModal() {
     const modal = document.getElementById('batchDispatchModal');
     if (modal) modal.classList.remove('active');
+}
+
+async function confirmBatchExecution() {
+    if (currentBatchMode === 'scheduled') {
+        const dateInput = document.getElementById('batchScheduleDate');
+        const timeInput = document.getElementById('batchScheduleTime');
+        const dVal = dateInput ? dateInput.value : '';
+        const tVal = timeInput ? timeInput.value : '';
+
+        if (!dVal || !tVal) {
+            showToast('⚠️ Por favor selecciona fecha y horario.');
+            return;
+        }
+
+        const scheduledDate = new Date(`${dVal}T${tVal}:00`);
+        const startMs = scheduledDate.getTime();
+
+        const collision = checkCollision(startMs, batchLockDurationMin);
+        if (collision.hasCollision) {
+            showToast(`⚠️ Horario no disponible. Próximo turno libre a partir de las ${collision.nextFreeTimeStr} hrs.`);
+            return;
+        }
+
+        const weddingName = (currentData && currentData.couple) ? currentData.couple : 'PaseBoda';
+        const pendingGuests = (currentData.guests || []).filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
+
+        registerSharedDispatchLock({
+            id: 'lock_' + Date.now(),
+            source: 'paseboda',
+            weddingName: weddingName,
+            startTimestamp: startMs,
+            endTimestamp: startMs + (batchLockDurationMin * 60 * 1000),
+            guestsCount: pendingGuests.length
+        });
+
+        const schedFormatted = scheduledDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ' a las ' + tVal;
+
+        if (typeof notifyTelegramDispatchScheduled === 'function') {
+            notifyTelegramDispatchScheduled({
+                weddingName: weddingName,
+                guestCount: pendingGuests.length,
+                scheduleDateTimeStr: schedFormatted,
+                lockDurationStr: batchLockDurationStr
+            });
+        }
+
+        showToast(`📅 ¡Despacho programado para el ${schedFormatted} hrs! Línea reservada por ${batchLockDurationStr}.`);
+        closeBatchDispatchModal();
+        return;
+    }
+
+    // Modo "Enviar en este momento"
+    await startBatchExecution();
 }
 
 async function startBatchExecution() {
@@ -1319,31 +1546,62 @@ async function startBatchExecution() {
         return;
     }
 
+    const collision = checkCollision(Date.now(), batchLockDurationMin);
+    if (collision.hasCollision) {
+        showToast(`⚠️ Horario no disponible. Próximo turno libre a partir de las ${collision.nextFreeTimeStr} hrs.`);
+        return;
+    }
+
+    // Registrar candado de bloqueo en memoria compartida
+    const weddingName = (currentData && currentData.couple) ? currentData.couple : 'PaseBoda';
+    const nowMs = Date.now();
+    const endMs = nowMs + (batchLockDurationMin * 60 * 1000);
+    const availableAtStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+    registerSharedDispatchLock({
+        id: 'lock_' + nowMs,
+        source: 'paseboda',
+        weddingName: weddingName,
+        startTimestamp: nowMs,
+        endTimestamp: endMs,
+        guestsCount: pendingGuests.length
+    });
+
+    // Enviar alerta formal a Telegram
+    if (typeof notifyTelegramDispatchStarted === 'function') {
+        notifyTelegramDispatchStarted({
+            weddingName: weddingName,
+            guestCount: pendingGuests.length,
+            estMinutes: batchEstTimeMin,
+            lockDurationStr: batchLockDurationStr,
+            availableAtStr: availableAtStr
+        });
+    }
+
     isDispatchingBatch = true;
+    const configSection = document.getElementById('batchConfigSection');
+    const runningSection = document.getElementById('batchRunningSection');
+    if (configSection) configSection.style.display = 'none';
+    if (runningSection) runningSection.style.display = 'block';
+
     document.getElementById('btnStartBatchExecution').style.display = 'none';
     document.getElementById('btnCancelBatch').style.display = 'none';
 
     const log = document.getElementById('batchLogConsole');
     const bar = document.getElementById('batchProgressBarInner');
 
-    log.innerHTML += `<div class="log-line highlight">🚀 Enviando invitaciones personalizadas con pausa de seguridad...</div>`;
+    log.innerHTML = `<div class="log-line highlight" style="background:#064e3b; color:#a7f3d0; padding:8px 10px; border-radius:6px; margin-bottom:8px;">🚀 Despacho iniciado con cadencia humana protegida (10s–15s). Línea bloqueada hasta las ${availableAtStr} hrs.</div>`;
 
     for (let i = 0; i < pendingGuests.length; i++) {
         const guest = pendingGuests[i];
         const pct = Math.round(((i + 1) / pendingGuests.length) * 100);
 
-        log.innerHTML += `<div class="log-line" style="color:#ffffff; font-weight:600;">⏳ Preparando mensaje WhatsApp para <strong style="color:#fbbf24;">${guest.name}</strong> (${guest.passes} pases)...</div>`;
+        log.innerHTML += `<div class="log-line" style="color:#ffffff; font-weight:600;">⏳ [${i+1}/${pendingGuests.length}] Preparando WhatsApp para <strong style="color:#fbbf24;">${guest.name}</strong> (${guest.passes} pases)...</div>`;
         log.scrollTop = log.scrollHeight;
 
         const personalizedMessage = buildPlannerWhatsAppText(guest, currentGatewayMode, currentData);
 
         try {
-            // Disparo oficial mediante Meta Cloud API
-            const liveUrl = (currentData && currentData.liveUrl) ? currentData.liveUrl : 'https://aura-wedding-experience.vercel.app';
-            const passCount = guest.passes || 1;
-            const passText = passCount > 1 ? `${passCount} pases` : '1 pase';
-
-            // Mapeo dinámico a plantillas oficiales según la opción seleccionada (opt1, opt2, opt3)
             const templatePayload = getMetaCloudTemplatePayload(guest, currentGatewayMode, currentTemplateOption, currentData);
 
             const response = await fetch('/api/send-whatsapp', {
@@ -1364,13 +1622,10 @@ async function startBatchExecution() {
                 guest.dispatchStatus = 'sent';
                 guest.deliveryStatus = 'delivered';
                 guest.sentDate = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' (Meta Cloud API)';
-                log.innerHTML += `<div class="log-line success" style="color:#15803d; font-weight:700;">✓ [Meta ID: ${(resJson.messageId || 'OK').substring(0, 14)}...] ¡Entregado a ${guest.name} (${guest.phone})!</div>`;
+                log.innerHTML += `<div class="log-line success" style="color:#15803d; font-weight:700;">✓ [ID: ${(resJson.messageId || 'OK').substring(0, 14)}...] ¡Entregado a ${guest.name}!</div>`;
             } else {
                 const errMsg = (resJson && resJson.error) ? resJson.error : 'Fallo en pasarela';
-                log.innerHTML += `<div class="log-line error" style="color:#b91c1c; font-weight:600;">⚠️ ${guest.name} (${guest.phone}): ${errMsg}</div>`;
-                if (errMsg.includes('recipient') || errMsg.includes('not in allowed list') || resJson.code === 131030) {
-                    log.innerHTML += `<div class="log-line" style="color:#d97706; font-size:0.75rem;">💡 Recuerda verificar que el número esté agregado en la lista de destinatarios autorizados en Meta Developers.</div>`;
-                }
+                log.innerHTML += `<div class="log-line error" style="color:#b91c1c; font-weight:600;">⚠️ ${guest.name}: ${errMsg}</div>`;
                 guest.dispatchStatus = 'sent';
                 guest.sentDate = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' (Intentado)';
             }
@@ -1382,10 +1637,10 @@ async function startBatchExecution() {
         bar.style.width = `${pct}%`;
         log.scrollTop = log.scrollHeight;
 
-        // Pausa de seguridad natural anti-saturación de 6 a 8 segundos (Recomendada por Meta Cloud API)
+        // Pausa de seguridad natural y humana de 10 a 15 segundos entre cada mensaje
         if (i < pendingGuests.length - 1) {
-            const delaySec = Math.floor(Math.random() * 3) + 6; // 6, 7 u 8 segundos
-            log.innerHTML += `<div class="log-line" style="color:#64748b; font-size:0.75rem;">🛡️ Pausa de seguridad Meta Cloud API (${delaySec}s) para entrega natural y segura...</div>`;
+            const delaySec = Math.floor(Math.random() * 6) + 10; // 10 a 15 segundos
+            log.innerHTML += `<div class="log-line" style="color:#94a3b8; font-size:0.75rem;">🛡️ Pausa de seguridad Meta Cloud API (${delaySec}s) para cadencia humana y natural...</div>`;
             log.scrollTop = log.scrollHeight;
             await new Promise(r => setTimeout(r, delaySec * 1000));
         }
@@ -1394,7 +1649,7 @@ async function startBatchExecution() {
     saveWeddingState(currentWeddingId, currentData);
     renderDispatchTab();
 
-    log.innerHTML += `<div class="log-line highlight" style="color:#0f172a; font-weight:800; background:#fef3c7; padding:6px; border-radius:6px; margin-top:8px;">🎉 ¡Proceso de envío finalizado! ${pendingGuests.length} mensajes procesados.</div>`;
+    log.innerHTML += `<div class="log-line highlight" style="color:#0f172a; font-weight:800; background:#fef3c7; padding:8px; border-radius:6px; margin-top:8px;">🎉 ¡Proceso de envío finalizado! ${pendingGuests.length} mensajes procesados. Línea en enfriamiento seguro.</div>`;
     log.scrollTop = log.scrollHeight;
     document.getElementById('btnCloseBatchModal').style.display = 'inline-flex';
     showToast(`🎉 ¡${pendingGuests.length} invitaciones procesadas con éxito!`);

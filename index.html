@@ -3898,7 +3898,7 @@
 
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
-    <script src="scripts/admin-dispatch.js?v=20261104_3stages_v3"></script>
+    <script src="scripts/admin-dispatch.js?v=20261104_schedule_v4"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261028_convocatoria_v3"></script>
@@ -3915,49 +3915,87 @@
 
     <!-- BATCH DISPATCH EXECUTION MODAL -->
     <div id="batchDispatchModal" class="app-modal-overlay">
-        <div class="app-modal-card batch-modal">
+        <div class="app-modal-card batch-modal" style="max-width: 600px;">
             <div class="modal-header">
                 <div class="d-flex align-center gap-2">
-                    <span class="modal-icon">⚡</span>
+                    <span class="modal-icon">📅</span>
                     <div>
-                        <h3 class="modal-title">Disparo Masivo Automatizado de WhatsApp</h3>
-                        <p class="modal-sub">Envío en lote vía Meta Cloud API con control de tasa y certificados de entrega.</p>
+                        <h3 class="modal-title">Programar Despacho Oficial de WhatsApp</h3>
+                        <p class="modal-sub">Envío seguro con reserva de canal y protección anti-saturación de Meta.</p>
                     </div>
                 </div>
                 <button class="btn-close-modal" onclick="closeBatchDispatchModal()">✕</button>
             </div>
             
             <div class="modal-body">
-                <div class="batch-summary-strip">
+                <!-- RESUMEN DINÁMICO DE CONTEO Y BLOQUEO -->
+                <div class="batch-summary-strip" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
                     <div class="b-stat">
-                        <span>Destinatarios Pendientes</span>
-                        <strong id="batchPendingCount">27 invitados</strong>
+                        <span style="font-size:0.75rem; color:#64748b; display:block;">Familias Pendientes</span>
+                        <strong id="batchPendingCount" style="font-size:1.05rem; color:#0f172a;">0 familias</strong>
                     </div>
                     <div class="b-stat">
-                        <span>Costo Estimado Meta API</span>
-                        <strong style="color:#10b981;" id="batchEstCost">$4.22 MXN</strong>
+                        <span style="font-size:0.75rem; color:#64748b; display:block;">Tiempo de Envío (~12s)</span>
+                        <strong id="batchEstTime" style="font-size:1.05rem; color:#0284c7;">~0 min</strong>
                     </div>
                     <div class="b-stat">
-                        <span>Velocidad de Disparo</span>
-                        <strong>~20 mensajes / min</strong>
+                        <span style="font-size:0.75rem; color:#64748b; display:block;">Bloque de Reserva Línea</span>
+                        <strong id="batchLockDuration" style="font-size:1.05rem; color:#d97706;">1 hora</strong>
                     </div>
                 </div>
 
-                <div class="batch-progress-wrap mt-3">
-                    <div class="batch-progress-bar">
-                        <div class="batch-progress-inner" id="batchProgressBarInner" style="width: 0%;"></div>
+                <!-- SELECTOR DE EJECUCIÓN (AHORA vs PROGRAMADO) -->
+                <div id="batchConfigSection" style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:14px;">
+                    <label style="display:block; font-size:0.8rem; font-weight:800; color:#0f172a; margin-bottom:8px;">
+                        ¿Cuándo deseas que se realice el despacho?
+                    </label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <button type="button" id="btnModeNow" onclick="setBatchExecutionMode('now')" style="padding:10px 14px; border:2.5px solid #10b981; background:#f0fdf4; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85rem; color:#065f46; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            🚀 Enviar en este momento
+                        </button>
+                        <button type="button" id="btnModeScheduled" onclick="setBatchExecutionMode('scheduled')" style="padding:10px 14px; border:1.5px solid #cbd5e1; background:#ffffff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85rem; color:#475569; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            📅 Programar Fecha &amp; Horario
+                        </button>
+                    </div>
+
+                    <!-- CAMPOS DE PROGRAMACIÓN (FECHA Y HORA) -->
+                    <div id="batchSchedulePickerWrap" style="display:none; margin-top:12px; padding-top:12px; border-top:1px dashed #cbd5e1;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#334155; margin-bottom:4px;">Fecha del Envío:</label>
+                                <input type="date" id="batchScheduleDate" onchange="checkScheduleCollision()" style="width:100%; padding:8px 10px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.75rem; font-weight:700; color:#334155; margin-bottom:4px;">Horario de Inicio:</label>
+                                <input type="time" id="batchScheduleTime" onchange="checkScheduleCollision()" style="width:100%; padding:8px 10px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESTADO / MENSAJE DE COLISIÓN O DISPONIBILIDAD -->
+                    <div id="batchScheduleStatusAlert" style="margin-top:12px; padding:10px 12px; border-radius:8px; font-size:0.8rem; line-height:1.45; display:block; background:#ecfdf5; border:1px solid #10b981; color:#065f46;">
+                        ✅ Canal disponible. El envío iniciará de inmediato y reservará la línea por 1 hora.
                     </div>
                 </div>
 
-                <div class="batch-console mt-3" id="batchLogConsole">
-                    <div class="log-line info">⚡ Gateway listo: Modo META_API. Esperando orden de inicio...</div>
+                <!-- PROGRESS BAR & LOG CONSOLE (DURANTE LA EJECUCIÓN) -->
+                <div id="batchRunningSection" style="display:none; margin-top:14px;">
+                    <div class="batch-progress-wrap">
+                        <div class="batch-progress-bar" style="background:#e2e8f0; border-radius:999px; height:8px; overflow:hidden;">
+                            <div class="batch-progress-inner" id="batchProgressBarInner" style="width: 0%; height:100%; background:#10b981; transition:width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div class="batch-console mt-3" id="batchLogConsole" style="background:#0f172a; color:#f8fafc; font-family:monospace; font-size:0.75rem; padding:12px; border-radius:8px; max-height:220px; overflow-y:auto; line-height:1.5;">
+                        <div class="log-line info">⚡ Gateway listo: Modo META_API. Esperando orden de inicio...</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-modal secondary" id="btnCancelBatch" onclick="closeBatchDispatchModal()">Cancelar</button>
-                <button class="btn-modal primary" id="btnStartBatchExecution" onclick="startBatchExecution()">🚀 Iniciar Envío Automático</button>
-                <button class="btn-modal success" id="btnCloseBatchModal" style="display:none;" onclick="closeBatchDispatchModal()">✓ Finalizar y Volver al Dashboard</button>
+            <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px; padding:14px; border-top:1px solid #e2e8f0;">
+                <button class="btn-modal secondary" id="btnCancelBatch" onclick="closeBatchDispatchModal()" style="padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer;">Cancelar</button>
+                <button class="btn-modal primary" id="btnStartBatchExecution" onclick="confirmBatchExecution()" style="padding:8px 18px; border-radius:6px; font-weight:700; background:#10b981; color:#ffffff; border:none; cursor:pointer;">🚀 Confirmar e Iniciar Despacho</button>
+                <button class="btn-modal success" id="btnCloseBatchModal" style="display:none; padding:8px 18px; border-radius:6px; font-weight:700; background:#059669; color:#ffffff; border:none; cursor:pointer;" onclick="closeBatchDispatchModal()">✓ Finalizar y Volver al Dashboard</button>
             </div>
         </div>
     </div>

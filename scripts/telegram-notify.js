@@ -609,3 +609,33 @@ async function sendTelegramPlanDeactivationAlert(deactivationData) {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(renderTelegramConfigUI, 600);
 });
+
+/**
+ * Notificación oficial de inicio de despacho de WhatsApp en lote
+ */
+async function notifyTelegramDispatchStarted({ weddingName, guestCount, estMinutes, lockDurationStr, availableAtStr }) {
+    const text = `🔔 <b>ENVÍO INICIADO: Boda ${weddingName || 'PaseBoda'}</b>\n` +
+        `• Invitados: <b>${guestCount} personas</b>\n` +
+        `• Tiempo estimado de envío: <b>${estMinutes} minutos</b> (cadencia humana 10s–15s)\n` +
+        `• 🔒 <b>LÍNEA BLOQUEADA POR: ${lockDurationStr}</b>\n` +
+        `• ⏳ <b>Servicio disponible de nuevo a las: ${availableAtStr} hrs.</b> (No se procesará nada más hasta esa hora).`;
+
+    return await sendTelegramMessage(text);
+}
+
+/**
+ * Notificación oficial de programación de despacho futuro
+ */
+async function notifyTelegramDispatchScheduled({ weddingName, guestCount, scheduleDateTimeStr, lockDurationStr }) {
+    const text = `📅 <b>ENVÍO PROGRAMADO: Boda ${weddingName || 'PaseBoda'}</b>\n` +
+        `• Invitados: <b>${guestCount} personas</b>\n` +
+        `• Fecha y Hora: <b>${scheduleDateTimeStr} hrs</b>\n` +
+        `• 🔒 <b>LÍNEA BLOQUEADA POR: ${lockDurationStr}</b> (Canal reservado automáticamente).`;
+
+    return await sendTelegramMessage(text);
+}
+
+// Exportar globalmente
+window.notifyTelegramDispatchStarted = notifyTelegramDispatchStarted;
+window.notifyTelegramDispatchScheduled = notifyTelegramDispatchScheduled;
+
