@@ -104,19 +104,26 @@ module.exports = async (req, res) => {
             const startMs = Number(startTimestamp);
             const durMin = Number(durationMinutes) || (Number(guestsCount) > 50 ? 120 : 60);
             const endMs = startMs + (durMin * 60 * 1000);
+            const COOLDOWN_BUFFER_MIN = 30; // 30 minutos obligatorios de enfriamiento/protección
+            const cooldownMs = COOLDOWN_BUFFER_MIN * 60 * 1000;
+            const protectedEndMs = endMs + cooldownMs;
             const lockId = id || `lock_${source}_${Date.now()}`;
 
-            // Chequeo de colisión
+            // Chequeo de colisión considerando la duración del despacho + 30 min de cooldown
             const existing = global.__sharedRadarLocks || [];
             for (const item of existing) {
                 if (item.id === lockId) continue; // Si es actualización de sí mismo, ignorar
-                // Conflicto: start < item.end && end > item.start
-                if (startMs < item.endTimestamp && endMs > item.startTimestamp) {
-                    const freeTimeStr = new Date(item.endTimestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                
+                const itemCooldownMs = (item.cooldownMinutes || 30) * 60 * 1000;
+                const itemProtectedEndMs = item.endTimestamp + itemCooldownMs;
+
+                // Conflicto: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
+                if (startMs < itemProtectedEndMs && protectedEndMs > item.startTimestamp) {
+                    const freeTimeStr = new Date(itemProtectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
                     return res.status(409).json({
                         success: false,
                         collision: true,
-                        message: `⚠️ Horario no disponible. Línea en uso por ${item.source === 'atelier' ? 'Atelier Studio' : 'PaseBoda'}. Próximo turno libre a partir de las ${freeTimeStr} hrs.`,
+                        message: `⚠️ Horario no disponible. Línea en uso por ${item.source === 'atelier' ? 'Atelier Studio' : 'PaseBoda'} (incluye 30 min de cooldown preventivo). Próximo turno libre a partir de las ${freeTimeStr} hrs.`,
                         nextFreeTimeStr: freeTimeStr,
                         conflictingLock: item
                     });
@@ -130,6 +137,8 @@ module.exports = async (req, res) => {
                 templateName: templateName || (source === 'atelier' ? 'muestras_op1_invitacion' : 'paseboda_invitacion_1'),
                 startTimestamp: startMs,
                 endTimestamp: endMs,
+                cooldownMinutes: COOLDOWN_BUFFER_MIN,
+                protectedEndTimestamp: protectedEndMs,
                 durationMinutes: durMin,
                 guestsCount: Number(guestsCount) || 1,
                 sentCount: Number(sentCount) || 0,
@@ -147,9 +156,10 @@ module.exports = async (req, res) => {
             }
             global.__sharedRadarLocks = existing;
 
-            // Enviar alerta formal a Telegram a Luis
+            // Enviar alerta formal a Telegram a Luis con desglose de Cooldown de 30 min
             const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
             const endStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            const freeStr = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
             const sourceIcon = source === 'atelier' ? '🎨 Atelier Studio' : '💍 PaseBoda';
             const durLabel = durMin >= 120 ? '2 horas' : '1 hora';
 
@@ -157,9 +167,10 @@ module.exports = async (req, res) => {
                 `• <b>Plataforma:</b> ${sourceIcon}\n` +
                 `• <b>Evento:</b> ${newLock.weddingName}\n` +
                 `• <b>Invitados:</b> ${newLock.guestsCount} personas\n` +
-                `• <b>Horario Programado:</b> ${startStr} a ${endStr} hrs\n` +
-                `• 🔒 <b>LÍNEA BLOQUEADA POR:</b> ${durLabel}\n` +
-                `• ⏳ <b>Servicio disponible de nuevo a las:</b> ${endStr} hrs\n` +
+                `• <b>Ventana de Envío:</b> ${startStr} a ${endStr} hrs\n` +
+                `• 🔒 <b>LÍNEA BLOQUEADA POR:</b> ${durLabel} (+ 30 min cooldown)\n` +
+                `• 🛡️ <b>Margen de Enfriamiento:</b> ${endStr} a ${freeStr} hrs\n` +
+                `• ⏳ <b>Servicio disponible de nuevo a las:</b> <b>${freeStr} hrs</b>\n` +
                 `• 📡 <b>Estado:</b> ${newLock.status.toUpperCase()}`;
 
             await sendTelegramNotification(telegramMsg);

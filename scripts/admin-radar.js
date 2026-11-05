@@ -361,7 +361,7 @@ function renderLocksTableHtml(locks, now) {
                 <td style="padding:14px 14px; font-size:0.82rem; color:#334155;">
                     <div>${dateStr}</div>
                     <div style="font-weight:700; color:#0f172a;">${timeWindowStr}</div>
-                    <span style="font-size:0.72rem; color:#d97706; font-weight:700;">Bloque: ${durationStr}</span>
+                    <span style="font-size:0.72rem; color:#d97706; font-weight:700;">Bloque: ${durationStr} (+ 30m cooldown)</span>
                 </td>
                 <td style="padding:14px 14px; min-width:190px;">
                     ${deliveryHtml}

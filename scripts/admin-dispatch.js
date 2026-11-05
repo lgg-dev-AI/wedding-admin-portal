@@ -1262,14 +1262,17 @@ async function sendAutomatedSingleMessage(guestId) {
 // BATCH DISPATCH MODAL & ENGINE
 // ==========================================================================
 // =========================================================================
+// =========================================================================
 // BATCH DISPATCH EXECUTION MODAL, SCHEDULE & CONCURRENCY LOCKS
+// GESTIÓN EXCLUSIVA POR BLOQUES PROTEGIDOS & COOLDOWN DE 30 MINUTOS
 // =========================================================================
 
 const DISPATCH_LOCKS_STORAGE_KEY = 'paseboda_shared_dispatch_locks';
-let currentBatchMode = 'now'; // 'now' or 'scheduled'
-let batchLockDurationMin = 60; // 60 min (1 hr) or 120 min (2 hrs)
+const COOLDOWN_BUFFER_MIN = 30; // 30 minutos obligatorios de enfriamiento/protección entre turnos
+let batchLockDurationMin = 60; // 60 min (1 hr) o 120 min (2 hrs)
 let batchLockDurationStr = '1 hora';
 let batchEstTimeMin = 10;
+let selectedDispatchTimeSlot = null;
 
 function getSharedDispatchLocks() {
     try {
@@ -1277,8 +1280,11 @@ function getSharedDispatchLocks() {
         if (!raw) return [];
         const list = JSON.parse(raw);
         const now = Date.now();
-        // Filtrar bloqueos ya expirados
-        const valid = list.filter(l => l.endTimestamp > now);
+        // Filtrar bloqueos ya expirados (incluyendo cooldown)
+        const valid = list.filter(l => {
+            const cooldownMs = (l.cooldownMinutes || COOLDOWN_BUFFER_MIN) * 60 * 1000;
+            return (l.endTimestamp + cooldownMs) > now;
+        });
         if (valid.length !== list.length) {
             localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(valid));
         }
@@ -1295,13 +1301,18 @@ function registerSharedDispatchLock(lockObj) {
 }
 
 function checkCollision(startTimestamp, durationMinutes) {
+    const cooldownMs = COOLDOWN_BUFFER_MIN * 60 * 1000;
     const endTimestamp = startTimestamp + (durationMinutes * 60 * 1000);
+    const candidateProtectedEnd = endTimestamp + cooldownMs;
     const locks = getSharedDispatchLocks();
 
     for (const lock of locks) {
-        // Conflicto de traslape: start < lock.end y end > lock.start
-        if (startTimestamp < lock.endTimestamp && endTimestamp > lock.startTimestamp) {
-            const nextFreeDate = new Date(lock.endTimestamp);
+        const lockCooldownMs = (lock.cooldownMinutes || COOLDOWN_BUFFER_MIN) * 60 * 1000;
+        const lockProtectedEnd = lock.endTimestamp + lockCooldownMs;
+
+        // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
+        if (startTimestamp < lockProtectedEnd && candidateProtectedEnd > lock.startTimestamp) {
+            const nextFreeDate = new Date(lockProtectedEnd);
             const timeStr = nextFreeDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
             return {
                 hasCollision: true,
@@ -1313,108 +1324,135 @@ function checkCollision(startTimestamp, durationMinutes) {
     return { hasCollision: false };
 }
 
-function setBatchExecutionMode(mode) {
-    currentBatchMode = mode;
-    const btnNow = document.getElementById('btnModeNow');
-    const btnSched = document.getElementById('btnModeScheduled');
-    const pickerWrap = document.getElementById('batchSchedulePickerWrap');
-    const btnStart = document.getElementById('btnStartBatchExecution');
-
-    if (mode === 'now') {
-        if (btnNow) {
-            btnNow.style.border = '2.5px solid #10b981';
-            btnNow.style.background = '#f0fdf4';
-            btnNow.style.color = '#065f46';
-            btnNow.style.fontWeight = '700';
-        }
-        if (btnSched) {
-            btnSched.style.border = '1.5px solid #cbd5e1';
-            btnSched.style.background = '#ffffff';
-            btnSched.style.color = '#475569';
-            btnSched.style.fontWeight = '600';
-        }
-        if (pickerWrap) pickerWrap.style.display = 'none';
-        if (btnStart) btnStart.innerHTML = '🚀 Confirmar e Iniciar Despacho';
-    } else {
-        if (btnNow) {
-            btnNow.style.border = '1.5px solid #cbd5e1';
-            btnNow.style.background = '#ffffff';
-            btnNow.style.color = '#475569';
-            btnNow.style.fontWeight = '600';
-        }
-        if (btnSched) {
-            btnSched.style.border = '2.5px solid #0284c7';
-            btnSched.style.background = '#f0f9ff';
-            btnSched.style.color = '#0369a1';
-            btnSched.style.fontWeight = '700';
-        }
-        if (pickerWrap) pickerWrap.style.display = 'block';
-        if (btnStart) btnStart.innerHTML = '📅 Programar Bloque de Despacho';
-    }
-
-    checkScheduleCollision();
-}
-
-function checkScheduleCollision() {
+function renderDispatchTimeSlots() {
+    const dateInput = document.getElementById('batchScheduleDate');
+    const grid = document.getElementById('batchSlotsGrid');
     const alertEl = document.getElementById('batchScheduleStatusAlert');
     const btnStart = document.getElementById('btnStartBatchExecution');
-    if (!alertEl) return;
+    if (!grid || !dateInput) return;
 
-    let targetStartMs;
-
-    if (currentBatchMode === 'now') {
-        targetStartMs = Date.now();
-    } else {
-        const dateInput = document.getElementById('batchScheduleDate');
-        const timeInput = document.getElementById('batchScheduleTime');
-        const dVal = dateInput ? dateInput.value : '';
-        const tVal = timeInput ? timeInput.value : '';
-
-        if (!dVal || !tVal) {
-            alertEl.style.display = 'block';
-            alertEl.style.background = '#fef3c7';
-            alertEl.style.border = '1px solid #f59e0b';
-            alertEl.style.color = '#92400e';
-            alertEl.innerHTML = 'ℹ️ Por favor selecciona fecha y horario para validar disponibilidad.';
-            if (btnStart) {
-                btnStart.disabled = true;
-                btnStart.style.opacity = '0.5';
-                btnStart.style.cursor = 'not-allowed';
-            }
-            return;
-        }
-
-        const scheduledDate = new Date(`${dVal}T${tVal}:00`);
-        targetStartMs = scheduledDate.getTime();
+    selectedDispatchTimeSlot = null;
+    if (btnStart) {
+        btnStart.disabled = true;
+        btnStart.style.background = '#94a3b8';
+        btnStart.style.cursor = 'not-allowed';
     }
 
-    const collision = checkCollision(targetStartMs, batchLockDurationMin);
+    const dVal = dateInput.value;
+    if (!dVal) {
+        grid.innerHTML = '<span style="grid-column:1/-1; font-size:0.8rem; color:#64748b;">Selecciona una fecha para ver turnos disponibles.</span>';
+        return;
+    }
 
-    if (collision.hasCollision) {
-        alertEl.style.display = 'block';
-        alertEl.style.background = '#fef2f2';
-        alertEl.style.border = '1.5px solid #ef4444';
-        alertEl.style.color = '#991b1b';
-        alertEl.innerHTML = `<strong>⚠️ Horario no disponible.</strong><br>Próximo turno libre a partir de las <strong>${collision.nextFreeTimeStr} hrs</strong>.`;
-        if (btnStart) {
-            btnStart.disabled = true;
-            btnStart.style.opacity = '0.5';
-            btnStart.style.cursor = 'not-allowed';
+    const now = Date.now();
+    const isToday = new Date().toISOString().split('T')[0] === dVal;
+    const slots = [];
+
+    // Generar intervalos de 30 minutos desde las 08:00 hasta las 23:00 hrs
+    for (let h = 8; h <= 23; h++) {
+        for (let m = 0; m < 60; m += 30) {
+            if (h === 23 && m > 30) continue;
+            const hh = h.toString().padStart(2, '0');
+            const mm = m.toString().padStart(2, '0');
+            slots.push(`${hh}:${mm}`);
         }
-    } else {
-        const freeEndDate = new Date(targetStartMs + (batchLockDurationMin * 60 * 1000));
-        const freeEndStr = freeEndDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-        
-        alertEl.style.display = 'block';
+    }
+
+    grid.innerHTML = slots.map(timeStr => {
+        const slotDate = new Date(`${dVal}T${timeStr}:00`);
+        const slotMs = slotDate.getTime();
+        const isPast = slotMs <= (now + 5 * 60 * 1000); // Dar 5 min de margen mínimo
+
+        if (isPast) {
+            return `
+                <button type="button" disabled style="padding:8px 6px; border:1px solid #e2e8f0; background:#f1f5f9; color:#94a3b8; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:not-allowed;" title="Horario ya transcurrido">
+                    ${timeStr}
+                </button>
+            `;
+        }
+
+        const collision = checkCollision(slotMs, batchLockDurationMin);
+
+        if (collision.hasCollision) {
+            const platformName = (collision.lock && collision.lock.source === 'atelier') ? 'Atelier' : 'PaseBoda';
+            return `
+                <button type="button" disabled style="padding:8px 6px; border:1px solid #fecaca; background:#fef2f2; color:#991b1b; border-radius:6px; font-size:0.72rem; font-weight:700; cursor:not-allowed;" title="Ocupado por ${platformName} (protección + 30 min cooldown)">
+                    🔒 ${timeStr}
+                </button>
+            `;
+        }
+
+        return `
+            <button type="button" id="slotBtn_${timeStr.replace(':', '_')}" onclick="selectDispatchSlot('${timeStr}')" style="padding:8px 6px; border:1.5px solid #10b981; background:#f0fdf4; color:#065f46; border-radius:6px; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s ease;">
+                🟢 ${timeStr}
+            </button>
+        `;
+    }).join('');
+
+    if (alertEl) {
+        alertEl.style.background = '#f8fafc';
+        alertEl.style.border = '1.5px solid #cbd5e1';
+        alertEl.style.color = '#334155';
+        alertEl.innerHTML = 'ℹ️ Haz clic en un horario en color verde disponible arriba para seleccionar tu turno de despacho.';
+    }
+}
+
+function selectDispatchSlot(timeStr) {
+    selectedDispatchTimeSlot = timeStr;
+    const dateInput = document.getElementById('batchScheduleDate');
+    const alertEl = document.getElementById('batchScheduleStatusAlert');
+    const btnStart = document.getElementById('btnStartBatchExecution');
+    const dVal = dateInput ? dateInput.value : '';
+
+    // Resaltar botón seleccionado
+    document.querySelectorAll('#batchSlotsGrid button').forEach(b => {
+        if (!b.disabled) {
+            b.style.background = '#f0fdf4';
+            b.style.borderColor = '#10b981';
+            b.style.color = '#065f46';
+        }
+    });
+
+    const activeBtn = document.getElementById(`slotBtn_${timeStr.replace(':', '_')}`);
+    if (activeBtn) {
+        activeBtn.style.background = '#0284c7';
+        activeBtn.style.borderColor = '#0369a1';
+        activeBtn.style.color = '#ffffff';
+    }
+
+    // Calcular desglose exacto con los 30 min de cooldown
+    const startMs = new Date(`${dVal}T${timeStr}:00`).getTime();
+    const endMs = startMs + (batchLockDurationMin * 60 * 1000);
+    const cooldownMs = COOLDOWN_BUFFER_MIN * 60 * 1000;
+    const protectedEndMs = endMs + cooldownMs;
+
+    const startFormatted = timeStr;
+    const endFormatted = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    const freeFormatted = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+    if (alertEl) {
         alertEl.style.background = '#ecfdf5';
-        alertEl.style.border = '1px solid #10b981';
+        alertEl.style.border = '1.5px solid #10b981';
         alertEl.style.color = '#065f46';
-        alertEl.innerHTML = `✅ <strong>Horario disponible.</strong> La línea quedará reservada por <strong>${batchLockDurationStr}</strong> (hasta las ${freeEndStr} hrs).`;
-        if (btnStart) {
-            btnStart.disabled = false;
-            btnStart.style.opacity = '1';
-            btnStart.style.cursor = 'pointer';
-        }
+        alertEl.innerHTML = `
+            <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px;">
+                ✅ Turno Seleccionado: ${startFormatted} hrs (Fecha: ${dVal})
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; font-size:0.78rem;">
+                <div>🔒 <strong>Bloque de Envío:</strong> ${startFormatted} a ${endFormatted} hrs (${batchLockDurationStr})</div>
+                <div>🛡️ <strong>Cooldown Obligatorio:</strong> ${endFormatted} a ${freeFormatted} hrs (30 min)</div>
+            </div>
+            <div style="margin-top:6px; font-size:0.75rem; color:#047857;">
+                ⏳ Próximo turno disponible en la red (PaseBoda o Atelier): a partir de las <strong>${freeFormatted} hrs</strong>.
+            </div>
+        `;
+    }
+
+    if (btnStart) {
+        btnStart.disabled = false;
+        btnStart.style.background = '#0284c7';
+        btnStart.style.cursor = 'pointer';
+        btnStart.innerHTML = `📅 Confirmar Turno para las ${timeStr} hrs`;
     }
 }
 
@@ -1454,25 +1492,27 @@ function openBatchDispatchModal() {
     if (configSection) configSection.style.display = 'block';
     if (runningSection) runningSection.style.display = 'none';
 
-    // Fechas por defecto (hoy y próxima hora)
+    // Fechas por defecto (hoy) y renderizar turnos de 30 minutos
     const todayStr = new Date().toISOString().split('T')[0];
     const dInput = document.getElementById('batchScheduleDate');
-    const tInput = document.getElementById('batchScheduleTime');
     if (dInput) {
         dInput.min = todayStr;
         dInput.value = todayStr;
     }
-    if (tInput) {
-        const nextTime = new Date(Date.now() + 15 * 60000);
-        tInput.value = nextTime.toTimeString().substring(0, 5);
-    }
 
-    setBatchExecutionMode('now');
+    selectedDispatchTimeSlot = null;
+    renderDispatchTimeSlots();
 
     const btnStart = document.getElementById('btnStartBatchExecution');
     const btnCancel = document.getElementById('btnCancelBatch');
     const btnClose = document.getElementById('btnCloseBatchModal');
-    if (btnStart) btnStart.style.display = 'inline-flex';
+    if (btnStart) {
+        btnStart.style.display = 'inline-flex';
+        btnStart.disabled = true;
+        btnStart.style.background = '#94a3b8';
+        btnStart.style.cursor = 'not-allowed';
+        btnStart.innerHTML = '📅 Confirmar y Reservar Turno';
+    }
     if (btnCancel) btnCancel.style.display = 'inline-flex';
     if (btnClose) btnClose.style.display = 'none';
 
@@ -1485,56 +1525,60 @@ function closeBatchDispatchModal() {
 }
 
 async function confirmBatchExecution() {
-    if (currentBatchMode === 'scheduled') {
-        const dateInput = document.getElementById('batchScheduleDate');
-        const timeInput = document.getElementById('batchScheduleTime');
-        const dVal = dateInput ? dateInput.value : '';
-        const tVal = timeInput ? timeInput.value : '';
+    const dateInput = document.getElementById('batchScheduleDate');
+    const dVal = dateInput ? dateInput.value : '';
+    const tVal = selectedDispatchTimeSlot;
 
-        if (!dVal || !tVal) {
-            showToast('⚠️ Por favor selecciona fecha y horario.');
-            return;
-        }
-
-        const scheduledDate = new Date(`${dVal}T${tVal}:00`);
-        const startMs = scheduledDate.getTime();
-
-        const collision = checkCollision(startMs, batchLockDurationMin);
-        if (collision.hasCollision) {
-            showToast(`⚠️ Horario no disponible. Próximo turno libre a partir de las ${collision.nextFreeTimeStr} hrs.`);
-            return;
-        }
-
-        const weddingName = (currentData && currentData.couple) ? currentData.couple : 'PaseBoda';
-        const pendingGuests = (currentData.guests || []).filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
-
-        registerSharedDispatchLock({
-            id: 'lock_' + Date.now(),
-            source: 'paseboda',
-            weddingName: weddingName,
-            startTimestamp: startMs,
-            endTimestamp: startMs + (batchLockDurationMin * 60 * 1000),
-            guestsCount: pendingGuests.length
-        });
-
-        const schedFormatted = scheduledDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ' a las ' + tVal;
-
-        if (typeof notifyTelegramDispatchScheduled === 'function') {
-            notifyTelegramDispatchScheduled({
-                weddingName: weddingName,
-                guestCount: pendingGuests.length,
-                scheduleDateTimeStr: schedFormatted,
-                lockDurationStr: batchLockDurationStr
-            });
-        }
-
-        showToast(`📅 ¡Despacho programado para el ${schedFormatted} hrs! Línea reservada por ${batchLockDurationStr}.`);
-        closeBatchDispatchModal();
+    if (!dVal || !tVal) {
+        showToast('⚠️ Por favor selecciona una fecha y un horario de 30 min en color verde.');
         return;
     }
 
-    // Modo "Enviar en este momento"
-    await startBatchExecution();
+    const scheduledDate = new Date(`${dVal}T${tVal}:00`);
+    const startMs = scheduledDate.getTime();
+
+    const collision = checkCollision(startMs, batchLockDurationMin);
+    if (collision.hasCollision) {
+        showToast(`⚠️ Horario no disponible. Próximo turno libre a partir de las ${collision.nextFreeTimeStr} hrs.`);
+        return;
+    }
+
+    const weddingName = (currentData && currentData.couple) ? currentData.couple : 'PaseBoda';
+    const pendingGuests = (currentData.guests || []).filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
+
+    const newLock = {
+        id: 'lock_paseboda_' + Date.now(),
+        source: 'paseboda',
+        weddingName: weddingName,
+        templateName: 'paseboda_invitacion_1',
+        startTimestamp: startMs,
+        durationMinutes: batchLockDurationMin,
+        cooldownMinutes: COOLDOWN_BUFFER_MIN,
+        guestsCount: pendingGuests.length,
+        sentCount: 0,
+        failedCount: 0,
+        status: 'scheduled',
+        recipientLog: []
+    };
+
+    registerSharedDispatchLock(newLock);
+
+    // Notificar a la nube central de concurrencia y enviar Telegram automático
+    try {
+        fetch('/api/radar-locks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newLock)
+        });
+    } catch (e) {}
+
+    const schedFormatted = scheduledDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ' a las ' + tVal;
+    showToast(`📅 ¡Turno agendado para el ${schedFormatted} hrs! Línea protegida por ${batchLockDurationStr} + 30 min cooldown.`);
+    closeBatchDispatchModal();
+
+    if (typeof renderDevRadarTab === 'function') {
+        renderDevRadarTab();
+    }
 }
 
 async function startBatchExecution() {
