@@ -1934,8 +1934,11 @@
                         <p class="tab-subtitle">Monitorea en tiempo real el uso de la línea oficial (+1 364-212-1213), bloqueos activos y programaciones futuras de ambas plataformas para garantizar 0% colisiones.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-action secondary" onclick="simulatePasebodaLock()" style="border:1.5px solid #059669; color:#065f46; font-weight:700; background:#ecfdf5;">
-                            <span>💍 Programar Prueba PaseBoda</span>
+                        <button class="btn-action secondary" onclick="simulatePasebodaLock('with_errors')" style="border:1.5px solid #d97706; color:#92400e; font-weight:700; background:#fef3c7;">
+                            <span>⚠️ Simular Despacho con Errores (39/42)</span>
+                        </button>
+                        <button class="btn-action secondary" onclick="simulatePasebodaLock('in_progress')" style="border:1.5px solid #0284c7; color:#0369a1; font-weight:700; background:#f0f9ff;">
+                            <span>⚡ Simular Lote en Proceso</span>
                         </button>
                         <button class="btn-action secondary" onclick="simulateAtelierStudioLock()" style="border:1.5px solid #7c3aed; color:#6d28d9; font-weight:700; background:#f5f3ff;">
                             <span>🎨 Simular Atelier Studio</span>
@@ -1950,16 +1953,16 @@
                 </div>
 
                 <!-- TARJETA PRINCIPAL DEL ESTADO DEL CANAL -->
-                <div style="background:#ffffff; border:2px solid #10b981; border-radius:12px; padding:20px; margin-bottom:24px; box-shadow:0 4px 16px rgba(0,0,0,0.04);">
+                <div style="background:#ffffff; border:2px solid #d97706; border-radius:12px; padding:20px; margin-bottom:24px; box-shadow:0 4px 16px rgba(0,0,0,0.04);">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="font-size:2rem;">🟢</span>
+                            <span style="font-size:2rem;">⚠️</span>
                             <div>
                                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#0f172a;">Línea de WhatsApp libre para programar o enviar</h3>
-                                    <span style="background:#10b981; color:#fff; font-weight:800; font-size:0.75rem; padding:4px 10px; border-radius:12px; text-transform:uppercase;">🟢 CANAL DISPONIBLE</span>
+                                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#0f172a;">Línea reservada por PaseBoda (Boda Valentina &amp; Sebastián)</h3>
+                                    <span style="background:#d97706; color:#fff; font-weight:800; font-size:0.75rem; padding:4px 10px; border-radius:12px; text-transform:uppercase;">🔒 LÍNEA BLOQUEADA (PASEBODA)</span>
                                 </div>
-                                <p style="margin:0; font-size:0.85rem; color:#475569;">Ambas plataformas (PaseBoda y Atelier Studio) pueden agendar o iniciar despachos respetando la regla de bloques de 1 o 2 horas.</p>
+                                <p style="margin:0; font-size:0.85rem; color:#475569;">Despacho ejecutado: 39 entregados, 3 rechazados por Meta API. Haz clic en Auditoría para diagnóstico.</p>
                             </div>
                         </div>
                         <div style="text-align:right;">
@@ -1988,45 +1991,63 @@
                 <!-- TABLA DE LÍNEA DE TIEMPO / PROGRAMACIONES -->
                 <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                        <h3 style="margin:0; font-size:1rem; font-weight:800; color:#0f172a;">📋 Línea de Tiempo de Despachos &amp; Bloqueos Programados</h3>
-                        <span style="font-size:0.75rem; color:#64748b; font-weight:600;">Sincronización en tiempo real</span>
+                        <div>
+                            <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:#0f172a;">📋 Línea de Tiempo, Entregas &amp; Auditoría de Concurrencia</h3>
+                            <p style="margin:3px 0 0 0; font-size:0.8rem; color:#64748b;">Haz clic en el conteo de enviados o en el botón de auditoría para ver la bitácora individual de números y diagnósticos Meta.</p>
+                        </div>
                     </div>
 
                     <div id="radarTableWrapper">
                         <div style="overflow-x:auto;">
                             <table style="width:100%; border-collapse:collapse; text-align:left;">
                                 <thead>
-                                    <tr style="border-bottom:2px solid #e2e8f0; font-size:0.72rem; text-transform:uppercase; color:#64748b;">
+                                    <tr style="border-bottom:2px solid #e2e8f0; font-size:0.72rem; text-transform:uppercase; color:#64748b; background:#f8fafc;">
                                         <th style="padding:10px 14px;">Plataforma</th>
-                                        <th style="padding:10px 14px;">Boda / Campaña</th>
-                                        <th style="padding:10px 14px;">Horario Programado</th>
-                                        <th style="padding:10px 14px;">Bloque Reserva</th>
+                                        <th style="padding:10px 14px;">Boda &amp; Plantilla</th>
+                                        <th style="padding:10px 14px;">Horario &amp; Bloque</th>
+                                        <th style="padding:10px 14px;">Enviados / Total</th>
                                         <th style="padding:10px 14px;">Estado</th>
-                                        <th style="padding:10px 14px; text-align:right;">Acción</th>
+                                        <th style="padding:10px 14px; text-align:right;">Auditoría</th>
                                     </tr>
                                 </thead>
                                 <tbody id="radarTableBody">
-                                    <tr style="border-bottom:1px solid #f1f5f9; background:#eff6ff;">
-                                        <td style="padding:12px 14px;">
+                                    <tr style="border-bottom:1px solid #f1f5f9; background:#fefce8;">
+                                        <td style="padding:14px 14px;">
                                             <span style="background:#059669; color:#fff; padding:4px 9px; border-radius:6px; font-size:0.75rem; font-weight:700;">💍 PaseBoda</span>
                                         </td>
-                                        <td style="padding:12px 14px;">
-                                            <strong style="color:#0f172a; font-size:0.85rem; display:block;">Boda Valentina &amp; Sebastián (Prueba 3 min)</strong>
-                                            <span style="font-size:0.72rem; color:#64748b;">1 destinatario</span>
+                                        <td style="padding:14px 14px;">
+                                            <strong style="color:#0f172a; font-size:0.88rem; display:block;">Boda Valentina &amp; Sebastián (Convocatoria)</strong>
+                                            <span style="font-size:0.72rem; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#475569; font-weight:600;">
+                                                🏷️ paseboda_invitacion_1
+                                            </span>
                                         </td>
-                                        <td style="padding:12px 14px; font-size:0.82rem; color:#334155;">
+                                        <td style="padding:14px 14px; font-size:0.82rem; color:#334155;">
                                             <div>Hoy</div>
-                                            <div style="font-weight:700; color:#0f172a;">Próximos 3 min (Bloque de 1 hr)</div>
+                                            <div style="font-weight:700; color:#0f172a;">22:00 a 23:00 hrs</div>
+                                            <span style="font-size:0.72rem; color:#d97706; font-weight:700;">Bloque: 1 hora</span>
                                         </td>
-                                        <td style="padding:12px 14px; font-size:0.82rem; font-weight:700; color:#d97706;">
-                                            1 hora
+                                        <td style="padding:14px 14px; min-width:190px;">
+                                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                                <button type="button" onclick="openRadarDetailModal('lock_paseboda_with_errors')" style="background:none; border:none; padding:0; cursor:pointer; font-weight:800; font-size:0.88rem; color:#0f172a; text-decoration:underline;">
+                                                    39 de 42 enviados
+                                                </button>
+                                                <button type="button" onclick="openRadarDetailModal('lock_paseboda_with_errors')" style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; font-size:0.7rem; font-weight:800; padding:2px 7px; border-radius:8px; cursor:pointer;">
+                                                    ⚠️ 3 no entregados
+                                                </button>
+                                            </div>
+                                            <div style="width:100%; height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden; display:flex;">
+                                                <div style="width:92.8%; height:100%; background:#10b981;"></div>
+                                                <div style="width:7.2%; height:100%; background:#ef4444;"></div>
+                                            </div>
                                         </td>
-                                        <td style="padding:12px 14px;">
-                                            <span style="background:#0284c7; color:#fff; padding:3px 8px; border-radius:12px; font-size:0.7rem; font-weight:800;">AGENDADO</span>
+                                        <td style="padding:14px 14px;">
+                                            <button onclick="openRadarDetailModal('lock_paseboda_with_errors')" style="background:#ef4444; color:#fff; border:none; padding:4px 9px; border-radius:12px; font-size:0.72rem; font-weight:800; cursor:pointer;">
+                                                ⚠️ CON INCIDENCIAS (3)
+                                            </button>
                                         </td>
-                                        <td style="padding:12px 14px; text-align:right;">
-                                            <button type="button" onclick="renderDevRadarTab()" style="background:none; border:none; color:#0284c7; font-size:0.75rem; font-weight:700; cursor:pointer;">
-                                                🔄 Recargar
+                                        <td style="padding:14px 14px; text-align:right; white-space:nowrap;">
+                                            <button type="button" onclick="openRadarDetailModal('lock_paseboda_with_errors')" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-size:0.75rem; font-weight:700; padding:5px 10px; border-radius:6px; cursor:pointer;">
+                                                🔍 Auditoría
                                             </button>
                                         </td>
                                     </tr>
@@ -4021,7 +4042,7 @@
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-dispatch.js?v=20261104_schedule_v4"></script>
-    <script src="scripts/admin-radar.js?v=20261104_radar_v11"></script>
+    <script src="scripts/admin-radar.js?v=20261104_radar_v13"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261028_convocatoria_v3"></script>
