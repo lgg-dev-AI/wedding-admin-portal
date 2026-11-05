@@ -1934,11 +1934,17 @@
                         <p class="tab-subtitle">Monitorea en tiempo real el uso de la línea oficial (+1 364-212-1213), bloqueos activos y programaciones futuras de ambas plataformas para garantizar 0% colisiones.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
-                            <span>🔄 Actualizar Radar</span>
+                        <button class="btn-action secondary" onclick="simulatePasebodaLock()" style="border:1.5px solid #059669; color:#065f46; font-weight:700; background:#ecfdf5;">
+                            <span>💍 Programar Prueba PaseBoda</span>
+                        </button>
+                        <button class="btn-action secondary" onclick="simulateAtelierStudioLock()" style="border:1.5px solid #7c3aed; color:#6d28d9; font-weight:700; background:#f5f3ff;">
+                            <span>🎨 Simular Atelier Studio</span>
                         </button>
                         <button class="btn-action secondary" onclick="clearRadarLocks()" style="border:1px solid #ef4444; color:#b91c1c; font-weight:600; background:#fef2f2;">
                             <span>🔓 Limpiar Bloqueos</span>
+                        </button>
+                        <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
+                            <span>🔄 Recargar</span>
                         </button>
                     </div>
                 </div>
@@ -4015,7 +4021,7 @@
             <!-- APP ENGINE SCRIPTS -->
     <script src="scripts/admin-data.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-dispatch.js?v=20261104_schedule_v4"></script>
-    <script src="scripts/admin-radar.js?v=20261104_radar_v9"></script>
+    <script src="scripts/admin-radar.js?v=20261104_radar_v10"></script>
     <script src="scripts/admin-settings.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-album-playlist.js?v=20261025_planner_shield_v9"></script>
     <script src="scripts/admin-seating.js?v=20261028_convocatoria_v3"></script>

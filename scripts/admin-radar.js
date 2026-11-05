@@ -10,22 +10,22 @@ function getRadarLocks() {
         const raw = localStorage.getItem(RADAR_STORAGE_KEY);
         let list = raw ? JSON.parse(raw) : null;
         
-        // Limpiar simulaciones artificiales previas que hayan quedado guardadas con atelier por error
+        // Limpiar registros antiguos que contuvieran simulaciones residuales no deseadas
         if (Array.isArray(list)) {
-            list = list.filter(item => !item.id || !item.id.startsWith('lock_atelier_'));
+            list = list.filter(item => !item.id || !item.id.startsWith('lock_atelier_legacy'));
         }
 
         if (!list || list.length === 0) {
-            // Inicializar con la prueba de 3 minutos de PASEBODA
-            const targetStart = Date.now() + (2 * 60 * 1000); // en 2 min
+            // Inicializar con la programación oficial de prueba de PASEBODA
+            const targetStart = Date.now() + (10 * 60 * 1000); // Programado para dentro de 10 min
             const initialList = [
                 {
-                    id: 'lock_paseboda_test_3min',
+                    id: 'lock_paseboda_demo',
                     source: 'paseboda',
-                    weddingName: 'Boda Valentina & Sebastián (Prueba 3 min)',
+                    weddingName: 'Boda Valentina & Sebastián (Convocatoria)',
                     startTimestamp: targetStart,
-                    endTimestamp: targetStart + (60 * 60 * 1000), // 1 hora de reserva
-                    guestsCount: 1
+                    endTimestamp: targetStart + (60 * 60 * 1000), // 1 hora de bloqueo preventivo
+                    guestsCount: 42
                 }
             ];
             localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(initialList));
@@ -88,11 +88,17 @@ function renderDevRadarTab() {
                 <p class="tab-subtitle">Monitorea en tiempo real el uso de la línea oficial (+1 364-212-1213), bloqueos activos y programaciones futuras de ambas plataformas para garantizar 0% colisiones.</p>
             </div>
             <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
-                    <span>🔄 Actualizar Radar</span>
+                <button class="btn-action secondary" onclick="simulatePasebodaLock()" style="border:1.5px solid #059669; color:#065f46; font-weight:700; background:#ecfdf5;">
+                    <span>💍 Programar Prueba PaseBoda</span>
+                </button>
+                <button class="btn-action secondary" onclick="simulateAtelierStudioLock()" style="border:1.5px solid #7c3aed; color:#6d28d9; font-weight:700; background:#f5f3ff;">
+                    <span>🎨 Simular Atelier Studio</span>
                 </button>
                 <button class="btn-action secondary" onclick="clearRadarLocks()" style="border:1px solid #ef4444; color:#b91c1c; font-weight:600; background:#fef2f2;">
                     <span>🔓 Limpiar Bloqueos</span>
+                </button>
+                <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
+                    <span>🔄 Recargar</span>
                 </button>
             </div>
         </div>
@@ -231,6 +237,35 @@ function renderLocksTableHtml(locks, now) {
     `;
 }
 
+function simulatePasebodaLock() {
+    const now = Date.now();
+    // Programar para dentro de 10 minutos por 1 hora
+    const startMs = now + (10 * 60 * 1000);
+    const endMs = startMs + (60 * 60 * 1000);
+
+    const lock = {
+        id: 'lock_paseboda_' + Date.now(),
+        source: 'paseboda',
+        weddingName: 'Boda Valentina & Sebastián (Convocatoria)',
+        startTimestamp: startMs,
+        endTimestamp: endMs,
+        guestsCount: 42
+    };
+
+    const locks = getRadarLocks();
+    locks.push(lock);
+    saveRadarLocks(locks);
+
+    const timeStartStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    const timeEndStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+    if (typeof showToast === 'function') {
+        showToast(`💍 PaseBoda: Despacho programado con éxito de ${timeStartStr} a ${timeEndStr} hrs.`);
+    }
+
+    renderDevRadarTab();
+}
+
 function simulateAtelierStudioLock() {
     const now = Date.now();
     // Programar para dentro de 15 minutos por 1 hora
@@ -280,6 +315,7 @@ function deleteRadarLock(id) {
 
 // Exportar globalmente
 window.renderDevRadarTab = renderDevRadarTab;
+window.simulatePasebodaLock = simulatePasebodaLock;
 window.simulateAtelierStudioLock = simulateAtelierStudioLock;
 window.clearRadarLocks = clearRadarLocks;
 window.deleteRadarLock = deleteRadarLock;
