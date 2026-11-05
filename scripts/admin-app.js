@@ -315,6 +315,7 @@ function autoExpandAccordionForTab(tabName) {
         'travel': 'dayof',
         'dev-clients': 'dev',
         'dev-analytics': 'dev',
+        'dev-radar': 'dev',
         'backups': 'dev'
     };
 
@@ -367,7 +368,7 @@ function setRole(role) {
         // =========================================================================
         // VISTA 1: 💎 MASTER DEVELOPER (SOLO LO QUE LE INTERESA A LUIS COMO DUEÑO)
         // =========================================================================
-        const allowedDevTabs = ['dev-clients', 'dev-analytics', 'album', 'playlist', 'settings', 'backups'];
+        const allowedDevTabs = ['dev-clients', 'dev-analytics', 'dev-radar', 'album', 'playlist', 'settings', 'backups'];
 
         // Ocultar acordeones de boda estándar que no competen a SaaS dev
         ['control', 'guests', 'finance', 'dayof'].forEach(g => {
@@ -489,7 +490,7 @@ function showTab(tabName) {
 
     // Blindaje de seguridad para la Vista Novios:
     // La pareja JAMÁS puede entrar a configuración de planes, cobros ni consolas administrativas
-    if (activeRole === 'couple' && (tabName === 'settings' || tabName === 'dev-clients' || tabName === 'dev-analytics' || tabName === 'backups')) {
+    if (activeRole === 'couple' && (tabName === 'settings' || tabName === 'dev-clients' || tabName === 'dev-analytics' || tabName === 'dev-radar' || tabName === 'backups')) {
         if (typeof showToast === 'function') {
             showToast('🔒 Esta sección es exclusiva de la administración de tu Wedding Planner.');
         }
@@ -499,7 +500,7 @@ function showTab(tabName) {
     // Gatekeeper: Solo aplica para la vista de novios o bodas sin briefing,
     // garantizando que Wedding Planner y Master Developer nunca queden bloqueados de sus herramientas.
     const isBriefingDone = currentData && (currentData.isBriefingCompleted || localStorage.getItem(`briefing_done_${currentWeddingId}`));
-    const nonGatedTabs = ['dashboard', 'kanban', 'contracts', 'designstudio', 'backups', 'dev-clients', 'dev-analytics', 'hostess', 'settings', 'album', 'playlist'];
+    const nonGatedTabs = ['dashboard', 'kanban', 'contracts', 'designstudio', 'backups', 'dev-clients', 'dev-analytics', 'dev-radar', 'hostess', 'settings', 'album', 'playlist'];
 
     if (activeRole === 'couple' && !nonGatedTabs.includes(tabName) && !isBriefingDone) {
         showToast(`⚠️ Debes completar el Formulario para Invitación Web antes de usar este módulo.`);
@@ -565,6 +566,7 @@ function showTab(tabName) {
     if (tabName === 'settings') { if (typeof renderSettingsTab === 'function') renderSettingsTab(); }
     if (tabName === 'dev-clients') { if (typeof renderClientsDashboard === 'function') renderClientsDashboard(); }
     if (tabName === 'dev-analytics') { if (typeof renderDevAnalyticsDashboard === 'function') renderDevAnalyticsDashboard(); }
+    if (tabName === 'dev-radar') { if (typeof renderDevRadarTab === 'function') renderDevRadarTab(); }
     if (tabName === 'backups') { if (typeof renderBackupsTab === 'function') renderBackupsTab(); }
     if (tabName === 'pdfreports') generateAndPreviewPDF();
 
