@@ -696,28 +696,46 @@ function deleteRadarLock(id) {
     renderDevRadarTab();
 }
 
-function refreshRadarManually() {
-    renderDevRadarTab();
-    if (typeof showToast === 'function') {
-        showToast('🔄 Radar actualizado en tiempo real.');
+async function fetchRadarLocksFromCloud() {
+    try {
+        const res = await fetch('/api/radar-locks', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.locks)) {
+                localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(data.locks));
+                const container = document.getElementById('tab-dev-radar');
+                if (container && container.classList.contains('active')) {
+                    renderDevRadarTab();
+                }
+            }
+        }
+    } catch (e) {
+        // Fallback offline a localStorage
     }
 }
 
-// Bucle de auto-actualización cada 10 segundos
+function refreshRadarManually() {
+    fetchRadarLocksFromCloud();
+    renderDevRadarTab();
+    if (typeof showToast === 'function') {
+        showToast('🔄 Radar sincronizado con la nube en tiempo real.');
+    }
+}
+
+// Bucle de auto-actualización cada 10 segundos conectado a la nube
 let radarPollInterval = null;
 function startRadarAutoPoll() {
     if (radarPollInterval) clearInterval(radarPollInterval);
     radarPollInterval = setInterval(() => {
-        const container = document.getElementById('tab-dev-radar');
-        if (container && container.classList.contains('active')) {
-            renderDevRadarTab();
-        }
+        fetchRadarLocksFromCloud();
     }, 10000);
+    fetchRadarLocksFromCloud();
 }
 
 // Exportar globalmente
 window.renderDevRadarTab = renderDevRadarTab;
 window.refreshRadarManually = refreshRadarManually;
+window.fetchRadarLocksFromCloud = fetchRadarLocksFromCloud;
 window.simulatePasebodaLock = simulatePasebodaLock;
 window.simulateAtelierStudioLock = simulateAtelierStudioLock;
 window.clearRadarLocks = clearRadarLocks;
