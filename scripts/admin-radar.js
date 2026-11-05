@@ -374,7 +374,7 @@ function renderLocksTableHtml(locks, now) {
                 <td style="padding:14px 14px;">
                     <strong style="color:#0f172a; font-size:0.88rem; display:block;">${l.weddingName || 'Evento'}</strong>
                     <span style="font-size:0.72rem; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#475569; font-weight:600;">
-                        🏷️ ${l.templateName || 'muestras_op1_invitacion'}
+                        🏷️ ${l.templateName || (l.source === 'atelier' ? 'muestras_op1_invitacion' : 'paseboda_invitacion_1')}
                     </span>
                 </td>
                 <td style="padding:14px 14px; font-size:0.82rem; color:#334155;">
