@@ -8,7 +8,22 @@ const RADAR_STORAGE_KEY = 'paseboda_shared_dispatch_locks';
 function getRadarLocks() {
     try {
         const raw = localStorage.getItem(RADAR_STORAGE_KEY);
-        if (!raw) return [];
+        if (!raw) {
+            // Inicializar con la prueba de 3 minutos para visualizar de inmediato en el radar
+            const targetStart = Date.now() + (3 * 60 * 1000);
+            const initialList = [
+                {
+                    id: 'lock_test_3min',
+                    source: 'paseboda',
+                    weddingName: 'Boda Valentina & Sebastián (Prueba 3 min)',
+                    startTimestamp: targetStart,
+                    endTimestamp: targetStart + (60 * 60 * 1000), // 1 hora de reserva
+                    guestsCount: 1
+                }
+            ];
+            localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(initialList));
+            return initialList;
+        }
         const list = JSON.parse(raw);
         return Array.isArray(list) ? list : [];
     } catch (e) {
@@ -263,3 +278,14 @@ window.renderDevRadarTab = renderDevRadarTab;
 window.simulateAtelierStudioLock = simulateAtelierStudioLock;
 window.clearRadarLocks = clearRadarLocks;
 window.deleteRadarLock = deleteRadarLock;
+
+// Renderizar inmediatamente si el contenedor ya existe en el DOM
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof renderDevRadarTab === 'function') renderDevRadarTab();
+    });
+} else {
+    setTimeout(() => {
+        if (typeof renderDevRadarTab === 'function') renderDevRadarTab();
+    }, 100);
+}
