@@ -12,6 +12,38 @@ const TMP_FILE = '/tmp/shared_radar_locks.json';
 
 const DEFAULT_LOCKS = [
     {
+        id: 'lock_atelier_final_test_1793855849011',
+        source: 'atelier',
+        weddingName: 'Atelier Studio - Colección Gala Nupcial 2027',
+        templateName: 'muestras_op1_invitacion',
+        startTimestamp: 1793890800000,
+        endTimestamp: 1793894400000,
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793896200000,
+        durationMinutes: 60,
+        guestsCount: 48,
+        sentCount: 0,
+        failedCount: 0,
+        status: 'scheduled',
+        recipientLog: []
+    },
+    {
+        id: 'lock_atelier_1130_1793855686623',
+        source: 'atelier',
+        weddingName: 'Boda Isabella & Maximiliano (Atelier Studio)',
+        templateName: 'muestras_op1_invitacion',
+        startTimestamp: 1793856600000,
+        endTimestamp: 1793860200000,
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793862000000,
+        durationMinutes: 60,
+        guestsCount: 45,
+        sentCount: 0,
+        failedCount: 0,
+        status: 'scheduled',
+        recipientLog: []
+    },
+    {
         id: 'lock_paseboda_manana_2am',
         source: 'paseboda',
         weddingName: 'Boda Valentina y Sebastián (Programación 2:00 AM)',
@@ -22,22 +54,6 @@ const DEFAULT_LOCKS = [
         cooldownMinutes: 30,
         protectedEndTimestamp: 1793871000000, // 03:30 AM libre
         guestsCount: 42,
-        sentCount: 0,
-        failedCount: 0,
-        status: 'scheduled',
-        recipientLog: []
-    },
-    {
-        id: 'lock_atelier_1793857500000',
-        source: 'atelier',
-        weddingName: 'Boda Isabella & Maximiliano (Atelier Studio)',
-        templateName: 'muestras_op1_invitacion',
-        startTimestamp: 1793857500000,
-        endTimestamp: 1793861100000,
-        durationMinutes: 60,
-        cooldownMinutes: 30,
-        protectedEndTimestamp: 1793862900000,
-        guestsCount: 45,
         sentCount: 0,
         failedCount: 0,
         status: 'scheduled',
@@ -167,27 +183,38 @@ module.exports = async (req, res) => {
             const COOLDOWN_BUFFER_MIN = Number(cooldownMinutes) || 30;
             const cooldownMs = COOLDOWN_BUFFER_MIN * 60 * 1000;
             const protectedEndMs = endMs + cooldownMs;
-            const lockId = id || `lock_${source}_${Date.now()}`;
+            const cleanWeddingName = (weddingName || '').trim().toLowerCase();
+            const existingIdx = currentLocks.findIndex(item => 
+                (id && item.id === id) ||
+                (item.source === source && (item.weddingName || '').trim().toLowerCase() === cleanWeddingName && Math.abs(item.startTimestamp - startMs) < 60000)
+            );
 
             // Chequeo de colisión considerando la duración del despacho + 30 min de cooldown
-            for (const item of currentLocks) {
-                if (item.id === lockId) continue;
+            for (let i = 0; i < currentLocks.length; i++) {
+                const item = currentLocks[i];
+                // Ignorar el mismo registro si es una actualización
+                if (existingIdx === i || (id && item.id === id)) continue;
                 
                 const itemCooldownMs = (item.cooldownMinutes || 30) * 60 * 1000;
                 const itemProtectedEndMs = item.endTimestamp + itemCooldownMs;
 
-                // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
-                if (startMs < itemProtectedEndMs && protectedEndMs > item.startTimestamp) {
-                    const freeTimeStr = new Date(itemProtectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
-                    return res.status(409).json({
-                        success: false,
-                        collision: true,
-                        message: `⚠️ Horario no disponible. Línea en uso por ${item.source === 'atelier' ? 'Atelier Studio' : 'PaseBoda'} (incluye 30 min de cooldown preventivo). Próximo turno libre a partir de las ${freeTimeStr} hrs.`,
-                        nextFreeTimeStr: freeTimeStr,
-                        conflictingLock: item
-                    });
+                // Solo eventos activos o futuros causan colisión (los pasados se preservan en historial)
+                if (itemProtectedEndMs > now) {
+                    // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
+                    if (startMs < itemProtectedEndMs && protectedEndMs > item.startTimestamp) {
+                        const freeTimeStr = new Date(itemProtectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+                        return res.status(409).json({
+                            success: false,
+                            collision: true,
+                            message: `⚠️ Horario no disponible. Línea en uso por ${item.source === 'atelier' ? 'Atelier Studio' : 'PaseBoda'} (${item.weddingName}). Próximo turno libre a partir de las ${freeTimeStr} hrs.`,
+                            nextFreeTimeStr: freeTimeStr,
+                            conflictingLock: item
+                        });
+                    }
                 }
             }
+
+            const lockId = existingIdx >= 0 ? currentLocks[existingIdx].id : (id || `lock_${source}_${Date.now()}`);
 
             const newLock = {
                 id: lockId,
@@ -203,25 +230,39 @@ module.exports = async (req, res) => {
                 sentCount: Number(sentCount) || 0,
                 failedCount: Number(failedCount) || 0,
                 status: status || 'scheduled',
-                recipientLog: recipientLog || []
+                recipientLog: recipientLog || (existingIdx >= 0 ? currentLocks[existingIdx].recipientLog : [])
             };
 
-            const idx = currentLocks.findIndex(l => l.id === lockId);
-            if (idx >= 0) {
-                currentLocks[idx] = newLock;
+            const isNewBooking = existingIdx < 0;
+            if (existingIdx >= 0) {
+                // Actualizar en el mismo lugar preservando orden histórico y sin duplicar
+                currentLocks[existingIdx] = { ...currentLocks[existingIdx], ...newLock };
             } else {
+                // Registrar nueva boda/despacho en el historial acumulativo
                 currentLocks.unshift(newLock);
             }
             savePersistentLocks(currentLocks);
 
-            // Alerta formal a Telegram a Luis con desglose de Cooldown de 30 min
-            const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
-            const endStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
-            const freeStr = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
-            const sourceIcon = source === 'atelier' ? '🎨 Atelier Studio' : '💍 PaseBoda';
-            const durLabel = durMin >= 120 ? '2 horas' : '1 hora';
+            // Alerta formal a Telegram a Luis SOLO en nuevos registros (para evitar spam en refrescos)
+            if (isNewBooking) {
+                const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+                const endStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+                const freeStr = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+                const sourceIcon = source === 'atelier' ? '🎨 Atelier Studio' : '💍 PaseBoda';
+                const durLabel = durMin >= 120 ? '2 horas' : '1 hora';
 
-            const telegramMsg = `📅 <b>ENVÍO REGISTRADO EN EL RADAR</b>\n` +
+                const telegramMsg = `📅 <b>ENVÍO REGISTRADO EN EL RADAR</b>\n` +
+                    `• <b>Plataforma:</b> ${sourceIcon}\n` +
+                    `• <b>Evento:</b> ${newLock.weddingName}\n` +
+                    `• <b>Invitados:</b> ${newLock.guestsCount} personas\n` +
+                    `• <b>Ventana de Envío:</b> ${startStr} a ${endStr} hrs\n` +
+                    `• 🔒 <b>LÍNEA BLOQUEADA POR:</b> ${durLabel} (+ 30 min cooldown)\n` +
+                    `• 🛡️ <b>Margen de Enfriamiento:</b> ${endStr} a ${freeStr} hrs\n` +
+                    `• ⏳ <b>Servicio disponible de nuevo a las:</b> <b>${freeStr} hrs</b>\n` +
+                    `• 📡 <b>Estado:</b> ${newLock.status.toUpperCase()}`;
+
+                await sendTelegramNotification(telegramMsg);
+            }
                 `• <b>Plataforma:</b> ${sourceIcon}\n` +
                 `• <b>Evento:</b> ${newLock.weddingName}\n` +
                 `• <b>Invitados:</b> ${newLock.guestsCount} personas\n` +

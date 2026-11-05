@@ -166,6 +166,55 @@ function getRadarLocks() {
 
 function saveRadarLocks(list) {
     localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(list));
+}
+
+async function deleteRadarLock(id) {
+    let locks = getRadarLocks();
+    locks = locks.filter(l => l.id !== id);
+    saveRadarLocks(locks);
+    try {
+        await fetch(`/api/radar-locks?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+    } catch (e) {}
+    if (typeof showToast === 'function') {
+        showToast('✓ Bloqueo eliminado correctamente.');
+    }
+    renderDevRadarTab();
+}
+
+async function fetchRadarLocksFromCloud() {
+    try {
+        const res = await fetch('/api/radar-locks', { cache: 'no-store' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.locks)) {
+                const local = getRadarLocks();
+                const map = new Map();
+
+                // Registrar locales para preservar historial
+                local.forEach(l => {
+                    if (l && l.id) map.set(l.id, l);
+                });
+
+                // Fusionar con registros de la nube
+                data.locks.forEach(c => {
+                    if (c && c.id) {
+                        if (map.has(c.id)) {
+                            map.set(c.id, { ...map.get(c.id), ...c });
+                        } else {
+                            map.set(c.id, c);
+                        }
+                    }
+                });
+
+                const merged = Array.from(map.values()).sort((a, b) => b.startTimestamp - a.startTimestamp);
+                saveRadarLocks(merged);
+                renderDevRadarTab();
+            }
+        }
+    } catch (e) {
+        // Fallback offline a localStorage
+    }
 }
 
 let lastRadarFetch = 0;
@@ -699,36 +748,11 @@ function simulateAtelierStudioLock() {
 
 function clearRadarLocks() {
     localStorage.removeItem(RADAR_STORAGE_KEY);
+    localStorage.removeItem('paseboda_shared_dispatch_locks');
     if (typeof showToast === 'function') {
-        showToast('🔓 Todos los bloqueos y programaciones han sido eliminados.');
+        showToast('🔓 Todos los bloqueos y programaciones han sido eliminados localmente.');
     }
     renderDevRadarTab();
-}
-
-function deleteRadarLock(id) {
-    let locks = getRadarLocks();
-    locks = locks.filter(l => l.id !== id);
-    saveRadarLocks(locks);
-    if (typeof showToast === 'function') {
-        showToast('✓ Bloqueo eliminado correctamente.');
-    }
-    renderDevRadarTab();
-}
-
-async function fetchRadarLocksFromCloud() {
-    try {
-        const res = await fetch('/api/radar-locks', { cache: 'no-store' });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.success && Array.isArray(data.locks)) {
-                localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(data.locks));
-                localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(data.locks));
-                renderDevRadarTab();
-            }
-        }
-    } catch (e) {
-        // Fallback offline a localStorage
-    }
 }
 
 async function refreshRadarManually() {

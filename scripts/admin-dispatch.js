@@ -1279,25 +1279,52 @@ function getSharedDispatchLocks() {
         const raw = localStorage.getItem(DISPATCH_LOCKS_STORAGE_KEY);
         if (!raw) return [];
         const list = JSON.parse(raw);
-        const now = Date.now();
-        // Filtrar bloqueos ya expirados (incluyendo cooldown)
-        const valid = list.filter(l => {
-            const cooldownMs = (l.cooldownMinutes || COOLDOWN_BUFFER_MIN) * 60 * 1000;
-            return (l.endTimestamp + cooldownMs) > now;
-        });
-        if (valid.length !== list.length) {
-            localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(valid));
-        }
-        return valid;
+        return Array.isArray(list) ? list : [];
     } catch (e) {
         return [];
     }
 }
 
+function mergeDispatchLocks(cloudLocks) {
+    if (!Array.isArray(cloudLocks)) return getSharedDispatchLocks();
+    const local = getSharedDispatchLocks();
+    const map = new Map();
+
+    local.forEach(l => {
+        if (l && l.id) map.set(l.id, l);
+    });
+
+    cloudLocks.forEach(c => {
+        if (c && c.id) {
+            if (map.has(c.id)) {
+                map.set(c.id, { ...map.get(c.id), ...c });
+            } else {
+                map.set(c.id, c);
+            }
+        }
+    });
+
+    const merged = Array.from(map.values()).sort((a, b) => b.startTimestamp - a.startTimestamp);
+    localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(merged));
+    localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(merged));
+    return merged;
+}
+
 function registerSharedDispatchLock(lockObj) {
     const locks = getSharedDispatchLocks();
-    locks.push(lockObj);
+    const cleanName = (lockObj.weddingName || '').trim().toLowerCase();
+    const existingIndex = locks.findIndex(l => 
+        l.id === lockObj.id || 
+        (l.source === lockObj.source && (l.weddingName || '').trim().toLowerCase() === cleanName && Math.abs(l.startTimestamp - lockObj.startTimestamp) < 60000)
+    );
+
+    if (existingIndex >= 0) {
+        locks[existingIndex] = { ...locks[existingIndex], ...lockObj };
+    } else {
+        locks.unshift(lockObj);
+    }
     localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(locks));
+    localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(locks));
 }
 
 function checkCollision(startTimestamp, durationMinutes) {
@@ -1305,20 +1332,24 @@ function checkCollision(startTimestamp, durationMinutes) {
     const endTimestamp = startTimestamp + (durationMinutes * 60 * 1000);
     const candidateProtectedEnd = endTimestamp + cooldownMs;
     const locks = getSharedDispatchLocks();
+    const now = Date.now();
 
     for (const lock of locks) {
         const lockCooldownMs = (lock.cooldownMinutes || COOLDOWN_BUFFER_MIN) * 60 * 1000;
         const lockProtectedEnd = lock.endTimestamp + lockCooldownMs;
 
-        // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
-        if (startTimestamp < lockProtectedEnd && candidateProtectedEnd > lock.startTimestamp) {
-            const nextFreeDate = new Date(lockProtectedEnd);
-            const timeStr = nextFreeDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            return {
-                hasCollision: true,
-                nextFreeTimeStr: timeStr,
-                lock: lock
-            };
+        // Solo bloqueos activos o futuros pueden causar colisión (historial no bloquea)
+        if (lockProtectedEnd > now) {
+            // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
+            if (startTimestamp < lockProtectedEnd && candidateProtectedEnd > lock.startTimestamp) {
+                const nextFreeDate = new Date(lockProtectedEnd);
+                const timeStr = nextFreeDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                return {
+                    hasCollision: true,
+                    nextFreeTimeStr: timeStr,
+                    lock: lock
+                };
+            }
         }
     }
     return { hasCollision: false };
@@ -1509,8 +1540,7 @@ function openBatchDispatchModal() {
             .then(r => r.json())
             .then(data => {
                 if (data && data.success && Array.isArray(data.locks)) {
-                    localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(data.locks));
-                    localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(data.locks));
+                    mergeDispatchLocks(data.locks);
                     renderDispatchTimeSlots();
                 }
             }).catch(() => {});
@@ -1558,9 +1588,10 @@ async function confirmBatchExecution() {
 
     const weddingName = (currentData && currentData.couple) ? currentData.couple : 'PaseBoda';
     const pendingGuests = (currentData.guests || []).filter(g => !g.dispatchStatus || g.dispatchStatus !== 'sent');
+    const lockId = `lock_paseboda_${weddingName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${startMs}`;
 
     const newLock = {
-        id: 'lock_paseboda_' + Date.now(),
+        id: lockId,
         source: 'paseboda',
         weddingName: weddingName,
         templateName: 'paseboda_invitacion_1',
@@ -1578,11 +1609,17 @@ async function confirmBatchExecution() {
 
     // Notificar a la nube central de concurrencia y enviar Telegram automático
     try {
-        fetch('/api/radar-locks', {
+        const cloudRes = await fetch('/api/radar-locks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newLock)
         });
+        if (cloudRes.ok) {
+            const data = await cloudRes.json();
+            if (data.success && Array.isArray(data.locks)) {
+                mergeDispatchLocks(data.locks);
+            }
+        }
     } catch (e) {}
 
     const schedFormatted = scheduledDate.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ' a las ' + tVal;
