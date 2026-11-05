@@ -110,9 +110,27 @@ function getRadarLocks() {
             list = list.filter(item => !item.id || !item.id.startsWith('lock_atelier_legacy'));
         }
 
+        const lock2am = {
+            id: 'lock_paseboda_manana_2am',
+            source: 'paseboda',
+            weddingName: 'Boda Valentina y Sebastián (Programación Madrugada)',
+            templateName: 'paseboda_invitacion_1',
+            startTimestamp: 1793865600000, // 5 de Noviembre a las 02:00 hrs
+            endTimestamp: 1793869200000,   // 03:00 hrs (1 hr transmisión)
+            durationMinutes: 60,
+            cooldownMinutes: 30,
+            protectedEndTimestamp: 1793871000000, // 03:30 hrs (Libre tras cooldown)
+            guestsCount: 42,
+            sentCount: 0,
+            failedCount: 0,
+            status: 'scheduled',
+            recipientLog: []
+        };
+
         if (!list || list.length === 0) {
             const now = Date.now();
             const initialList = [
+                lock2am,
                 {
                     id: 'lock_paseboda_with_errors',
                     source: 'paseboda',
@@ -120,28 +138,23 @@ function getRadarLocks() {
                     templateName: 'paseboda_invitacion_1',
                     startTimestamp: now - (25 * 60 * 1000), // Hace 25 min (Activo)
                     endTimestamp: now + (35 * 60 * 1000),   // Restan 35 min de bloqueo
+                    durationMinutes: 60,
+                    cooldownMinutes: 30,
+                    protectedEndTimestamp: now + (65 * 60 * 1000),
                     guestsCount: 42,
                     sentCount: 39,
                     failedCount: 3,
                     status: 'with_errors', // 'scheduled' | 'in_progress' | 'completed' | 'with_errors'
                     recipientLog: generateSampleRecipientLog(42, 3)
-                },
-                {
-                    id: 'lock_paseboda_scheduled',
-                    source: 'paseboda',
-                    weddingName: 'Boda Sofía & Mateo (Recordatorios)',
-                    templateName: 'paseboda_recordatorio_1',
-                    startTimestamp: now + (45 * 60 * 1000), // En 45 min
-                    endTimestamp: now + (105 * 60 * 1000),  // 1 hr bloqueo
-                    guestsCount: 38,
-                    sentCount: 0,
-                    failedCount: 0,
-                    status: 'scheduled',
-                    recipientLog: []
                 }
             ];
             localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(initialList));
             return initialList;
+        }
+
+        // Asegurar que el bloqueo de las 2:00 AM esté presente en la lista
+        if (!list.some(l => l.id === 'lock_paseboda_manana_2am')) {
+            list.unshift(lock2am);
         }
 
         localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(list));
