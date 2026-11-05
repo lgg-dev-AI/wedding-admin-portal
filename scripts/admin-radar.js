@@ -49,6 +49,7 @@ function renderDevRadarTab() {
 
     const locks = getRadarLocks();
     const now = Date.now();
+    const lastSyncTimeStr = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     // Buscar bloqueo activo en este milisegundo
     const activeLock = locks.find(l => now >= l.startTimestamp && now < l.endTimestamp);
@@ -81,9 +82,13 @@ function renderDevRadarTab() {
     container.innerHTML = `
         <div class="tab-header" style="margin-bottom:20px;">
             <div>
-                <div class="d-flex align-center gap-2 mb-1">
-                    <h1 class="tab-title">📡 Radar de Concurrencia WhatsApp</h1>
+                <div class="d-flex align-center gap-2 mb-1" style="flex-wrap:wrap;">
+                    <h1 class="tab-title" style="margin:0;">📡 Radar de Concurrencia WhatsApp</h1>
                     <span class="badge-accent" style="background:#059669; color:#fff; font-weight:800; border:none;">PaseBoda ⇄ Atelier Studio</span>
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; border:1px solid #86efac; color:#15803d; font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:20px;">
+                        <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px #22c55e;"></span>
+                        🟢 Auto-actualización activa cada 10s • Sync: ${lastSyncTimeStr}
+                    </span>
                 </div>
                 <p class="tab-subtitle">Monitorea en tiempo real el uso de la línea oficial (+1 364-212-1213), bloqueos activos y programaciones futuras de ambas plataformas para garantizar 0% colisiones.</p>
             </div>
@@ -97,8 +102,8 @@ function renderDevRadarTab() {
                 <button class="btn-action secondary" onclick="clearRadarLocks()" style="border:1px solid #ef4444; color:#b91c1c; font-weight:600; background:#fef2f2;">
                     <span>🔓 Limpiar Bloqueos</span>
                 </button>
-                <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
-                    <span>🔄 Recargar</span>
+                <button class="btn-action secondary" onclick="refreshRadarManually()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
+                    <span>🔄 Recargar Ahora</span>
                 </button>
             </div>
         </div>
@@ -313,14 +318,37 @@ function deleteRadarLock(id) {
     renderDevRadarTab();
 }
 
+function refreshRadarManually() {
+    renderDevRadarTab();
+    if (typeof showToast === 'function') {
+        showToast('🔄 Radar actualizado en tiempo real.');
+    }
+}
+
+// Bucle de auto-actualización cada 10 segundos
+let radarPollInterval = null;
+function startRadarAutoPoll() {
+    if (radarPollInterval) clearInterval(radarPollInterval);
+    radarPollInterval = setInterval(() => {
+        const container = document.getElementById('tab-dev-radar');
+        // Si la pestaña de radar está activa en pantalla, refrescar en segundo plano
+        if (container && container.classList.contains('active')) {
+            renderDevRadarTab();
+        }
+    }, 10000); // 10 segundos exactos
+}
+
 // Exportar globalmente
 window.renderDevRadarTab = renderDevRadarTab;
+window.refreshRadarManually = refreshRadarManually;
 window.simulatePasebodaLock = simulatePasebodaLock;
 window.simulateAtelierStudioLock = simulateAtelierStudioLock;
 window.clearRadarLocks = clearRadarLocks;
 window.deleteRadarLock = deleteRadarLock;
 
-// Renderizar inmediatamente si el contenedor ya existe en el DOM
+// Iniciar monitoreo automático continuo y renderizado inicial
+startRadarAutoPoll();
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof renderDevRadarTab === 'function') renderDevRadarTab();
