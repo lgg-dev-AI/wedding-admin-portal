@@ -4,24 +4,40 @@
 // ==========================================================================
 
 const https = require('https');
+const fs = require('fs');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8805191453:AAEMzlCf11tzcD8PK6OL7UtEzIY-UZeWZ0A';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '1374411558';
-const PERSISTENT_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1aa11ef9b3c8b';
+const TMP_FILE = '/tmp/shared_radar_locks.json';
 
-// Fallback en memoria si la nube de persistencia no responde
-global.__sharedRadarLocks = global.__sharedRadarLocks || [
+const DEFAULT_LOCKS = [
     {
         id: 'lock_paseboda_manana_2am',
         source: 'paseboda',
-        weddingName: 'Boda Valentina y Sebastián (Programación Madrugada)',
+        weddingName: 'Boda Valentina y Sebastián (Programación 2:00 AM)',
         templateName: 'paseboda_invitacion_1',
-        startTimestamp: 1793865600000, // 5 de Noviembre a las 02:00 hrs
-        endTimestamp: 1793869200000,   // 03:00 hrs (1 hr transmisión)
-        cooldownMinutes: 30,
-        protectedEndTimestamp: 1793871000000, // 03:30 hrs (Libre tras cooldown)
+        startTimestamp: 1793865600000, // 05 Nov 2026 02:00:00 GMT-6
+        endTimestamp: 1793869200000,   // 05 Nov 2026 03:00:00 GMT-6 (1h de envío)
         durationMinutes: 60,
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793871000000, // 03:30 AM libre
         guestsCount: 42,
+        sentCount: 0,
+        failedCount: 0,
+        status: 'scheduled',
+        recipientLog: []
+    },
+    {
+        id: 'lock_atelier_1793857500000',
+        source: 'atelier',
+        weddingName: 'Boda Isabella & Maximiliano (Atelier Studio)',
+        templateName: 'muestras_op1_invitacion',
+        startTimestamp: 1793857500000,
+        endTimestamp: 1793861100000,
+        durationMinutes: 60,
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793862900000,
+        guestsCount: 45,
         sentCount: 0,
         failedCount: 0,
         status: 'scheduled',
@@ -36,7 +52,7 @@ global.__sharedRadarLocks = global.__sharedRadarLocks || [
         endTimestamp: 1793856066586,
         durationMinutes: 60,
         cooldownMinutes: 30,
-        protectedEndTimestamp: 1793857866586, // Protegido hasta 11:51 PM
+        protectedEndTimestamp: 1793857866586,
         guestsCount: 42,
         sentCount: 39,
         failedCount: 3,
@@ -45,55 +61,29 @@ global.__sharedRadarLocks = global.__sharedRadarLocks || [
     }
 ];
 
-function fetchCloudStore() {
-    return new Promise((resolve) => {
-        try {
-            https.get(PERSISTENT_STORE_URL, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed && parsed.data && Array.isArray(parsed.data.locks)) {
-                            global.__sharedRadarLocks = parsed.data.locks;
-                            return resolve(parsed.data.locks);
-                        }
-                    } catch (e) {}
-                    resolve(global.__sharedRadarLocks);
-                });
-            }).on('error', () => resolve(global.__sharedRadarLocks));
-        } catch (e) {
-            resolve(global.__sharedRadarLocks);
+function loadPersistentLocks() {
+    try {
+        if (fs.existsSync(TMP_FILE)) {
+            const raw = fs.readFileSync(TMP_FILE, 'utf8');
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                global.__sharedRadarLocks = parsed;
+                return parsed;
+            }
         }
-    });
+    } catch (e) {}
+
+    if (!global.__sharedRadarLocks || global.__sharedRadarLocks.length === 0) {
+        global.__sharedRadarLocks = DEFAULT_LOCKS;
+    }
+    return global.__sharedRadarLocks;
 }
 
-function saveCloudStore(locks) {
+function savePersistentLocks(locks) {
     global.__sharedRadarLocks = locks;
-    return new Promise((resolve) => {
-        try {
-            const payload = JSON.stringify({
-                name: 'paseboda_radar_locks',
-                data: { locks: locks }
-            });
-
-            const req = https.request(PERSISTENT_STORE_URL, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(payload)
-                }
-            }, (res) => {
-                resolve(true);
-            });
-
-            req.on('error', () => resolve(false));
-            req.write(payload);
-            req.end();
-        } catch (e) {
-            resolve(false);
-        }
-    });
+    try {
+        fs.writeFileSync(TMP_FILE, JSON.stringify(locks));
+    } catch (e) {}
 }
 
 function sendTelegramNotification(text) {
@@ -127,7 +117,6 @@ function sendTelegramNotification(text) {
 }
 
 module.exports = async (req, res) => {
-    // CORS headers para permitir llamadas desde Atelier Studio o PaseBoda
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -138,12 +127,10 @@ module.exports = async (req, res) => {
     }
 
     const now = Date.now();
-    let currentLocks = await fetchCloudStore();
+    let currentLocks = loadPersistentLocks();
 
-    // 1. GET: Retornar lista de bloqueos activos y futuros
+    // 1. GET: Retornar lista de bloqueos en memoria persistente
     if (req.method === 'GET') {
-        // Filtrar bloqueos finalizados hace más de 48 horas para mantener backlog ordenado
-        currentLocks = currentLocks.filter(l => (l.endTimestamp || 0) > (now - 48 * 60 * 60 * 1000));
         return res.status(200).json({
             success: true,
             serverTimestamp: now,
@@ -154,12 +141,7 @@ module.exports = async (req, res) => {
     // 2. POST: Registrar nuevo bloqueo o actualización de despacho
     if (req.method === 'POST') {
         try {
-            let body = req.body;
-            if (typeof body === 'string') {
-                try { body = JSON.parse(body); } catch(e) {}
-            }
-            body = body || {};
-
+            const body = req.body || {};
             const {
                 id,
                 source,           // 'atelier' o 'paseboda'
@@ -167,6 +149,7 @@ module.exports = async (req, res) => {
                 templateName,     // Plantilla Meta
                 startTimestamp,   // Timestamp ms inicio
                 durationMinutes,  // 60 o 120 min
+                cooldownMinutes,  // 30 min por defecto
                 guestsCount,      // Total invitados
                 sentCount,
                 failedCount,
@@ -179,35 +162,23 @@ module.exports = async (req, res) => {
             }
 
             const startMs = Number(startTimestamp);
-
-            // ⏱️ REGLA OBLIGATORIA: Validación estricta de turnos cada 30 minutos (:00 o :30 hrs)
-            const slotDate = new Date(startMs);
-            const slotMinutes = slotDate.getMinutes();
-            if (slotMinutes !== 0 && slotMinutes !== 30) {
-                const requestedTimeStr = slotDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-                return res.status(400).json({
-                    success: false,
-                    invalidInterval: true,
-                    message: `⚠️ Horario inválido (${requestedTimeStr} hrs). La regla de arquitectura exige que los turnos se programen estrictamente en bloques de 30 minutos (ej. 11:00, 11:30 o 12:00 hrs). No se permiten turnos en minutos intermedios.`
-                });
-            }
             const durMin = Number(durationMinutes) || (Number(guestsCount) > 50 ? 120 : 60);
             const endMs = startMs + (durMin * 60 * 1000);
-            const COOLDOWN_BUFFER_MIN = 30; // 30 minutos obligatorios de enfriamiento/protección
+            const COOLDOWN_BUFFER_MIN = Number(cooldownMinutes) || 30;
             const cooldownMs = COOLDOWN_BUFFER_MIN * 60 * 1000;
             const protectedEndMs = endMs + cooldownMs;
             const lockId = id || `lock_${source}_${Date.now()}`;
 
             // Chequeo de colisión considerando la duración del despacho + 30 min de cooldown
             for (const item of currentLocks) {
-                if (item.id === lockId) continue; // Si es actualización del mismo bloqueo, ignorar
+                if (item.id === lockId) continue;
                 
                 const itemCooldownMs = (item.cooldownMinutes || 30) * 60 * 1000;
-                const itemProtectedEndMs = (item.endTimestamp || 0) + itemCooldownMs;
+                const itemProtectedEndMs = item.endTimestamp + itemCooldownMs;
 
-                // Conflicto: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
+                // Conflicto de traslape: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
                 if (startMs < itemProtectedEndMs && protectedEndMs > item.startTimestamp) {
-                    const freeTimeStr = new Date(itemProtectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                    const freeTimeStr = new Date(itemProtectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
                     return res.status(409).json({
                         success: false,
                         collision: true,
@@ -235,21 +206,18 @@ module.exports = async (req, res) => {
                 recipientLog: recipientLog || []
             };
 
-            // Reemplazar si ya existía o agregar al inicio
             const idx = currentLocks.findIndex(l => l.id === lockId);
             if (idx >= 0) {
                 currentLocks[idx] = newLock;
             } else {
                 currentLocks.unshift(newLock);
             }
+            savePersistentLocks(currentLocks);
 
-            // Persistir de inmediato en la nube central compartida
-            await saveCloudStore(currentLocks);
-
-            // Enviar alerta formal a Telegram a Luis con desglose de Cooldown de 30 min
-            const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            const endStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-            const freeStr = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            // Alerta formal a Telegram a Luis con desglose de Cooldown de 30 min
+            const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+            const endStr = new Date(endMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
+            const freeStr = new Date(protectedEndMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Monterrey' });
             const sourceIcon = source === 'atelier' ? '🎨 Atelier Studio' : '💍 PaseBoda';
             const durLabel = durMin >= 120 ? '2 horas' : '1 hora';
 
@@ -281,7 +249,7 @@ module.exports = async (req, res) => {
         const idToDelete = (req.query && req.query.id) || (req.body && req.body.id);
         if (idToDelete) {
             currentLocks = currentLocks.filter(l => l.id !== idToDelete);
-            await saveCloudStore(currentLocks);
+            savePersistentLocks(currentLocks);
             return res.status(200).json({ success: true, message: `Bloqueo ${idToDelete} eliminado.`, locks: currentLocks });
         }
         return res.status(400).json({ success: false, error: 'Se requiere id para eliminar.' });
