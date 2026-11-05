@@ -8,12 +8,19 @@ const RADAR_STORAGE_KEY = 'paseboda_shared_dispatch_locks';
 function getRadarLocks() {
     try {
         const raw = localStorage.getItem(RADAR_STORAGE_KEY);
-        if (!raw) {
-            // Inicializar con la prueba de 3 minutos para visualizar de inmediato en el radar
-            const targetStart = Date.now() + (3 * 60 * 1000);
+        let list = raw ? JSON.parse(raw) : null;
+        
+        // Limpiar simulaciones artificiales previas que hayan quedado guardadas con atelier por error
+        if (Array.isArray(list)) {
+            list = list.filter(item => !item.id || !item.id.startsWith('lock_atelier_'));
+        }
+
+        if (!list || list.length === 0) {
+            // Inicializar con la prueba de 3 minutos de PASEBODA
+            const targetStart = Date.now() + (2 * 60 * 1000); // en 2 min
             const initialList = [
                 {
-                    id: 'lock_test_3min',
+                    id: 'lock_paseboda_test_3min',
                     source: 'paseboda',
                     weddingName: 'Boda Valentina & Sebastián (Prueba 3 min)',
                     startTimestamp: targetStart,
@@ -24,8 +31,9 @@ function getRadarLocks() {
             localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(initialList));
             return initialList;
         }
-        const list = JSON.parse(raw);
-        return Array.isArray(list) ? list : [];
+
+        localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(list));
+        return list;
     } catch (e) {
         return [];
     }
@@ -82,9 +90,6 @@ function renderDevRadarTab() {
             <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                 <button class="btn-action secondary" onclick="renderDevRadarTab()" style="background:#ffffff; border:1px solid #cbd5e1; font-weight:600;">
                     <span>🔄 Actualizar Radar</span>
-                </button>
-                <button class="btn-action secondary" onclick="simulateAtelierStudioLock()" style="border:1.5px solid #7c3aed; color:#6d28d9; font-weight:700; background:#f5f3ff;">
-                    <span>🧪 Simular Bloqueo Atelier Studio</span>
                 </button>
                 <button class="btn-action secondary" onclick="clearRadarLocks()" style="border:1px solid #ef4444; color:#b91c1c; font-weight:600; background:#fef2f2;">
                     <span>🔓 Limpiar Bloqueos</span>
