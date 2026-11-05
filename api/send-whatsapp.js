@@ -115,6 +115,32 @@ function sendMetaWhatsApp(toPhone, messageBody, templatePayload = null, extraDat
     });
 }
 
+function checkActiveRadarLock() {
+    return new Promise((resolve) => {
+        try {
+            https.get('https://api.restful-api.dev/objects/ff808181a09d98f701a1aa11ef9b3c8b', (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const parsed = JSON.parse(data);
+                        const locks = (parsed && parsed.data && Array.isArray(parsed.data.locks)) ? parsed.data.locks : [];
+                        const now = Date.now();
+                        const conflict = locks.find(l => l.source === 'atelier' && now >= l.startTimestamp && now < (l.protectedEndTimestamp || (l.endTimestamp + 30 * 60 * 1000)));
+                        if (conflict) {
+                            const freeTimeStr = new Date(conflict.protectedEndTimestamp || (conflict.endTimestamp + 30 * 60 * 1000)).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                            return resolve({ blocked: true, message: `⚠️ Envío bloqueado: Línea oficial en uso por Atelier Studio (${conflict.weddingName}). Próximo turno libre a partir de las ${freeTimeStr} hrs.` });
+                        }
+                    } catch (e) {}
+                    resolve({ blocked: false });
+                });
+            }).on('error', () => resolve({ blocked: false }));
+        } catch (e) {
+            resolve({ blocked: false });
+        }
+    });
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -126,6 +152,12 @@ module.exports = async (req, res) => {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    // 🔒 Blindaje de Concurrencia: Verificar si Atelier Studio tiene la línea ocupada
+    const lockCheck = await checkActiveRadarLock();
+    if (lockCheck.blocked) {
+        return res.status(409).json({ success: false, blockedByRadar: true, message: lockCheck.message });
     }
 
     try {

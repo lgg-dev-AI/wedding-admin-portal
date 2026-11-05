@@ -1,22 +1,26 @@
 // ==========================================================================
 // VERCEL SERVERLESS API: SHARED WHATSAPP RADAR LOCKS RELAY (/api/radar-locks)
-// GESTIÓN CENTRALIZADA DE CONCURRENCIA: PASEBODA ⇄ ATELIER STUDIO
+// GESTIÓN CENTRALIZADA DE CONCURRENCIA PERSISTENTE: PASEBODA ⇄ ATELIER STUDIO
 // ==========================================================================
 
 const https = require('https');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8805191453:AAEMzlCf11tzcD8PK6OL7UtEzIY-UZeWZ0A';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '1374411558';
+const PERSISTENT_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a1aa11ef9b3c8b';
 
+// Fallback en memoria si la nube de persistencia no responde
 global.__sharedRadarLocks = global.__sharedRadarLocks || [
     {
         id: 'lock_paseboda_active',
         source: 'paseboda',
         weddingName: 'Boda Valentina & Sebastián (Convocatoria)',
         templateName: 'paseboda_invitacion_1',
-        startTimestamp: Date.now() - (10 * 60 * 1000),
-        endTimestamp: Date.now() + (50 * 60 * 1000),
+        startTimestamp: 1793852466586,
+        endTimestamp: 1793856066586,
         durationMinutes: 60,
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793857866586, // Protegido hasta 11:51 PM
         guestsCount: 42,
         sentCount: 39,
         failedCount: 3,
@@ -24,6 +28,57 @@ global.__sharedRadarLocks = global.__sharedRadarLocks || [
         recipientLog: []
     }
 ];
+
+function fetchCloudStore() {
+    return new Promise((resolve) => {
+        try {
+            https.get(PERSISTENT_STORE_URL, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed && parsed.data && Array.isArray(parsed.data.locks)) {
+                            global.__sharedRadarLocks = parsed.data.locks;
+                            return resolve(parsed.data.locks);
+                        }
+                    } catch (e) {}
+                    resolve(global.__sharedRadarLocks);
+                });
+            }).on('error', () => resolve(global.__sharedRadarLocks));
+        } catch (e) {
+            resolve(global.__sharedRadarLocks);
+        }
+    });
+}
+
+function saveCloudStore(locks) {
+    global.__sharedRadarLocks = locks;
+    return new Promise((resolve) => {
+        try {
+            const payload = JSON.stringify({
+                name: 'paseboda_radar_locks',
+                data: { locks: locks }
+            });
+
+            const req = https.request(PERSISTENT_STORE_URL, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(payload)
+                }
+            }, (res) => {
+                resolve(true);
+            });
+
+            req.on('error', () => resolve(false));
+            req.write(payload);
+            req.end();
+        } catch (e) {
+            resolve(false);
+        }
+    });
+}
 
 function sendTelegramNotification(text) {
     return new Promise((resolve) => {
@@ -67,22 +122,28 @@ module.exports = async (req, res) => {
     }
 
     const now = Date.now();
+    let currentLocks = await fetchCloudStore();
 
     // 1. GET: Retornar lista de bloqueos activos y futuros
     if (req.method === 'GET') {
-        // Filtrar bloqueos finalizados hace más de 24 horas para mantener backlog limpio
-        global.__sharedRadarLocks = (global.__sharedRadarLocks || []).filter(l => l.endTimestamp > (now - 24 * 60 * 60 * 1000));
+        // Filtrar bloqueos finalizados hace más de 48 horas para mantener backlog ordenado
+        currentLocks = currentLocks.filter(l => (l.endTimestamp || 0) > (now - 48 * 60 * 60 * 1000));
         return res.status(200).json({
             success: true,
             serverTimestamp: now,
-            locks: global.__sharedRadarLocks
+            locks: currentLocks
         });
     }
 
     // 2. POST: Registrar nuevo bloqueo o actualización de despacho
     if (req.method === 'POST') {
         try {
-            const body = req.body || {};
+            let body = req.body;
+            if (typeof body === 'string') {
+                try { body = JSON.parse(body); } catch(e) {}
+            }
+            body = body || {};
+
             const {
                 id,
                 source,           // 'atelier' o 'paseboda'
@@ -110,12 +171,11 @@ module.exports = async (req, res) => {
             const lockId = id || `lock_${source}_${Date.now()}`;
 
             // Chequeo de colisión considerando la duración del despacho + 30 min de cooldown
-            const existing = global.__sharedRadarLocks || [];
-            for (const item of existing) {
-                if (item.id === lockId) continue; // Si es actualización de sí mismo, ignorar
+            for (const item of currentLocks) {
+                if (item.id === lockId) continue; // Si es actualización del mismo bloqueo, ignorar
                 
                 const itemCooldownMs = (item.cooldownMinutes || 30) * 60 * 1000;
-                const itemProtectedEndMs = item.endTimestamp + itemCooldownMs;
+                const itemProtectedEndMs = (item.endTimestamp || 0) + itemCooldownMs;
 
                 // Conflicto: nuevo inicio < fin protegido existente Y fin protegido nuevo > inicio existente
                 if (startMs < itemProtectedEndMs && protectedEndMs > item.startTimestamp) {
@@ -147,14 +207,16 @@ module.exports = async (req, res) => {
                 recipientLog: recipientLog || []
             };
 
-            // Reemplazar si ya existía o agregar al frente
-            const idx = existing.findIndex(l => l.id === lockId);
+            // Reemplazar si ya existía o agregar al inicio
+            const idx = currentLocks.findIndex(l => l.id === lockId);
             if (idx >= 0) {
-                existing[idx] = newLock;
+                currentLocks[idx] = newLock;
             } else {
-                existing.unshift(newLock);
+                currentLocks.unshift(newLock);
             }
-            global.__sharedRadarLocks = existing;
+
+            // Persistir de inmediato en la nube central compartida
+            await saveCloudStore(currentLocks);
 
             // Enviar alerta formal a Telegram a Luis con desglose de Cooldown de 30 min
             const startStr = new Date(startMs).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -179,7 +241,7 @@ module.exports = async (req, res) => {
                 success: true,
                 message: 'Bloqueo registrado y alerta de Telegram enviada exitosamente.',
                 lock: newLock,
-                locks: global.__sharedRadarLocks
+                locks: currentLocks
             });
         } catch (e) {
             return res.status(500).json({ success: false, error: e.message });
@@ -190,8 +252,9 @@ module.exports = async (req, res) => {
     if (req.method === 'DELETE') {
         const idToDelete = (req.query && req.query.id) || (req.body && req.body.id);
         if (idToDelete) {
-            global.__sharedRadarLocks = (global.__sharedRadarLocks || []).filter(l => l.id !== idToDelete);
-            return res.status(200).json({ success: true, message: `Bloqueo ${idToDelete} eliminado.`, locks: global.__sharedRadarLocks });
+            currentLocks = currentLocks.filter(l => l.id !== idToDelete);
+            await saveCloudStore(currentLocks);
+            return res.status(200).json({ success: true, message: `Bloqueo ${idToDelete} eliminado.`, locks: currentLocks });
         }
         return res.status(400).json({ success: false, error: 'Se requiere id para eliminar.' });
     }

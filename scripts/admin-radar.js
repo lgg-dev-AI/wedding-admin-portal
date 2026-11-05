@@ -155,9 +155,15 @@ function saveRadarLocks(list) {
     localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(list));
 }
 
+let lastRadarFetch = 0;
 function renderDevRadarTab() {
     const container = document.getElementById('tab-dev-radar');
     if (!container) return;
+
+    if (Date.now() - lastRadarFetch > 4000) {
+        lastRadarFetch = Date.now();
+        fetchRadarLocksFromCloud();
+    }
 
     const locks = getRadarLocks();
     const now = Date.now();
@@ -703,10 +709,8 @@ async function fetchRadarLocksFromCloud() {
             const data = await res.json();
             if (data.success && Array.isArray(data.locks)) {
                 localStorage.setItem(RADAR_STORAGE_KEY, JSON.stringify(data.locks));
-                const container = document.getElementById('tab-dev-radar');
-                if (container && container.classList.contains('active')) {
-                    renderDevRadarTab();
-                }
+                localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(data.locks));
+                renderDevRadarTab();
             }
         }
     } catch (e) {
@@ -714,8 +718,8 @@ async function fetchRadarLocksFromCloud() {
     }
 }
 
-function refreshRadarManually() {
-    fetchRadarLocksFromCloud();
+async function refreshRadarManually() {
+    await fetchRadarLocksFromCloud();
     renderDevRadarTab();
     if (typeof showToast === 'function') {
         showToast('🔄 Radar sincronizado con la nube en tiempo real.');

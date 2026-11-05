@@ -1503,6 +1503,19 @@ function openBatchDispatchModal() {
     selectedDispatchTimeSlot = null;
     renderDispatchTimeSlots();
 
+    // Sincronizar bloqueos con la nube central en tiempo real para reflejar cualquier reserva de Atelier Studio
+    try {
+        fetch('/api/radar-locks', { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.success && Array.isArray(data.locks)) {
+                    localStorage.setItem(DISPATCH_LOCKS_STORAGE_KEY, JSON.stringify(data.locks));
+                    localStorage.setItem('paseboda_shared_dispatch_locks', JSON.stringify(data.locks));
+                    renderDispatchTimeSlots();
+                }
+            }).catch(() => {});
+    } catch (e) {}
+
     const btnStart = document.getElementById('btnStartBatchExecution');
     const btnCancel = document.getElementById('btnCancelBatch');
     const btnClose = document.getElementById('btnCloseBatchModal');
