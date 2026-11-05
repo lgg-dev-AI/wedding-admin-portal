@@ -12,6 +12,22 @@ const PERSISTENT_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98
 // Fallback en memoria si la nube de persistencia no responde
 global.__sharedRadarLocks = global.__sharedRadarLocks || [
     {
+        id: 'lock_paseboda_manana_2am',
+        source: 'paseboda',
+        weddingName: 'Boda Valentina y Sebastián (Programación Madrugada)',
+        templateName: 'paseboda_invitacion_1',
+        startTimestamp: 1793865600000, // 5 de Noviembre a las 02:00 hrs
+        endTimestamp: 1793869200000,   // 03:00 hrs (1 hr transmisión)
+        cooldownMinutes: 30,
+        protectedEndTimestamp: 1793871000000, // 03:30 hrs (Libre tras cooldown)
+        durationMinutes: 60,
+        guestsCount: 42,
+        sentCount: 0,
+        failedCount: 0,
+        status: 'scheduled',
+        recipientLog: []
+    },
+    {
         id: 'lock_paseboda_active',
         source: 'paseboda',
         weddingName: 'Boda Valentina & Sebastián (Convocatoria)',
@@ -163,6 +179,18 @@ module.exports = async (req, res) => {
             }
 
             const startMs = Number(startTimestamp);
+
+            // ⏱️ REGLA OBLIGATORIA: Validación estricta de turnos cada 30 minutos (:00 o :30 hrs)
+            const slotDate = new Date(startMs);
+            const slotMinutes = slotDate.getMinutes();
+            if (slotMinutes !== 0 && slotMinutes !== 30) {
+                const requestedTimeStr = slotDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                return res.status(400).json({
+                    success: false,
+                    invalidInterval: true,
+                    message: `⚠️ Horario inválido (${requestedTimeStr} hrs). La regla de arquitectura exige que los turnos se programen estrictamente en bloques de 30 minutos (ej. 11:00, 11:30 o 12:00 hrs). No se permiten turnos en minutos intermedios.`
+                });
+            }
             const durMin = Number(durationMinutes) || (Number(guestsCount) > 50 ? 120 : 60);
             const endMs = startMs + (durMin * 60 * 1000);
             const COOLDOWN_BUFFER_MIN = 30; // 30 minutos obligatorios de enfriamiento/protección
