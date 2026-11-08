@@ -4,6 +4,14 @@
 // ==========================================================================
 
 function openLuxuryReportModal(modalTitleText, documentHtml) {
+    // 🔒 Candado de Periodo de Prueba de 15 Días: Bloqueo de Reportes y Dossier
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'Para visualizar y descargar el Dossier Técnico Oficial para el Recinto, Ficha de Cocina para el Chef y Reporte de Mesas en PDF, activa tu plan.');
+        }
+        return;
+    }
+
     const modal = document.getElementById('modalPDFPreview');
     const paper = document.getElementById('pdfDocumentPaper');
     if (!modal || !paper) return;
@@ -18,6 +26,13 @@ function openLuxuryReportModal(modalTitleText, documentHtml) {
 }
 
 function generateAndPreviewPDF() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'Para visualizar y descargar el Dossier Técnico Oficial para el Recinto, Ficha de Cocina y Reportes de Mesas en PDF, activa tu plan.');
+        }
+        return;
+    }
+
     currentData = getWeddingState(currentWeddingId);
     const paper = document.getElementById('pdfDocumentPaper');
     if (!paper) return;
@@ -927,6 +942,13 @@ function printMasterDeveloperSaaSReport() {
 // UNIVERSAL PRINT ENGINE (MOBILE & DESKTOP SAFE)
 // ==========================================================================
 function printExecutiveReport(paperId = 'pdfDocumentPaper') {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'La impresión y descarga del Dossier Oficial para Banqueteros y Cocina en PDF está reservada para cuentas con plan activo.');
+        }
+        return;
+    }
+
     const paper = document.getElementById(paperId);
     if (!paper) {
         window.print();

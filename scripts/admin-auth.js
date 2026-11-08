@@ -230,6 +230,24 @@ function applyRoleVisibility() {
     if (roleSwitch) {
         roleSwitch.style.display = (role === 'couple') ? 'none' : 'block';
     }
+
+    // 🔒 Interceptor de Periodo de Prueba de 15 Días
+    if (!isDev && typeof isAccountTrialExpired === 'function' && isAccountTrialExpired()) {
+        if (typeof showTrialExpiredFreezeModal === 'function') {
+            showTrialExpiredFreezeModal();
+        }
+        return;
+    } else if (!isDev && typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        const demoBanner = document.getElementById('demoFloatingBanner');
+        if (demoBanner) {
+            demoBanner.style.display = 'flex';
+            const daysLeft = typeof getTrialDaysRemaining === 'function' ? getTrialDaysRemaining() : 15;
+            const demoText = document.getElementById('demoBannerText');
+            if (demoText) {
+                demoText.innerHTML = `<strong>⏳ PRUEBA DE 15 DÍAS:</strong> Te restan <strong>${daysLeft} días</strong> de prueba. Mesas 2D y CRM habilitados. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">💳 Activar Plan para Desbloquear WhatsApp, Invitaciones Web y Dossier PDF</a>`;
+            }
+        }
+    }
 }
 
 function switchOrUnlockDeveloper() {
@@ -389,6 +407,19 @@ function submitFullLogin(e) {
 
     // CHECK IF CLIENT ACCOUNT IS SUSPENDED (MANUAL OR AUTO-LOCK AFTER GRACE PERIOD)
     if (client.isSuspended) {
+        if (client.paymentStatus === 'trial_expired' || client.isTrialExpired) {
+            sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
+            sessionStorage.setItem(AUTH_CONFIG.USER_KEY, client.email);
+            sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'planner');
+            sessionStorage.setItem('antigravity_user_email', client.email);
+            sessionStorage.setItem('antigravity_agency_name', client.agencyName);
+            sessionStorage.setItem('antigravity_planner_name', client.plannerName || client.agencyName);
+            sessionStorage.setItem('antigravity_is_trial_expired', 'true');
+            sessionStorage.setItem('antigravity_is_trial', 'true');
+            hideAuthOverlays();
+            showTrialExpiredFreezeModal(client.agencyName, client.trialEndMs);
+            return;
+        }
         showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago con tarjeta vía Stripe o contacta a soporte en <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
         return;
     }
@@ -718,6 +749,16 @@ function applyAutoRecoveredPin() {
 // ==========================================================================
 // WEDDING PLANNER ONBOARDING & REGISTRATION FLOW
 // ==========================================================================
+// REGISTRO DE WEDDING PLANNERS & CONTROL DE PRUEBA DE 15 DÍAS
+// ANTI-ABUSO: FILTRO ANTI-TEMPMAIL, WHATSAPP ÚNICO Y RATE LIMIT
+// ==========================================================================
+
+const DISPOSABLE_EMAIL_DOMAINS = [
+    'tempmail.com', 'temp-mail.org', 'yopmail.com', 'mailinator.com', 
+    'guerrillamail.com', '10minutemail.com', 'trashmail.com', 'sharklasers.com', 
+    'throwawaymail.com', 'dispostable.com', 'fakeinbox.com', 'burnermail.io',
+    'getnada.com', 'mohmal.com', 'crazymailing.com', 'dropmail.me'
+];
 
 function submitPlannerRegistration(e) {
     if (e) e.preventDefault();
@@ -734,29 +775,73 @@ function submitPlannerRegistration(e) {
         return;
     }
 
-    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
-    let existingClient = clients.find(c => c.email.toLowerCase() === email);
+    // 1. Candado Anti-TempMail: Bloquear correos temporales o desechables
+    const emailDomain = email.split('@')[1] || '';
+    if (DISPOSABLE_EMAIL_DOMAINS.includes(emailDomain.toLowerCase())) {
+        alert('⚠️ Por favor utiliza un correo corporativo o personal legítimo (Gmail, Outlook, Hotmail, etc.). No se admiten correos temporales ni desechables.');
+        return;
+    }
 
+    // 2. Candado de WhatsApp Único: 1 solo periodo de prueba por número celular
+    const cleanPhone = (phoneNum || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+        alert('Por favor ingresa un número de WhatsApp válido de al menos 10 dígitos.');
+        return;
+    }
+    const last10Input = cleanPhone.slice(-10);
+
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const duplicatePhone = clients.find(c => {
+        const cp = (c.phone || '').replace(/\D/g, '');
+        const last10C = cp.slice(-10);
+        return last10C && last10Input && last10C.length === 10 && last10C === last10Input;
+    });
+
+    if (duplicatePhone) {
+        alert(`Este número de WhatsApp (${countryCode} ${phoneNum}) ya fue registrado anteriormente con la cuenta "${duplicatePhone.email}". Cada número celular cuenta con 1 solo periodo de prueba de 15 días. Por favor inicia sesión con tu cuenta original o activa tu plan.`);
+        switchAuthView('login');
+        return;
+    }
+
+    // 3. Rate Limit por navegador / IP: Máximo 3 registros al día para evitar scripts
+    const todayStr = new Date().toISOString().split('T')[0];
+    const attemptsKey = 'paseboda_signup_attempts_' + todayStr;
+    const currentAttempts = Number(localStorage.getItem(attemptsKey) || 0);
+    if (currentAttempts >= 3) {
+        alert('Has alcanzado el límite de registros permitidos por hoy (máx 3). Si ya eres usuario, por favor inicia sesión.');
+        return;
+    }
+    localStorage.setItem(attemptsKey, (currentAttempts + 1).toString());
+
+    let existingClient = clients.find(c => c.email.toLowerCase() === email);
     if (existingClient) {
         alert(`Ya existe una cuenta con el correo "${email}". Si ya eres usuario registrado, inicia sesión con tu contraseña.`);
         switchAuthView('login');
         return;
     }
 
-    // Registrar agencia en la base de datos con estatus demo_trial (sin plan contratado aún)
+    // 4. Inicializar Periodo de Prueba de 15 Días Exactos
+    const nowMs = Date.now();
+    const trialDurationMs = 15 * 24 * 60 * 60 * 1000; // 15 días en milisegundos
+    const trialEndMs = nowMs + trialDurationMs;
+    const trialEndDateStr = new Date(trialEndMs).toISOString();
+
     const newClient = {
         id: 'client_' + Date.now(),
         agencyName: agency,
         plannerName: planner,
         email: email,
         phone: fullPhone,
-        planTier: null, // Sin plan activo por defecto
-        maxWeddings: 10,
+        planTier: null, // Sin plan de pago contratado aún
+        maxWeddings: 1, // En prueba: 1 boda de exploración
         monthlyFee: 0,
         billingCycleDay: new Date().getDate(),
         lastPaymentDate: '',
         nextDueDate: '',
-        paymentStatus: 'demo_trial',
+        paymentStatus: 'trial_15_days',
+        trialStartDate: new Date(nowMs).toISOString(),
+        trialEndDate: trialEndDateStr,
+        trialEndMs: trialEndMs,
         isSuspended: false,
         suspensionNotice: '',
         tempPassword: '',
@@ -764,7 +849,7 @@ function submitPlannerRegistration(e) {
         hasPermanentPassword: true,
         permanentPassword: password,
         createdAt: new Date().toISOString().split('T')[0],
-        status: 'demo_trial'
+        status: 'trial_15_days'
     };
 
     clients.unshift(newClient);
@@ -772,7 +857,7 @@ function submitPlannerRegistration(e) {
         saveClientsDatabase(clients);
     }
 
-    // Iniciar sesión en modo demo de agencia
+    // Iniciar sesión en modo prueba de 15 días
     sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
     sessionStorage.setItem(AUTH_CONFIG.USER_KEY, email);
     sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'planner');
@@ -782,9 +867,13 @@ function submitPlannerRegistration(e) {
     sessionStorage.setItem('antigravity_user_phone', fullPhone);
     sessionStorage.setItem('antigravity_demo_mode', 'true');
     sessionStorage.setItem('antigravity_is_demo_trial', 'true');
+    sessionStorage.setItem('antigravity_is_trial', 'true');
+    sessionStorage.setItem('antigravity_trial_end_ms', trialEndMs.toString());
+    sessionStorage.setItem('antigravity_trial_end_date', trialEndDateStr);
+    sessionStorage.removeItem('antigravity_is_trial_expired');
     sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
 
-    // Asegurarse de que ningún plan aparezca activo en la configuración
+    localStorage.setItem('paseboda_client_trial_end_' + email, trialEndMs.toString());
     localStorage.removeItem('wedding_subscription_tier');
 
     hideAuthOverlays();
@@ -795,19 +884,18 @@ function submitPlannerRegistration(e) {
     if (typeof setRole === 'function') setRole('planner');
     resetInactivityTimer();
 
-    // Actualizar banner de demo con el nombre de la agencia
+    // Actualizar banner de prueba con cuenta regresiva de 15 días
     const demoBanner = document.getElementById('demoFloatingBanner');
     if (demoBanner) demoBanner.style.display = 'flex';
     const demoText = document.getElementById('demoBannerText');
     if (demoText) {
-        demoText.innerHTML = `<strong>CUENTA DEMO DE ${agency.toUpperCase()}:</strong> Estás explorando la suite completa como Wedding Planner. Activa tu plan en <em>Configuración de Planes</em>.`;
+        demoText.innerHTML = `<strong>⏳ PRUEBA DE 15 DÍAS DE ${agency.toUpperCase()}:</strong> Te restan <strong>15 días</strong>. Mesas 2D y CRM activos. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">Activa tu Plan para Desbloquear WhatsApp, Invitaciones Web y Dossier PDF</a>`;
     }
 
     if (typeof showToast === 'function') {
-        showToast(`✨ ¡Bienvenida ${planner}! Tu cuenta para ${agency} ha sido creada en Modo Demo.`);
+        showToast(`✨ ¡Bienvenida ${planner}! Tu prueba de 15 días para ${agency} está activa.`);
     }
 
-    // Refrescar configuración de planes
     if (typeof renderSettingsTab === 'function') {
         renderSettingsTab();
     }
@@ -937,3 +1025,238 @@ function switchLegalTab(tab) {
         if (modalTitle) modalTitle.innerText = 'Aviso de Privacidad Integral (LFPDPPP)';
     }
 }
+
+// ==========================================================================
+// CONTROL DE ACCESO, PERIODO DE PRUEBA DE 15 DÍAS & PAYWALL INTERCEPTOR
+// ==========================================================================
+
+function isAccountInTrial() {
+    const role = sessionStorage.getItem(AUTH_CONFIG.ROLE_KEY);
+    const email = (sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || '').toLowerCase();
+    if (role === 'developer' && email === AUTH_CONFIG.DEVELOPER_EMAIL.toLowerCase()) {
+        return false;
+    }
+    const tier = localStorage.getItem('wedding_subscription_tier');
+    if (tier && tier !== 'demo_trial' && tier !== 'trial_15_days' && tier !== 'null') {
+        return false;
+    }
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email.toLowerCase() === email);
+    if (client && client.paymentStatus === 'paid' && client.planTier) {
+        return false;
+    }
+    return true;
+}
+
+function isAccountTrialExpired() {
+    if (!isAccountInTrial()) return false;
+    const email = (sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email.toLowerCase() === email);
+    const now = Date.now();
+
+    if (client) {
+        let endMs = client.trialEndMs;
+        if (!endMs && client.trialEndDate) {
+            endMs = new Date(client.trialEndDate).getTime();
+        }
+        if (!endMs && client.createdAt) {
+            endMs = new Date(client.createdAt).getTime() + (15 * 24 * 60 * 60 * 1000);
+        }
+        if (endMs && now > endMs) return true;
+        if (client.paymentStatus === 'trial_expired') return true;
+    }
+
+    const sessionEnd = Number(sessionStorage.getItem('antigravity_trial_end_ms') || 0);
+    if (sessionEnd && now > sessionEnd) return true;
+
+    const localEnd = Number(localStorage.getItem('paseboda_client_trial_end_' + email) || 0);
+    if (localEnd && now > localEnd) return true;
+
+    return false;
+}
+
+function getTrialDaysRemaining() {
+    if (!isAccountInTrial()) return 0;
+    const email = (sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email.toLowerCase() === email);
+    const now = Date.now();
+    let endMs = client ? (client.trialEndMs || (client.trialEndDate ? new Date(client.trialEndDate).getTime() : 0)) : 0;
+    if (!endMs) {
+        endMs = Number(sessionStorage.getItem('antigravity_trial_end_ms') || 0);
+    }
+    if (!endMs) {
+        endMs = Number(localStorage.getItem('paseboda_client_trial_end_' + email) || 0);
+    }
+    if (!endMs) return 15;
+    const diff = endMs - now;
+    return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
+}
+
+function showTrialFeatureLockedModal(featureType = 'generic', customMessage = '') {
+    let title = '🔒 Función Exclusiva de Planes Oficiales';
+    let icon = '🔒';
+    let desc = customMessage || 'Esta herramienta está reservada para cuentas con plan activo de PaseBoda.';
+
+    if (featureType === 'whatsapp') {
+        icon = '📲';
+        title = 'Envíos Masivos WhatsApp Protegidos';
+        desc = customMessage || 'Los despachos oficiales por WhatsApp con confirmación RSVP automática están bloqueados durante la prueba de 15 días para proteger la cuota y reputación de la línea oficial. Activa tu plan para enviar invitaciones masivas ilimitadas.';
+    } else if (featureType === 'reports' || featureType === 'captain_print') {
+        icon = '📑';
+        title = 'Dossier Técnico y Reportes Oficiales en PDF';
+        desc = customMessage || 'Para descargar o imprimir el Dossier Técnico Oficial para el Recinto, Ficha de Cocina para el Chef y Plano de Mesas para Capitanes, activa tu plan.';
+    } else if (featureType === 'day_d' || featureType === 'hostess') {
+        icon = '⚡';
+        title = 'Modo Día D y Check-in QR Hostess en Puerta';
+        desc = customMessage || 'El escáner QR en vivo para recepcionistas en puerta y la Minuta Interactiva en Vivo son herramientas operativas de ejecución exclusiva para eventos con plan contratado.';
+    } else if (featureType === 'invitations') {
+        icon = '💌';
+        title = 'Publicación de Invitaciones Web Oficiales';
+        desc = customMessage || 'La personalización y publicación de enlaces web oficiales con confirmación RSVP para tus invitados requiere la contratación de un plan.';
+    }
+
+    let modal = document.getElementById('modalTrialFeatureLocked');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalTrialFeatureLocked';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); z-index:9999999; display:flex; align-items:center; justify-content:center; padding:20px;';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div style="background:#ffffff; border-radius:24px; max-width:540px; width:100%; padding:36px; box-shadow:0 25px 60px rgba(0,0,0,0.35); text-align:center; position:relative; border:1.5px solid #e2e8f0; animation:modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width:68px; height:68px; border-radius:50%; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 18px; box-shadow:0 8px 20px rgba(217,119,6,0.2);">
+                ${icon}
+            </div>
+            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:800; color:#d97706; display:block; margin-bottom:6px;">
+                Modo Prueba de 15 Días
+            </span>
+            <h3 style="font-family:'Playfair Display', serif; font-size:1.55rem; color:#0f172a; margin:0 0 12px; font-weight:700;">
+                ${title}
+            </h3>
+            <p style="font-size:0.92rem; color:#475569; line-height:1.55; margin:0 0 24px;">
+                ${desc}
+            </p>
+
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:24px; text-align:left;">
+                <div style="font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;">
+                    ¿Qué desbloqueas al contratar un plan?
+                </div>
+                <div style="font-size:0.84rem; color:#1e293b; display:flex; flex-direction:column; gap:6px;">
+                    <span>✓ <strong>WhatsApp Masivo</strong> con confirmación RSVP con 1 clic.</span>
+                    <span>✓ <strong>Dossier Técnico PDF</strong> para el banquete y salón.</span>
+                    <span>✓ <strong>Check-in QR Hostess</strong> para recepción en puerta.</span>
+                    <span>✓ <strong>Invitaciones Web Oficiales</strong> ilimitadas para tus invitados.</span>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button type="button" onclick="closeTrialFeatureLockedModal(); showTab('settings');" style="width:100%; padding:14px; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border:none; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; box-shadow:0 4px 14px rgba(15,23,42,0.25);">
+                    💳 Ver Planes & Activar Ahora (Desde $1,990 MXN)
+                </button>
+                <button type="button" onclick="closeTrialFeatureLockedModal()" style="width:100%; padding:10px; background:transparent; color:#64748b; border:none; font-weight:700; font-size:0.84rem; cursor:pointer;">
+                    Continuar en Modo Prueba (Mesas 2D & CRM)
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function closeTrialFeatureLockedModal() {
+    const modal = document.getElementById('modalTrialFeatureLocked');
+    if (modal) modal.style.display = 'none';
+}
+
+function showTrialExpiredFreezeModal(agencyName = '', trialEndMs = 0) {
+    let modal = document.getElementById('modalTrialExpiredFreeze');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalTrialExpiredFreeze';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.96); backdrop-filter:blur(16px); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:20px;';
+        document.body.appendChild(modal);
+    }
+
+    const email = (sessionStorage.getItem(AUTH_CONFIG.USER_KEY) || '').toLowerCase();
+    const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
+    const client = clients.find(c => c.email.toLowerCase() === email);
+    const agency = agencyName || (client ? client.agencyName : 'tu cuenta');
+
+    modal.innerHTML = `
+        <div style="background:#ffffff; border-radius:28px; max-width:620px; width:100%; padding:44px 36px; box-shadow:0 30px 80px rgba(0,0,0,0.5); text-align:center; position:relative; border:2px solid #cbd5e1; animation:modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div style="width:76px; height:76px; border-radius:50%; background:#fee2e2; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 20px; box-shadow:0 8px 24px rgba(239,68,68,0.25);">
+                🔒
+            </div>
+            
+            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:800; color:#ef4444; background:#fef2f2; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:12px;">
+                Periodo de Prueba de 15 Días Concluido
+            </span>
+
+            <h2 style="font-family:'Playfair Display', serif; font-size:1.85rem; color:#0f172a; margin:0 0 14px; font-weight:700;">
+                Tu evento y mesas siguen 100% seguros
+            </h2>
+
+            <p style="font-size:0.95rem; color:#475569; line-height:1.6; margin:0 0 20px;">
+                Estimad@ <strong>${agency}</strong>, tu prueba gratuita de 15 días ha finalizado. 
+                <br>
+                ✨ <strong>Todo tu trabajo está protegido:</strong> Tus invitados registrados, el acomodo de tus mesas 2D y las notas de tu banquete siguen guardados y resguardados en nuestros servidores.
+            </p>
+
+            <div style="background:#fffbeb; border:1.5px solid #fde68a; border-radius:14px; padding:14px 18px; margin-bottom:26px; text-align:left; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:1.4rem;">⏳</span>
+                <div style="font-size:0.83rem; color:#92400e; line-height:1.45;">
+                    <strong>Política de Resguardo de Datos (60 días):</strong> Tus proyectos se conservarán resguardados de forma segura durante 60 días antes del archivo definitivo. Activa tu plan para desbloquear el acceso de inmediato.
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
+                <div style="border:1.5px solid #cbd5e1; border-radius:16px; padding:18px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; background:#f8fafc;">
+                    <div>
+                        <span style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block;">Para Parejas (1 Boda)</span>
+                        <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin:4px 0 8px;">Pase Boda Única</h4>
+                        <div style="font-size:1.35rem; font-weight:900; color:#0f172a; margin-bottom:6px;">$4,820 <small style="font-size:0.75rem; color:#64748b;">MXN</small></div>
+                        <p style="font-size:0.75rem; color:#475569; margin:0 0 12px;">12 meses sin mensualidades recurrentes. Incluye Invitación Web y WhatsApp.</p>
+                    </div>
+                    <button type="button" onclick="openStripeCheckoutModal('single_wedding', 'one_time')" style="width:100%; padding:10px; background:#0f172a; color:#ffffff; border:none; border-radius:10px; font-weight:800; font-size:0.82rem; cursor:pointer;">
+                        💳 Pagar $4,820
+                    </button>
+                </div>
+
+                <div style="border:2px solid #c59b27; border-radius:16px; padding:18px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; background:#fffdf8; box-shadow:0 6px 20px rgba(197,155,39,0.15);">
+                    <div>
+                        <span style="font-size:0.7rem; font-weight:800; color:#b45309; text-transform:uppercase; display:block;">Wedding Planners</span>
+                        <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a; margin:4px 0 8px;">Plan Signature Pro</h4>
+                        <div style="font-size:1.35rem; font-weight:900; color:#b45309; margin-bottom:6px;">$1,990 <small style="font-size:0.75rem; color:#64748b;">MXN / mes</small></div>
+                        <p style="font-size:0.75rem; color:#475569; margin:0 0 12px;">Hasta 10 bodas simultáneas, marca blanca y soporte para eventos.</p>
+                    </div>
+                    <button type="button" onclick="openStripeCheckoutModal('intermediate', 'monthly')" style="width:100%; padding:10px; background:linear-gradient(135deg, #c59b27 0%, #947118 100%); color:#ffffff; border:none; border-radius:10px; font-weight:800; font-size:0.82rem; cursor:pointer; box-shadow:0 4px 12px rgba(197,155,39,0.35);">
+                        ✨ Pagar $1,990 / mes
+                    </button>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:center; align-items:center; gap:16px;">
+                <button type="button" onclick="exitDemoMode()" style="background:transparent; border:none; color:#64748b; font-size:0.82rem; font-weight:700; cursor:pointer; text-decoration:underline;">
+                    🚪 Cerrar Sesión
+                </button>
+                <span style="color:#cbd5e1;">•</span>
+                <a href="mailto:antigravitywebstudio@hotmail.com?subject=Reactivacion%20de%20Cuenta%20PaseBoda" style="color:#64748b; font-size:0.82rem; font-weight:700; text-decoration:none;">
+                    💬 Contactar Soporte
+                </a>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+window.isAccountInTrial = isAccountInTrial;
+window.isAccountTrialExpired = isAccountTrialExpired;
+window.getTrialDaysRemaining = getTrialDaysRemaining;
+window.showTrialFeatureLockedModal = showTrialFeatureLockedModal;
+window.closeTrialFeatureLockedModal = closeTrialFeatureLockedModal;
+window.showTrialExpiredFreezeModal = showTrialExpiredFreezeModal;
+

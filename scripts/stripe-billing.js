@@ -302,10 +302,16 @@ async function handleStripePaymentSubmit(e) {
             saveClientsDatabase(clients);
         }
 
-        // 1. Limpiar completamente los estados de demo para activar la cuenta de pago
+        // 1. Limpiar completamente los estados de demo y prueba de 15 días para activar la cuenta de pago
         sessionStorage.removeItem('antigravity_demo_mode');
         sessionStorage.removeItem('antigravity_is_demo_trial');
+        sessionStorage.removeItem('antigravity_is_trial');
+        sessionStorage.removeItem('antigravity_is_trial_expired');
         sessionStorage.removeItem('antigravity_role');
+        const freezeModal = document.getElementById('modalTrialExpiredFreeze');
+        if (freezeModal) freezeModal.style.display = 'none';
+        const lockedModal = document.getElementById('modalTrialFeatureLocked');
+        if (lockedModal) lockedModal.style.display = 'none';
         sessionStorage.setItem('antigravity_wedding_session', 'authenticated');
         sessionStorage.setItem('antigravity_logged_user', email);
         sessionStorage.setItem('antigravity_user_email', email);

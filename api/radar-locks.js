@@ -158,6 +158,13 @@ module.exports = async (req, res) => {
     if (req.method === 'POST') {
         try {
             const body = req.body || {};
+            if (body.isTrial === true || body.paymentStatus === 'trial_15_days' || body.paymentStatus === 'demo_trial') {
+                return res.status(403).json({
+                    success: false,
+                    isTrialLocked: true,
+                    error: '🔒 Acción no permitida. La reserva de turnos en el radar de WhatsApp está bloqueada durante el periodo de prueba de 15 días.'
+                });
+            }
             const {
                 id,
                 source,           // 'atelier' o 'paseboda'

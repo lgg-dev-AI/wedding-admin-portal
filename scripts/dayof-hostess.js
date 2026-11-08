@@ -103,6 +103,33 @@ function setHostessFilter(mode) {
 }
 
 function renderHostessDashboard() {
+    // 🔒 Candado de Periodo de Prueba de 15 Días
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        const container = document.getElementById('tab-hostess');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:60px 24px; max-width:600px; margin:40px auto; background:#ffffff; border-radius:24px; border:2px dashed #cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+                    <div style="width:72px; height:72px; border-radius:50%; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
+                        ⚡
+                    </div>
+                    <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; font-weight:800; color:#d97706; background:#fffbeb; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:12px;">
+                        Exclusivo de Planes Oficiales
+                    </span>
+                    <h3 style="font-family:'Playfair Display', serif; font-size:1.6rem; color:#0f172a; margin:0 0 10px; font-weight:700;">
+                        Control de Acceso QR Hostess en Puerta
+                    </h3>
+                    <p style="font-size:0.92rem; color:#64748b; line-height:1.55; margin:0 0 24px;">
+                        El escáner QR en vivo para recepcionistas en puerta, la detección de pases duplicados y el registro de comensales en tiempo real son herramientas operativas exclusivas para eventos con plan activo.
+                    </p>
+                    <button type="button" onclick="showTab('settings')" style="padding:12px 28px; background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color:#ffffff; border:none; border-radius:12px; font-weight:800; font-size:0.92rem; cursor:pointer; box-shadow:0 4px 14px rgba(15,23,42,0.25);">
+                        💳 Activar Plan para Habilitar Escáner
+                    </button>
+                </div>
+            `;
+            return;
+        }
+    }
+
     const guests = getHostessGuests();
     const searchInput = document.getElementById('hostessSearchInput');
     const tableSelect = document.getElementById('hostessTableSelect');
@@ -236,6 +263,13 @@ function renderHostessDashboard() {
 }
 
 function toggleHostessCheckIn(guestId) {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('hostess');
+        }
+        return;
+    }
+
     const guests = getHostessGuests();
     const guest = guests.find(g => g.id === guestId);
     if (!guest) return;
@@ -308,6 +342,13 @@ function searchHostessGuests() {
 }
 
 function simulateQrCameraScan() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('hostess');
+        }
+        return;
+    }
+
     const guests = getHostessGuests();
     const pendingGuests = guests.filter(g => !g.checkedIn);
     

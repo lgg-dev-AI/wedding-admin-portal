@@ -549,7 +549,15 @@ function showTab(tabName) {
     if (tabName === 'dispatch') { if (typeof renderDispatchTab === 'function') renderDispatchTab(); }
     if (tabName === 'seating') { if (typeof renderSeatingChart === 'function') renderSeatingChart(); }
     if (tabName === 'dayof') { if (typeof renderDayOfTab === 'function') renderDayOfTab(); }
-    if (tabName === 'hostess') { if (typeof renderHostessDashboard === 'function') renderHostessDashboard(); }
+    if (tabName === 'hostess') {
+        if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+            if (typeof showTrialFeatureLockedModal === 'function') {
+                showTrialFeatureLockedModal('hostess', 'El Check-in QR para recepcionistas en puerta y el Control de Acceso en Vivo requieren un plan activo de PaseBoda para operar en el evento.');
+            }
+        } else {
+            if (typeof renderHostessDashboard === 'function') renderHostessDashboard();
+        }
+    }
     if (tabName === 'barcalc') { if (typeof recalcBar === 'function') recalcBar(); }
     if (tabName === 'vendors') { if (typeof renderVendorsTab === 'function') renderVendorsTab(); }
     if (tabName === 'guests') { 
@@ -2199,6 +2207,12 @@ let activeDayDSubtab = 'timeline';
 let activeDayDDayKey = 'day2';
 
 function openDayDModal() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('day_d', 'El Modo Día D y el Escáner QR de Hostess en puerta son herramientas operativas de ejecución en vivo exclusivas para eventos con plan activo.');
+        }
+        return;
+    }
     const modal = document.getElementById('modalDayD');
     if (!modal) return;
 

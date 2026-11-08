@@ -167,6 +167,15 @@ module.exports = async (req, res) => {
         }
         body = body || {};
 
+        // 🔒 Candado Anti-Hack: Cuentas en modo de prueba de 15 días NO pueden despachar WhatsApp oficial
+        if (body.isTrial === true || body.paymentStatus === 'trial_15_days' || body.paymentStatus === 'demo_trial') {
+            return res.status(403).json({
+                success: false,
+                isTrialLocked: true,
+                error: '🔒 Acción no permitida. Los envíos oficiales de WhatsApp están bloqueados durante el periodo de prueba de 15 días. Requiere la activación de un plan de PaseBoda.'
+            });
+        }
+
         const { to, message, template, batch } = body;
 
         // Disparo en lote

@@ -1488,6 +1488,14 @@ function selectDispatchSlot(timeStr) {
 }
 
 function openBatchDispatchModal() {
+    // 🔒 Candado de Periodo de Prueba de 15 Días
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('whatsapp', 'Los envíos masivos oficiales por WhatsApp con confirmación automática están disponibles únicamente al activar un plan oficial para proteger la cuota y reputación de la línea oficial.');
+        }
+        return;
+    }
+
     currentData = getWeddingState(currentWeddingId);
     if (!currentData) return;
 
@@ -1568,6 +1576,13 @@ function closeBatchDispatchModal() {
 }
 
 async function confirmBatchExecution() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('whatsapp');
+        }
+        return;
+    }
+
     const dateInput = document.getElementById('batchScheduleDate');
     const dVal = dateInput ? dateInput.value : '';
     const tVal = selectedDispatchTimeSlot;

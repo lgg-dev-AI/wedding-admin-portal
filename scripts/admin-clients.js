@@ -151,6 +151,20 @@ function evaluateAndApplyClientGracePeriods() {
         let hasChanges = false;
 
         clients.forEach(c => {
+            // Evaluar expiración de prueba de 15 días
+            if (c.paymentStatus === 'trial_15_days' || c.paymentStatus === 'demo_trial') {
+                const now = Date.now();
+                let endMs = c.trialEndMs;
+                if (!endMs && c.trialEndDate) endMs = new Date(c.trialEndDate).getTime();
+                if (!endMs && c.createdAt) endMs = new Date(c.createdAt).getTime() + (15 * 24 * 60 * 60 * 1000);
+                if (endMs && now > endMs) {
+                    c.paymentStatus = 'trial_expired';
+                    c.isSuspended = true;
+                    c.suspensionNotice = 'Periodo de prueba de 15 días concluido. Datos resguardados por 60 días.';
+                    hasChanges = true;
+                }
+                return;
+            }
             if (!c.nextDueDate) return;
             const daysLeft = getDaysUntilDueDate(c.nextDueDate);
 

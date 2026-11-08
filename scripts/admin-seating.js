@@ -970,6 +970,12 @@ function addNewWaiterPrompt() {
 
 // CAPTAIN PRINT MODAL
 function openCaptainPrintModal() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('captain_print', 'La Ficha de Impresión para Capitán de Mesas y Plano de Salón está reservada para cuentas con plan activo.');
+        }
+        return;
+    }
     if (typeof activeRole !== 'undefined' && activeRole === 'couple') {
         showToast('🔒 Acción exclusiva de tu Wedding Planner.');
         return;

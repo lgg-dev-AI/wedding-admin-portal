@@ -219,6 +219,13 @@ function openAddImageModal(zoneIndex) {
  * Printable Editorial Design Dossier PDF for Vendors (Florists, Decorators)
  */
 function printDesignDossierPDF() {
+    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'Para descargar o imprimir el Dossier de Estilo Nupcial y Paleta de Color en PDF, activa tu plan.');
+        }
+        return;
+    }
+
     const data = getDesignStudioData();
     const weddingState = (typeof getWeddingState === 'function' ? getWeddingState(window.currentWeddingId) : window.currentData) || {};
     const coupleName = weddingState.couple || "Novios";
