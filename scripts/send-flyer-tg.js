@@ -11,7 +11,7 @@ async function sendUpdatedFlyer() {
   const form = new FormData();
   form.append('chat_id', chatId);
   form.append('photo', blob, 'flyer_pared_doble_preview.jpg');
-  form.append('caption', '🖼️ <b>¡Subtítulos Ampliados y Destacados!</b> ✨\n\n• Se aumentó la escala tipográfica a <b>1.18rem</b> con peso bold italic en:\n  1. <i>\"Pases Digitales & Suite Logística\"</i> (PaseBoda)\n  2. <i>\"Invitaciones Web Interactivas\"</i> (Sobreboda)\n\n• Mucho más legible y visible a más de 2 metros de distancia.');
+  form.append('caption', '🎯 <b>¡Preguntas Gancho Integradas!</b> ✨\n\n• Se eliminó el título genérico \"PaseBoda & Sobreboda\" y se colocaron dos preguntas de auto-identificación directa:\n\n1. 🟣 <b>PaseBoda:</b> <i>\"¿Eres Wedding Planner o te vas a casar próximamente?\"</i>\n2. 🟤 <b>Sobreboda:</b> <i>\"¿Ya tienes tu boda planeada, pero te faltan las invitaciones?\"</i>\n\n• Cada pregunta enmarca y conduce la mirada directamente a su columna correspondiente.');
   form.append('parse_mode', 'HTML');
 
   const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {

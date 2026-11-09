@@ -86,23 +86,48 @@
             color: #f59e0b;
         }
 
-        .main-headline {
-            font-family: 'Playfair Display', serif;
-            text-align: center;
-            font-size: 2.15rem;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: 2px;
-            margin-bottom: 18px;
-            line-height: 1.1;
+        /* ENCABEZADO CON PREGUNTAS GANCHO CALIFICADORAS */
+        .top-questions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 14px;
         }
-        .main-headline .amp {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-weight: 600;
-            color: var(--gold-accent);
-            font-size: 2.4rem;
-            margin: 0 6px;
+
+        .header-question-card {
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 62px;
+            border-width: 1.5px;
+            border-style: solid;
+        }
+
+        .header-question-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: 0.2px;
+        }
+
+        .q-pb {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border-color: #c4b5fd;
+        }
+        .q-pb h2 {
+            color: #3b1b6e;
+        }
+
+        .q-sb {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border-color: #fde047;
+        }
+        .q-sb h2 {
+            color: #78350f;
         }
 
         /* CONTENEDOR DE 2 COLUMNAS */
@@ -436,9 +461,15 @@
                 </div>
             </div>
 
-            <h1 class="main-headline">
-                PASEBODA <span class="amp">&amp;</span> SOBREBODA
-            </h1>
+            <!-- PREGUNTAS GANCHO DIRECTAS POR COLUMNA -->
+            <div class="top-questions-grid">
+                <div class="header-question-card q-pb">
+                    <h2>¿Eres Wedding Planner o te vas a casar próximamente?</h2>
+                </div>
+                <div class="header-question-card q-sb">
+                    <h2>¿Ya tienes tu boda planeada, pero te faltan las invitaciones?</h2>
+                </div>
+            </div>
 
             <!-- CUADÍCULA DE 2 COLUMNAS -->
             <div class="columns-grid">
