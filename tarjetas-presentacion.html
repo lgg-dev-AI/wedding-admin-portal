@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarjetas de Presentación Sintetizadas (9x5 cm) - PaseBoda &amp; Sobreboda</title>
+    <title>Tarjetas de Presentación 360° (9x5 cm) - PaseBoda &amp; Sobreboda</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500;1,600&family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
         }
         .header-title h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2rem;
+            font-size: 2.1rem;
             margin-bottom: 6px;
         }
         .header-title p {
@@ -55,13 +55,13 @@
 
         /* ============================================================
            TARJETA 9 x 5 cm (Proporción exacta 540 x 300 px)
-           INFORMACIÓN SINTETIZADA AL MÁXIMO IMPACTO
+           ARQUITECTURA DE FUNCIONAMIENTO TOTAL (CICLO COMPLETO)
            ============================================================ */
         .card-container {
             width: 540px;
             height: 300px;
             border-radius: 14px;
-            padding: 18px 22px;
+            padding: 16px 20px;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -71,7 +71,7 @@
         }
 
         /* ------------------------------------------------------------
-           TARJETA 1: PASEBODA
+           TARJETA 1: PASEBODA (SUITE TOTAL 360°)
            ------------------------------------------------------------ */
         #card-pb-standalone {
             background: #faf8f5;
@@ -84,7 +84,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1.5px solid #ede9fe;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         .brand-box {
             display: flex;
@@ -92,8 +92,8 @@
             gap: 12px;
         }
         .brand-avatar-pb {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%);
             color: #ffffff;
@@ -101,12 +101,13 @@
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 1.05rem;
+            font-size: 1rem;
             box-shadow: 0 4px 10px rgba(46, 16, 101, 0.25);
+            flex-shrink: 0;
         }
         .brand-text h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: #2e1065;
             line-height: 1;
@@ -123,54 +124,57 @@
             background: #f5f3ff;
             border: 1px solid #c4b5fd;
             color: #6b21a8;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             font-weight: 800;
             text-transform: uppercase;
-            padding: 4px 10px;
+            padding: 4px 9px;
             border-radius: 99px;
             letter-spacing: 0.5px;
         }
 
         .hook-box-pb {
             font-family: 'Playfair Display', serif;
-            font-size: 0.96rem;
+            font-size: 0.92rem;
             font-weight: 700;
             font-style: italic;
             color: #1e1b4b;
-            margin: 8px 0 6px;
-            line-height: 1.25;
+            margin: 6px 0 5px;
+            line-height: 1.2;
         }
 
         .content-split {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
+            gap: 14px;
         }
 
         .key-points {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 6px;
+            flex: 1;
         }
         .key-points li {
-            font-size: 0.76rem;
-            font-weight: 600;
+            font-size: 0.73rem;
+            font-weight: 500;
             color: #334155;
+            line-height: 1.25;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 7px;
         }
         .key-points li strong {
             color: #0f172a;
+            font-weight: 800;
         }
 
         .qr-section-pb {
             background: #ffffff;
             border: 1.5px solid #c4b5fd;
             border-radius: 10px;
-            padding: 6px 10px;
+            padding: 5px 8px;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -179,19 +183,19 @@
             flex-shrink: 0;
         }
         .qr-section-pb img {
-            width: 82px;
-            height: 82px;
+            width: 80px;
+            height: 80px;
             border-radius: 6px;
         }
         .qr-tag-pb {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             font-weight: 800;
             color: #581c87;
             text-transform: uppercase;
             margin-top: 3px;
         }
         .qr-url-pb {
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-family: monospace;
             font-weight: 700;
             color: #64748b;
@@ -199,11 +203,11 @@
 
         .card-footer-pb {
             border-top: 1.5px solid #f1f5f9;
-            padding-top: 7px;
+            padding-top: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             color: #64748b;
             font-weight: 600;
         }
@@ -212,7 +216,7 @@
         }
 
         /* ------------------------------------------------------------
-           TARJETA 2: SOBREBODA
+           TARJETA 2: SOBREBODA (PORTAL BOUTIQUE 360°)
            ------------------------------------------------------------ */
         #card-sb-standalone {
             background: linear-gradient(135deg, #18181b 0%, #09090b 100%);
@@ -223,10 +227,11 @@
 
         #card-sb-standalone .card-header {
             border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+            padding-bottom: 8px;
         }
         .brand-avatar-sb {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, #c59b27 0%, #947118 100%);
             color: #ffffff;
@@ -234,12 +239,13 @@
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 1.05rem;
+            font-size: 1rem;
             box-shadow: 0 4px 10px rgba(197, 155, 39, 0.35);
+            flex-shrink: 0;
         }
         #card-sb-standalone .brand-text h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: #f8fafc;
             line-height: 1;
@@ -256,37 +262,39 @@
             background: rgba(197, 155, 39, 0.15);
             border: 1px solid #c59b27;
             color: #fbbf24;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             font-weight: 800;
             text-transform: uppercase;
-            padding: 4px 10px;
+            padding: 4px 9px;
             border-radius: 99px;
             letter-spacing: 0.5px;
         }
 
         .hook-box-sb {
             font-family: 'Playfair Display', serif;
-            font-size: 0.96rem;
+            font-size: 0.92rem;
             font-weight: 700;
             font-style: italic;
             color: #fef08a;
-            margin: 8px 0 6px;
-            line-height: 1.25;
+            margin: 6px 0 5px;
+            line-height: 1.2;
         }
 
         #card-sb-standalone .key-points li {
             color: #cbd5e1;
-            font-size: 0.76rem;
+            font-size: 0.73rem;
+            line-height: 1.25;
         }
         #card-sb-standalone .key-points li strong {
             color: #ffffff;
+            font-weight: 800;
         }
 
         .qr-section-sb {
             background: #ffffff;
             border: 1.5px solid #c59b27;
             border-radius: 10px;
-            padding: 6px 10px;
+            padding: 5px 8px;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -295,19 +303,19 @@
             flex-shrink: 0;
         }
         .qr-section-sb img {
-            width: 82px;
-            height: 82px;
+            width: 80px;
+            height: 80px;
             border-radius: 6px;
         }
         .qr-tag-sb {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             font-weight: 800;
             color: #92400e;
             text-transform: uppercase;
             margin-top: 3px;
         }
         .qr-url-sb {
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-family: monospace;
             font-weight: 700;
             color: #64748b;
@@ -316,6 +324,7 @@
         #card-sb-standalone .card-footer-pb {
             border-top: 1.5px solid rgba(255, 255, 255, 0.1);
             color: #94a3b8;
+            padding-top: 6px;
         }
         #card-sb-standalone .card-footer-pb strong {
             color: #f8fafc;
@@ -325,14 +334,14 @@
 <body>
 
     <div class="header-title">
-        <h1>Tarjetas de Bolsillo Sintetizadas (9 x 5 cm)</h1>
-        <p>Alta jerarquía tipográfica, información sintetizada y códigos QR nítidos para captura individual.</p>
+        <h1>Tarjetas de Bolsillo: Funcionamiento 360° (9 x 5 cm)</h1>
+        <p>Ciclo integral del evento sintetizado en 3 pilares clave con captura individual en alta definición.</p>
     </div>
 
     <div class="cards-display-wrap">
 
         <!-- ==========================================
-             TARJETA 1: PASEBODA (CAPTURA INDIVIDUAL)
+             TARJETA 1: PASEBODA (EL CICLO COMPLETO)
              ========================================== -->
         <div id="card-pb-standalone" class="card-container">
             <div class="card-header">
@@ -340,10 +349,10 @@
                     <div class="brand-avatar-pb">PB</div>
                     <div class="brand-text">
                         <h2>PASEBODA</h2>
-                        <span>Suite Digital &amp; Mesas 2D</span>
+                        <span>Suite de Gestión &amp; Logística Nupcial</span>
                     </div>
                 </div>
-                <span class="badge-pill-pb">Logística VIP</span>
+                <span class="badge-pill-pb">Suite 360°</span>
             </div>
 
             <div class="hook-box-pb">
@@ -352,9 +361,9 @@
 
             <div class="content-split">
                 <ul class="key-points">
-                    <li>🪑 <strong>Acomodo de Mesas 2D:</strong> Arrastra invitados en vivo.</li>
-                    <li>💬 <strong>WhatsApp Oficial:</strong> Boletos QR &amp; confirmación rápida.</li>
-                    <li>📲 <strong>Hostess Check-in:</strong> Recepción ágil sin papel.</li>
+                    <li>📋 <div><strong>Gestión &amp; WhatsApp:</strong> CRM de invitados, confirmaciones automáticas y boletos QR únicos.</div></li>
+                    <li>🪑 <div><strong>Salón 2D &amp; Banquete:</strong> Plano interactivo, conteo de menús/dietas y dossier para capitán.</div></li>
+                    <li>📲 <div><strong>Operación Día D:</strong> Check-in con celular en puerta, minuta de staff y álbum fotográfico.</div></li>
                 </ul>
 
                 <div class="qr-section-pb">
@@ -365,13 +374,13 @@
             </div>
 
             <div class="card-footer-pb">
-                <span>✨ <strong>Prueba gratis la suite:</strong> Sin tarjeta</span>
+                <span>✨ <strong>Todo el control de tu evento en 1 sola suite:</strong> Sin tarjeta</span>
                 <span>🌐 <strong>paseboda.com</strong></span>
             </div>
         </div>
 
         <!-- ==========================================
-             TARJETA 2: SOBREBODA (CAPTURA INDIVIDUAL)
+             TARJETA 2: SOBREBODA (EL PORTAL DIGITAL)
              ========================================== -->
         <div id="card-sb-standalone" class="card-container">
             <div class="card-header">
@@ -379,7 +388,7 @@
                     <div class="brand-avatar-sb">SB</div>
                     <div class="brand-text">
                         <h2>SOBREBODA</h2>
-                        <span>Invitaciones Web Interactivas</span>
+                        <span>Portal Web Nupcial Interactivo</span>
                     </div>
                 </div>
                 <span class="badge-pill-sb">Alta Costura</span>
@@ -391,9 +400,9 @@
 
             <div class="content-split">
                 <ul class="key-points">
-                    <li>🎵 <strong>Música &amp; Cuenta Regresiva:</strong> Apertura romántica.</li>
-                    <li>📍 <strong>Maps &amp; Waze:</strong> Navegación directa en 1 toque.</li>
-                    <li>🎁 <strong>Mesa de Regalos:</strong> Depósitos directos sin comisión.</li>
+                    <li>✨ <div><strong>Experiencia Emotiva:</strong> Diseño boutique responsive, música romántica y galería de fotos HD.</div></li>
+                    <li>📍 <div><strong>Guía Logística del Invitado:</strong> Waze/Maps en 1 toque, itinerario del evento y hoteles.</div></li>
+                    <li>🎁 <div><strong>Mesa de Regalos &amp; RSVP:</strong> Depósitos bancarios directos sin comisión (CLABE) y RSVP web.</div></li>
                 </ul>
 
                 <div class="qr-section-sb">
@@ -404,7 +413,7 @@
             </div>
 
             <div class="card-footer-pb">
-                <span>✨ <strong>Desde $1,399 MXN:</strong> Entrega express</span>
+                <span>✨ <strong>La primera gran impresión para tus invitados:</strong> Alta costura</span>
                 <span>🌐 <strong>sobreboda.com</strong></span>
             </div>
         </div>

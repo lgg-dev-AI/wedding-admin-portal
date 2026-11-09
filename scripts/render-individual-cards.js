@@ -48,13 +48,13 @@ async function renderAndSendIndividualCards() {
     pbForm.append('chat_id', TELEGRAM_CHAT_ID);
     pbForm.append('photo', new Blob([pbBuffer], { type: 'image/jpeg' }), 'tarjeta_paseboda_hd.jpg');
     pbForm.append('caption', '🟣 <b>TARJETA 1: PASEBODA</b> (9 x 5 cm)\n\n' +
-        '• <b>Público:</b> Wedding Planners y Novias en planeación.\n' +
+        '• <b>Alcance:</b> Suite de Gestión & Logística Nupcial de Principio a Fin\n' +
         '• <b>Pregunta Gancho:</b> <i>\"¿Eres Wedding Planner o te vas a casar próximamente?\"</i>\n' +
-        '• <b>Beneficios Clave:</b>\n' +
-        '  🪑 Mesas 2D Drag & Drop en minutos\n' +
-        '  💬 WhatsApp Oficial & Boletos QR\n' +
-        '  📲 Hostess Check-in ágil en puerta\n\n' +
-        '🎟️ <b>QR:</b> 15 Días Gratis en paseboda.com');
+        '• <b>Pilares Operativos del Ciclo Completo:</b>\n' +
+        '  📋 <b>Gestión & WhatsApp:</b> CRM de invitados, confirmación automática y boletos QR únicos.\n' +
+        '  🪑 <b>Salón 2D & Banquete:</b> Plano interactivo, conteo de menús/dietas y dossier para capitán.\n' +
+        '  📲 <b>Operación Día D:</b> Check-in en puerta con celular (cero papel), minuta y fotos.\n\n' +
+        '🎟️ <b>QR:</b> 15 Días Gratis en paseboda.com (Sin tarjeta)');
     pbForm.append('parse_mode', 'HTML');
 
     const resPb = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
@@ -71,12 +71,12 @@ async function renderAndSendIndividualCards() {
     sbForm.append('chat_id', TELEGRAM_CHAT_ID);
     sbForm.append('photo', new Blob([sbBuffer], { type: 'image/jpeg' }), 'tarjeta_sobreboda_hd.jpg');
     sbForm.append('caption', '🟤 <b>TARJETA 2: SOBREBODA</b> (9 x 5 cm)\n\n' +
-        '• <b>Público:</b> Parejas buscando invitación digital boutique.\n' +
+        '• <b>Alcance:</b> Portal Web Nupcial Interactivo de Alta Costura\n' +
         '• <b>Pregunta Gancho:</b> <i>\"¿Ya tienes tu boda planeada, pero te faltan las invitaciones?\"</i>\n' +
-        '• <b>Beneficios Clave:</b>\n' +
-        '  🎵 Música Romántica & Cuenta Regresiva\n' +
-        '  📍 Navegación Google Maps & Waze en 1 toque\n' +
-        '  🎁 Mesa de Regalos con CLABE directa\n\n' +
+        '• <b>Pilares de la Experiencia para Invitados:</b>\n' +
+        '  ✨ <b>Experiencia Emotiva:</b> Diseño boutique responsive, música romántica y galería HD.\n' +
+        '  📍 <b>Guía Logística:</b> Waze/Maps en 1 toque, itinerario paso a paso y hoteles sugeridos.\n' +
+        '  🎁 <b>Mesa de Regalos & RSVP:</b> Depósitos directos sin comisión (CLABE) y RSVP web.\n\n' +
         '✨ <b>QR:</b> Ver Demos en Vivo en sobreboda.com');
     sbForm.append('parse_mode', 'HTML');
 
