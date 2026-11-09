@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjetas de Presentación (9x5 cm) - PaseBoda &amp; Sobreboda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500;1,600&family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pb-purple: #3b1b6e;
+            --pb-accent: #6b21a8;
+            --sb-gold: #c59b27;
+            --sb-dark: #121214;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            background-color: #0f172a;
+            font-family: 'Montserrat', sans-serif;
+            color: #0f172a;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            min-height: 100vh;
+        }
+
+        /* HEADER SUPERIOR EN PANTALLA */
+        .preview-header {
+            text-align: center;
+            color: #ffffff;
+            max-width: 800px;
+        }
+        .preview-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+        .preview-header p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* BOTÓN DE IMPRESIÓN FLOTANTE */
+        .print-btn-bar {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, #c59b27 0%, #947118 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 99px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(197, 155, 39, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        .btn-print:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(197, 155, 39, 0.6);
+        }
+
+        /* SECCIÓN DE VISTA PREVIA DETALLADA (SIDE BY SIDE) */
+        .showcase-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card-showcase-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-label {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #cbd5e1;
+        }
+
+        /* ============================================================
+           DIMENSIÓN DE LA TARJETA ESTÁNDAR 9 x 5 cm
+           En pantalla: 510px x 283px (Ratio exacto 9:5)
+           ============================================================ */
+        .b-card {
+            width: 510px;
+            height: 283px;
+            border-radius: 12px;
+            padding: 16px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        /* ------------------------------------------------------------
+           TARJETA 1: PASEBODA (Lujo Marfil & Morado Real)
+           ------------------------------------------------------------ */
+        .card-pb {
+            background: #faf8f5;
+            border: 2px solid #e2d9cc;
+            box-shadow: inset 0 0 0 3px #ffffff, 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .card-pb .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ede9fe;
+            padding-bottom: 8px;
+        }
+        .card-pb .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-pb .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.95rem;
+            box-shadow: 0 3px 8px rgba(46, 16, 101, 0.25);
+        }
+        .card-pb .titles h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--pb-purple);
+            line-height: 1;
+            letter-spacing: 0.5px;
+        }
+        .card-pb .titles p {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #64748b;
+            line-height: 1;
+            margin-top: 2px;
+        }
+        .card-pb .pill-tag {
+            background: #f5f3ff;
+            border: 1px solid #d8b4fe;
+            color: #6b21a8;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 99px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-pb .hook-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            font-style: italic;
+            margin: 6px 0 4px;
+            line-height: 1.2;
+        }
+
+        .card-pb .body-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .card-pb .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card-pb .bullet-list li {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-pb .qr-box {
+            background: #ffffff;
+            border: 1.5px solid #d8b4fe;
+            border-radius: 8px;
+            padding: 6px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .card-pb .qr-box img {
+            width: 78px;
+            height: 78px;
+            border-radius: 4px;
+        }
+        .card-pb .qr-call {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #581c87;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+        .card-pb .qr-url {
+            font-size: 0.58rem;
+            font-family: monospace;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .card-pb .card-footer {
+            border-top: 1px solid #f1f5f9;
+            padding-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .card-pb .card-footer strong {
+            color: #0f172a;
+        }
+
+        /* ------------------------------------------------------------
+           TARJETA 2: SOBREBODA (Alta Costura Negra & Acento Dorado)
+           ------------------------------------------------------------ */
+        .card-sb {
+            background: linear-gradient(135deg, #18181b 0%, #09090b 100%);
+            border: 2px solid #3f3f46;
+            box-shadow: inset 0 0 0 3px #18181b, inset 0 0 0 4.5px #c59b27, 0 15px 35px rgba(0,0,0,0.5);
+            color: #ffffff;
+        }
+
+        .card-sb .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+        .card-sb .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-sb .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c59b27 0%, #947118 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.95rem;
+            box-shadow: 0 3px 8px rgba(197, 155, 39, 0.35);
+        }
+        .card-sb .titles h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1;
+            letter-spacing: 0.5px;
+        }
+        .card-sb .titles p {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #e2c974;
+            line-height: 1;
+            margin-top: 2px;
+        }
+        .card-sb .pill-tag {
+            background: rgba(197, 155, 39, 0.15);
+            border: 1px solid #c59b27;
+            color: #fbbf24;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 99px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-sb .hook-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #fef08a;
+            font-style: italic;
+            margin: 6px 0 4px;
+            line-height: 1.2;
+        }
+
+        .card-sb .body-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .card-sb .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card-sb .bullet-list li {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-sb .bullet-list li strong {
+            color: #ffffff;
+        }
+
+        .card-sb .qr-box {
+            background: #ffffff;
+            border: 1.5px solid #c59b27;
+            border-radius: 8px;
+            padding: 6px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        .card-sb .qr-box img {
+            width: 78px;
+            height: 78px;
+            border-radius: 4px;
+        }
+        .card-sb .qr-call {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #92400e;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+        .card-sb .qr-url {
+            font-size: 0.58rem;
+            font-family: monospace;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .card-sb .card-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .card-sb .card-footer strong {
+            color: #f8fafc;
+        }
+
+        /* ============================================================
+           SECCIÓN DE HOJAS IMPRIMIBLES (TAMAÑO CARTA - LETTER)
+           Cada hoja contiene 8 tarjetas listas para corte (2 cols x 4 rows)
+           ============================================================ */
+        .print-sheet-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sheet-label {
+            color: #f59e0b;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+        }
+
+        .print-sheet {
+            width: 8.5in;
+            min-height: 11in;
+            background: #ffffff;
+            padding: 0.5in;
+            display: grid;
+            grid-template-columns: repeat(2, 3.5in);
+            grid-template-rows: repeat(4, 2in);
+            gap: 0.3in 0.4in;
+            justify-content: center;
+            align-content: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        /* Tarjeta ajustada al tamaño exacto de impresión (3.5in x 2in / 9x5 cm) */
+        .print-sheet .b-card {
+            width: 3.5in;
+            height: 2in;
+            padding: 9px 12px;
+            border-radius: 6px;
+            box-shadow: none;
+            border-width: 1px;
+        }
+
+        .print-sheet .card-pb .avatar,
+        .print-sheet .card-sb .avatar {
+            width: 26px;
+            height: 26px;
+            font-size: 0.75rem;
+        }
+        .print-sheet .titles h3 {
+            font-size: 0.95rem;
+        }
+        .print-sheet .titles p {
+            font-size: 0.72rem;
+        }
+        .print-sheet .pill-tag {
+            font-size: 0.52rem;
+            padding: 2px 6px;
+        }
+        .print-sheet .hook-question {
+            font-size: 0.68rem;
+            margin: 3px 0 2px;
+        }
+        .print-sheet .bullet-list li {
+            font-size: 0.56rem;
+            gap: 4px;
+        }
+        .print-sheet .qr-box {
+            padding: 4px 6px;
+        }
+        .print-sheet .qr-box img {
+            width: 58px;
+            height: 58px;
+        }
+        .print-sheet .qr-call {
+            font-size: 0.48rem;
+        }
+        .print-sheet .qr-url {
+            font-size: 0.46rem;
+        }
+        .print-sheet .card-footer {
+            font-size: 0.52rem;
+            padding-top: 3px;
+        }
+
+        /* GUÍAS DE CORTE IMPRIMIBLES */
+        .cut-guide {
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* ESTILOS DE IMPRESIÓN OFICIAL (MEDIA PRINT) */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .preview-header,
+            .showcase-container,
+            .sheet-label,
+            .print-btn-bar {
+                display: none !important;
+            }
+            .print-sheet-section {
+                gap: 0;
+            }
+            .print-sheet {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0.5in;
+                page-break-after: always;
+                break-after: page;
+            }
+            @page {
+                size: letter portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÓN DE IMPRESIÓN DIRECTA -->
+    <div class="print-btn-bar">
+        <button class="btn-print" onclick="window.print()">
+            🖨️ Imprimir Tarjetas (Hoja Carta Lista)
+        </button>
+    </div>
+
+    <!-- ENCABEZADO -->
+    <div class="preview-header">
+        <h1>Tarjetas de Presentación de Alta Gama (9 x 5 cm)</h1>
+        <p>Diseño individual 1 y 1 listo para imprenta, corte en guillotina o entrega directa a Wedding Planners y Parejas.</p>
+    </div>
+
+    <!-- VISTA PREVIA DETALLADA (2 TARJETAS INDIVIDUALES) -->
+    <div class="showcase-container">
+        
+        <!-- TARJETA 1: PASEBODA -->
+        <div class="card-showcase-wrap">
+            <span class="card-label">🟣 Tarjeta 1: PaseBoda (Para Novios &amp; Planners)</span>
+            <div class="b-card card-pb">
+                <div class="card-top">
+                    <div class="brand-group">
+                        <div class="avatar">PB</div>
+                        <div class="titles">
+                            <h3>PASEBODA</h3>
+                            <p>Suite Digital &amp; Logística de Salón</p>
+                        </div>
+                    </div>
+                    <span class="pill-tag">Logística VIP</span>
+                </div>
+
+                <div class="hook-question">
+                    ¿Eres Wedding Planner o te vas a casar próximamente?
+                </div>
+
+                <div class="body-grid">
+                    <ul class="bullet-list">
+                        <li>🪑 <strong>Acomodo de Mesas 2D:</strong> Arrastra invitados en vivo.</li>
+                        <li>💬 <strong>WhatsApp Oficial:</strong> Boletos QR &amp; confirmación rápida.</li>
+                        <li>📲 <strong>Hostess Check-in:</strong> Recepción ágil en puerta con celular.</li>
+                    </ul>
+
+                    <div class="qr-box">
+                        <img src="assets/img/qr_paseboda_hd.png" alt="QR PaseBoda">
+                        <span class="qr-call">15 Días Gratis</span>
+                        <span class="qr-url">paseboda.com</span>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <span>✨ <strong>Prueba gratis la suite:</strong> Sin tarjeta de crédito</span>
+                    <span>🌐 <strong>paseboda.com</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETA 2: SOBREBODA -->
+        <div class="card-showcase-wrap">
+            <span class="card-label">🟤 Tarjeta 2: Sobreboda (Invitaciones Web Boutique)</span>
+            <div class="b-card card-sb">
+                <div class="card-top">
+                    <div class="brand-group">
+                        <div class="avatar">SB</div>
+                        <div class="titles">
+                            <h3>SOBREBODA</h3>
+                            <p>Invitaciones Web Interactivas</p>
+                        </div>
+                    </div>
+                    <span class="pill-tag">Alta Costura</span>
+                </div>
+
+                <div class="hook-question">
+                    ¿Ya tienes tu boda planeada, pero te faltan las invitaciones?
+                </div>
+
+                <div class="body-grid">
+                    <ul class="bullet-list">
+                        <li>🎵 <strong>Música &amp; Cuenta Regresiva:</strong> Apertura romántica.</li>
+                        <li>📍 <strong>Maps &amp; Waze:</strong> Navegación directa a iglesia y salón.</li>
+                        <li>🎁 <strong>Mesa de Regalos:</strong> Transferencias CLABE sin comisión.</li>
+                    </ul>
+
+                    <div class="qr-box">
+                        <img src="assets/img/qr_sobreboda_hd.png" alt="QR Sobreboda">
+                        <span class="qr-call">Demos en Vivo</span>
+                        <span class="qr-url">sobreboda.com</span>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <span>✨ <strong>Desde $1,399 MXN:</strong> Entrega en 3 a 5 días</span>
+                    <span>🌐 <strong>sobreboda.com</strong></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECCIÓN DE HOJAS IMPRIMIBLES TAMAÑO CARTA (8 TARJETAS POR HOJA) -->
+    <div class="print-sheet-section">
+        
+        <!-- HOJA 1: PASEBODA (8 TARJETAS LISTAS PARA CORTE) -->
+        <span class="sheet-label">📄 Hoja 1: 8 Tarjetas de PaseBoda (Tamaño Carta)</span>
+        <div class="print-sheet cut-guide">
+            <!-- 8 TARJETAS PASEBODA -->
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+            <div class="b-card card-pb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">PB</div><div class="titles"><h3>PASEBODA</h3><p>Suite Digital &amp; Mesas 2D</p></div></div><span class="pill-tag">Logística</span></div>
+                <div class="hook-question">¿Eres Wedding Planner o te casas pronto?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🪑 Mesas 2D Drag &amp; Drop</li><li>💬 WhatsApp Oficial &amp; QR</li><li>📲 Hostess Check-in en Puerta</li></ul><div class="qr-box"><img src="assets/img/qr_paseboda_hd.png" alt="QR"><span class="qr-call">15 Días Gratis</span><span class="qr-url">paseboda.com</span></div></div>
+                <div class="card-footer"><span>Prueba gratis sin tarjeta</span><span>paseboda.com</span></div>
+            </div>
+        </div>
+
+        <!-- HOJA 2: SOBREBODA (8 TARJETAS LISTAS PARA CORTE) -->
+        <span class="sheet-label">📄 Hoja 2: 8 Tarjetas de Sobreboda (Tamaño Carta)</span>
+        <div class="print-sheet cut-guide" style="background:#09090b;">
+            <!-- 8 TARJETAS SOBREBODA -->
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+            <div class="b-card card-sb">
+                <div class="card-top"><div class="brand-group"><div class="avatar">SB</div><div class="titles"><h3>SOBREBODA</h3><p>Invitaciones Web</p></div></div><span class="pill-tag">Alta Costura</span></div>
+                <div class="hook-question">¿Boda planeada pero faltan invitaciones?</div>
+                <div class="body-grid"><ul class="bullet-list"><li>🎵 Música &amp; Cuenta Regresiva</li><li>📍 Google Maps &amp; Waze</li><li>🎁 Mesa de Regalos CLABE</li></ul><div class="qr-box"><img src="assets/img/qr_sobreboda_hd.png" alt="QR"><span class="qr-call">Demos en Vivo</span><span class="qr-url">sobreboda.com</span></div></div>
+                <div class="card-footer"><span>Desde $1,399 MXN</span><span>sobreboda.com</span></div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
