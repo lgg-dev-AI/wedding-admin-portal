@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flyer de Pared - PaseBoda &amp; Sobreboda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pb-purple: #3b1b6e;
+            --pb-purple-light: #6b21a8;
+            --pb-bg-pill: #f5f3ff;
+            --pb-border: #d8b4fe;
+            
+            --sb-dark: #1c1917;
+            --sb-gold: #92400e;
+            --sb-bg-pill: #fffbeb;
+            --sb-border: #fde68a;
+
+            --gold-accent: #c59b27;
+            --gold-border: #e6ca65;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px 15px;
+            color: var(--text-dark);
+        }
+
+        /* Contenedor del Cartel - Proporción estándar Vertical Impresión (Letter / A4) */
+        .poster-canvas {
+            width: 820px;
+            background: #faf8f5;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Marco doble de lujo con detalles dorados */
+        .poster-frame {
+            border: 2px solid #dfd5c6;
+            border-radius: 16px;
+            padding: 20px 22px;
+            position: relative;
+            background: #ffffff;
+            box-shadow: inset 0 0 0 4px #faf8f5, inset 0 0 0 6px #eedcb2;
+        }
+
+        /* ENCABEZADO SUPERIOR */
+        .top-badge-wrap {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .top-badge {
+            display: inline-block;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            padding: 6px 20px;
+            border-radius: 99px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+        .top-badge span {
+            color: #f59e0b;
+        }
+
+        .main-headline {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            font-size: 2.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            line-height: 1.1;
+        }
+        .main-headline .amp {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 600;
+            color: var(--gold-accent);
+            font-size: 2.4rem;
+            margin: 0 6px;
+        }
+
+        /* CONTENEDOR DE 2 COLUMNAS */
+        .columns-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .col-card {
+            border-radius: 14px;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Columna PaseBoda */
+        .col-pb {
+            background: #faf8fc;
+            border: 1.5px solid #ede9fe;
+        }
+        /* Columna Sobreboda */
+        .col-sb {
+            background: #fdfcf9;
+            border: 1.5px solid #fef3c7;
+        }
+
+        /* Encabezados de Columna */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .brand-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #ffffff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+        .avatar-pb { background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%); }
+        .avatar-sb { background: linear-gradient(135deg, #18181b 0%, #27272a 100%); }
+
+        .brand-titles h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+        .title-pb { color: var(--pb-purple); }
+        .title-sb { color: var(--sb-dark); }
+
+        .brand-titles p {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #475569;
+            line-height: 1;
+        }
+
+        .brand-pill {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+            border-width: 1px;
+            border-style: solid;
+        }
+        .pill-pb {
+            background: var(--pb-bg-pill);
+            border-color: var(--pb-border);
+            color: var(--pb-purple-light);
+        }
+        .pill-sb {
+            background: var(--sb-bg-pill);
+            border-color: var(--sb-border);
+            color: var(--sb-gold);
+        }
+
+        /* LISTA DE BENEFICIOS (8 PUNTOS PERFECTAMENTE DISTRIBUIDOS) */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 12px;
+        }
+
+        .feature-item {
+            background: #ffffff;
+            border-radius: 9px;
+            padding: 7px 9px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+        .item-icon {
+            font-size: 1rem;
+            line-height: 1.1;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .item-content h5 {
+            font-size: 0.77rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1px;
+            line-height: 1.2;
+        }
+        .item-content p {
+            font-size: 0.67rem;
+            color: #475569;
+            line-height: 1.25;
+            font-weight: 400;
+        }
+
+        /* CAJAS INFERIORES DE OFERTA / CALL TO ACTION */
+        .bottom-action-box {
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-top: auto;
+            border-width: 1.5px;
+            border-style: solid;
+        }
+        .box-pb {
+            background: #f5f3ff;
+            border-color: #c084fc;
+        }
+        .box-sb {
+            background: #fefce8;
+            border-color: #fde047;
+        }
+
+        .action-banner {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .action-banner h4 {
+            font-size: 0.88rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+        .banner-pb h4 { color: #581c87; }
+        .banner-sb h4 { color: #78350f; font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+
+        .action-banner p {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* CONTENEDOR DEL QR Y TEXTO */
+        .qr-card-wrap {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+        }
+        .qr-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            background: #ffffff;
+            padding: 2px;
+            border: 1px solid #cbd5e1;
+        }
+        .qr-info h6 {
+            font-size: 0.76rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin-bottom: 2px;
+            letter-spacing: 0.3px;
+        }
+        .qr-info .qr-sub {
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+        .sub-pb { color: #7c3aed; }
+        .sub-sb { color: #b45309; }
+
+        .qr-info .qr-url {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        /* FOOTER DEL CARTEL */
+        .poster-footer {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cam-icon {
+            font-size: 1.4rem;
+        }
+        .footer-text h5 {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .footer-text p {
+            font-size: 0.68rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .footer-badges {
+            display: flex;
+            gap: 8px;
+        }
+        .badge-link {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 99px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.3px;
+        }
+        .badge-link.gold {
+            background: linear-gradient(135deg, #c59b27 0%, #947118 100%);
+        }
+
+        /* BOTÓN DE IMPRESIÓN FLOTANTE (Solo en pantalla) */
+        .print-floating-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .btn-print {
+            background: #0f172a;
+            color: #ffffff;
+            border: 2px solid #38bdf8;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-print:hover {
+            transform: translateY(-2px);
+            background: #1e293b;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .poster-canvas {
+                width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 10px;
+            }
+            .print-floating-bar {
+                display: none !important;
+            }
+            @page {
+                size: letter portrait;
+                margin: 6mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÓN DE IMPRESIÓN DIRECTA -->
+    <div class="print-floating-bar">
+        <button class="btn-print" onclick="window.print()">
+            🖨️ Imprimir Cartel / Guardar PDF
+        </button>
+    </div>
+
+    <div class="poster-canvas">
+        <div class="poster-frame">
+            
+            <!-- ENCABEZADO SUPERIOR -->
+            <div class="top-badge-wrap">
+                <div class="top-badge">
+                    <span>✦</span> SOLUCIONES DIGITALES NUPCIALES DE ALTA GAMA <span>✦</span>
+                </div>
+            </div>
+
+            <h1 class="main-headline">
+                PASEBODA <span class="amp">&amp;</span> SOBREBODA
+            </h1>
+
+            <!-- CUADÍCULA DE 2 COLUMNAS -->
+            <div class="columns-grid">
+                
+                <!-- COLUMNA 1: PASEBODA -->
+                <div class="col-card col-pb">
+                    <div>
+                        <div class="brand-header">
+                            <div class="brand-avatar avatar-pb">PB</div>
+                            <div class="brand-titles">
+                                <h3 class="title-pb">PASEBODA</h3>
+                                <p>Pases Digitales &amp; Suite Logística</p>
+                            </div>
+                        </div>
+
+                        <div class="brand-pill pill-pb">
+                            🛡️ Control Total &amp; Cero Estrés para Novios y Planners
+                        </div>
+
+                        <!-- 8 PUNTOS SIN HUECOS -->
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="item-icon">🎟️</span>
+                                <div class="item-content">
+                                    <h5>Pases VIP Personalizados por Familia</h5>
+                                    <p>Cupos asignados con boleto digital y código QR único. Cero colados.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">💬</span>
+                                <div class="item-content">
+                                    <h5>Confirmaciones por WhatsApp Oficial</h5>
+                                    <p>Respuestas automáticas con botones interactivos vinculadas al sistema.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">🪑</span>
+                                <div class="item-content">
+                                    <h5>Plano de Mesas 2D Interactivo</h5>
+                                    <p>Diseña el salón en vivo: mesas redondas, imperiales y arrastre de invitados.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">🍽️</span>
+                                <div class="item-content">
+                                    <h5>Menú de Adultos, Niños &amp; Alergias</h5>
+                                    <p>Conteo exacto para banquetes y Wedding Planners sin margen de error.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">⏰</span>
+                                <div class="item-content">
+                                    <h5>Recordatorios Inteligentes</h5>
+                                    <p>Avisos amables y automáticos a quienes no han confirmado antes del límite.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">📲</span>
+                                <div class="item-content">
+                                    <h5>Hostess QR Check-in en Puerta</h5>
+                                    <p>Recepción desde celular: valida en 2 segundos y asigna mesa sin papel.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">📑</span>
+                                <div class="item-content">
+                                    <h5>Dossier Ejecutivo para el Capitán</h5>
+                                    <p>Genera en 1 clic el reporte formal de banquete y plano de mesas listo.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">🔒</span>
+                                <div class="item-content">
+                                    <h5>Anti-Duplicados y Validación Segura</h5>
+                                    <p>Cada boleto solo puede usarse una vez; alerta inmediata de reingreso.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAJA ACCIÓN PASEBODA -->
+                    <div class="bottom-action-box box-pb">
+                        <div class="action-banner banner-pb">
+                            <h4>¡PRUEBA LA SUITE 15 DÍAS GRATIS!</h4>
+                            <p>Sin tarjeta de crédito • Acceso inmediato al plano y CRM</p>
+                        </div>
+                        <div class="qr-card-wrap">
+                            <img src="assets/img/qr_paseboda_hd.png" alt="QR PaseBoda" class="qr-img">
+                            <div class="qr-info">
+                                <h6>Escanea con tu Celular</h6>
+                                <div class="qr-sub sub-pb">Prueba la demo de la suite</div>
+                                <div class="qr-url">paseboda.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA 2: SOBREBODA -->
+                <div class="col-card col-sb">
+                    <div>
+                        <div class="brand-header">
+                            <div class="brand-avatar avatar-sb">SB</div>
+                            <div class="brand-titles">
+                                <h3 class="title-sb">SOBREBODA</h3>
+                                <p>Invitaciones Web Interactivas</p>
+                            </div>
+                        </div>
+
+                        <div class="brand-pill pill-sb">
+                            ✨ Experiencia Inolvidable &amp; Emocional para Invitados
+                        </div>
+
+                        <!-- 8 PUNTOS SIN HUECOS -->
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="item-icon">🎵</span>
+                                <div class="item-content">
+                                    <h5>Música Romántica al Abrir</h5>
+                                    <p>Violín acústico o su canción especial al abrir la invitación en el móvil.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">⏳</span>
+                                <div class="item-content">
+                                    <h5>Cuenta Regresiva en Tiempo Real</h5>
+                                    <p>Reloj dinámico con botón "Agendar en Calendario" de Google y Apple.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">📍</span>
+                                <div class="item-content">
+                                    <h5>Ubicaciones Maps &amp; Waze</h5>
+                                    <p>Navegación en 1 toque directo a ceremonia y salón para evitar pérdidas.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">🎁</span>
+                                <div class="item-content">
+                                    <h5>Mesa de Regalos sin Comisión</h5>
+                                    <p>Depósitos directos con botón "Copiar CLABE" a su cuenta y tiendas.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">📸</span>
+                                <div class="item-content">
+                                    <h5>Galería Fotográfica HD</h5>
+                                    <p>Fotos de su sesión pre-boda con visor dinámico en pantalla completa.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">👗</span>
+                                <div class="item-content">
+                                    <h5>Código de Vestimenta &amp; Guía</h5>
+                                    <p>Paleta sugerida de colores y recomendaciones de etiqueta para invitados.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">🏨</span>
+                                <div class="item-content">
+                                    <h5>Hoteles Sugeridos &amp; Hospedaje</h5>
+                                    <p>Convenios especiales y teléfonos de contacto para invitados foráneos.</p>
+                                </div>
+                            </div>
+
+                            <div class="feature-item">
+                                <span class="item-icon">💍</span>
+                                <div class="item-content">
+                                    <h5>Itinerario Paso a Paso de la Boda</h5>
+                                    <p>Línea de tiempo detallada: Misa, Cóctel de Bienvenida, Banquete y Fiesta.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAJA ACCIÓN SOBREBODA -->
+                    <div class="bottom-action-box box-sb">
+                        <div class="action-banner banner-sb">
+                            <h4>DESDE $1,399 A $2,399 MXN</h4>
+                            <p>Entrega express en 3 a 5 días hábiles • 6 estilos de alta costura</p>
+                        </div>
+                        <div class="qr-card-wrap">
+                            <img src="assets/img/qr_sobreboda_hd.png" alt="QR Sobreboda" class="qr-img">
+                            <div class="qr-info">
+                                <h6>Escanea con tu Celular</h6>
+                                <div class="qr-sub sub-sb">Ver ejemplos reales en vivo</div>
+                                <div class="qr-url">sobreboda.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FOOTER INFERIOR -->
+            <div class="poster-footer">
+                <div class="footer-left">
+                    <span class="cam-icon">📸</span>
+                    <div class="footer-text">
+                        <h5>¿Te casas pronto o eres Wedding Planner?</h5>
+                        <p>Toma una foto o escanea los códigos para probar las demos interactivas.</p>
+                    </div>
+                </div>
+                <div class="footer-badges">
+                    <a href="https://paseboda.com" target="_blank" class="badge-link">
+                        🌐 paseboda.com
+                    </a>
+                    <a href="https://sobreboda.com" target="_blank" class="badge-link gold">
+                        ✨ sobreboda.com
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
