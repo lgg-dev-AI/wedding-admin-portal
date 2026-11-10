@@ -420,7 +420,7 @@ function submitFullLogin(e) {
             showTrialExpiredFreezeModal(client.agencyName, client.trialEndMs);
             return;
         }
-        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago con tarjeta vía Stripe o contacta a soporte en <strong>antigravitywebstudio@hotmail.com</strong> para reactivar tu cuenta de inmediato.`);
+        showLoginError(`🚫 <strong>Acceso Bloqueado Automáticamente</strong><br>El acceso a PaseBoda para <strong>${client.agencyName}</strong> se encuentra suspendido debido a que venció la fecha de corte (${client.nextDueDate}) y concluyó el periodo de gracia de 24 horas.<br><br>💳 Realiza tu pago con tarjeta vía Stripe o envía WhatsApp a soporte al <strong><a href="https://wa.me/528122199352?text=Hola%20Luis,%20mi%20cuenta%20de%20PaseBoda%20fue%20suspendida%20por%20vencimiento" target="_blank" style="color:#25d366; text-decoration:underline;">81 2219 9352</a></strong> para reactivar tu cuenta de inmediato.`);
         return;
     }
 
@@ -1243,8 +1243,8 @@ function showTrialExpiredFreezeModal(agencyName = '', trialEndMs = 0) {
                     🚪 Cerrar Sesión
                 </button>
                 <span style="color:#cbd5e1;">•</span>
-                <a href="mailto:antigravitywebstudio@hotmail.com?subject=Reactivacion%20de%20Cuenta%20PaseBoda" style="color:#64748b; font-size:0.82rem; font-weight:700; text-decoration:none;">
-                    💬 Contactar Soporte
+                <a href="https://wa.me/528122199352?text=Hola%20Luis,%20mi%20periodo%20de%20prueba%20en%20PaseBoda%20ha%20terminado%20y%20quiero%20reactivar%20mi%20cuenta" target="_blank" style="color:#16a34a; font-size:0.82rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                    💬 WhatsApp de Soporte (81 2219 9352)
                 </a>
             </div>
         </div>
