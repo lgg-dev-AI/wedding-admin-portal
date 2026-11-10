@@ -80,24 +80,13 @@ async function runUltraFluidTour() {
         }
     });
 
-    console.log('📸 Capturando tomas reales de alta definición...');
+    console.log('📸 Capturando tomas reales de alta definición a pantalla completa (100% nativa)...');
     const shotDash = await page.screenshot({ encoding: 'base64' });
 
-    // Seating Overview
+    // Seating Overview (100% escala nativa sin mutaciones)
     await page.evaluate(() => { if (typeof showTab === 'function') showTab('seating'); });
     await new Promise(r => setTimeout(r, 800));
     const shotSeating = await page.screenshot({ encoding: 'base64' });
-
-    // Seating Zoom
-    await page.evaluate(() => {
-        const area = document.getElementById('seatingCanvasArea') || document.querySelector('.seating-viewport') || document.querySelector('.seating-container');
-        if (area) {
-            area.style.transform = 'scale(1.25)';
-            area.style.transformOrigin = 'center center';
-        }
-    });
-    await new Promise(r => setTimeout(r, 500));
-    const shotZoom = await page.screenshot({ encoding: 'base64' });
 
     // Modo Novios
     await page.evaluate(() => { if (typeof setRole === 'function') setRole('couple'); });
@@ -156,7 +145,7 @@ async function runUltraFluidTour() {
             const gain = offlineCtx.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(1400, time);
-            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.setValueAtTime(0.22, time);
             gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
             osc.connect(gain);
             gain.connect(offlineCtx.destination);
@@ -169,7 +158,7 @@ async function runUltraFluidTour() {
             const gain = offlineCtx.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(1046.5, time); // C6
-            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.setValueAtTime(0.32, time);
             gain.gain.exponentialRampToValueAtTime(0.0001, time + 1.2);
             osc.connect(gain);
             gain.connect(offlineCtx.destination);
@@ -186,13 +175,15 @@ async function runUltraFluidTour() {
             t += 1.7;
         }
 
-        // Clics sincronizados con transiciones
-        playClick(4.2);   // Clic a Mesas 2D
-        playClick(9.2);   // Clic Zoom Mesas
-        playClick(14.2);  // Clic Modo Novios
-        playClick(19.2);  // Clic WhatsApp
-        playClick(24.2);  // Clic Hostess
-        playChime(26.8);  // Ding de validación exitosa
+        // Clics sincronizados con interacciones reales
+        playClick(4.2);   // Clic a Plano 2D
+        playClick(9.2);   // Clic Mesa 3 (inicia close-up)
+        playClick(11.8);  // Clic detalle silla / alergia
+        playClick(14.0);  // Clic Modo Novios
+        playClick(18.8);  // Clic Despacho WhatsApp
+        playClick(21.8);  // Clic previsualizar Boleto VIP QR
+        playClick(23.8);  // Clic Hostess Express
+        playChime(26.8);  // Ding de validación exitosa en puerta
 
         const rendered = await offlineCtx.startRendering();
 
@@ -251,8 +242,8 @@ async function runUltraFluidTour() {
     fs.writeFileSync(wavPath, Buffer.from(audioWavBase64, 'base64'));
     console.log(`✅ Audio WAV puro generado: ${(fs.statSync(wavPath).size / 1024).toFixed(1)} KB`);
 
-    console.log('🖼️ Precargando capturas en la memoria del navegador...');
-    await page.evaluate(async (s1, s2, s3, s4, s5, s6) => {
+    console.log('🖼️ Precargando capturas a pantalla completa en la memoria del navegador...');
+    await page.evaluate(async (s1, s2, s3, s4, s5) => {
         function loadImage(b64) {
             return new Promise((res) => {
                 const img = new Image();
@@ -265,17 +256,15 @@ async function runUltraFluidTour() {
             await loadImage(s2),
             await loadImage(s3),
             await loadImage(s4),
-            await loadImage(s5),
-            await loadImage(s6)
+            await loadImage(s5)
         ];
-    }, shotDash, shotSeating, shotZoom, shotNovios, shotDispatch, shotHostess);
+    }, shotDash, shotSeating, shotNovios, shotDispatch, shotHostess);
 
     // Renderizar fotogramas ultra fluidos (34 segundos a 30 FPS = 1020 fotogramas exactos)
-    console.log('🎞️ Renderizando 1,020 fotogramas exactos (Frame-by-Frame, 0 caídas de FPS)...');
+    console.log('🎞️ Renderizando 1,020 fotogramas exactos (100% Pantalla Completa, Cero Close-ups forzados)...');
     const framesDir = path.join(BASE_DIR, 'render_frames_' + Date.now());
     fs.mkdirSync(framesDir, { recursive: true });
 
-    // Evaluación en página para generar el lote de fotogramas sin pérdida de tiempo
     const frameCount = 34 * 30; // 1020 fotogramas
     const batchSize = 60; // 2 segundos por lote en memoria
     let currentFrame = 0;
@@ -296,17 +285,17 @@ async function runUltraFluidTour() {
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            const [imgDash, imgSeating, imgZoom, imgNovios, imgDispatch, imgHostess] = window.__tourImages;
+            const [imgDash, imgSeating, imgNovios, imgDispatch, imgHostess] = window.__tourImages;
 
             // Subtítulos
             const captionsData = [
-                { start: 0.2, end: 4.2, words: [{ w: 'Modo Demo:', t: 0.2 }, { w: 'Prueba de 15 Días Gratis', t: 1.0 }, { w: 'con métricas en vivo.', t: 2.2 }] },
-                { start: 4.4, end: 9.2, words: [{ w: 'Plano 2D Interactivo:', t: 4.4 }, { w: 'Distribuye tu salón', t: 5.8 }, { w: 'y mesas imperiales en minutos.', t: 7.2 }] },
-                { start: 9.4, end: 14.2, words: [{ w: 'Control de Banquete:', t: 9.4 }, { w: 'Conteo automático de sillas,', t: 10.8 }, { w: 'dietas y alergias.', t: 12.4 }] },
-                { start: 14.4, end: 19.2, words: [{ w: 'Modo Novios:', t: 14.4 }, { w: 'La vista romántica, limpia', t: 15.8 }, { w: 'y libre de enredos técnicos.', t: 17.4 }] },
-                { start: 19.4, end: 24.2, words: [{ w: 'WhatsApp Oficial:', t: 19.4 }, { w: 'Boletos VIP digitales', t: 20.8 }, { w: 'con código QR único.', t: 22.4 }] },
-                { start: 24.4, end: 29.2, words: [{ w: 'Hostess en Puerta:', t: 24.4 }, { w: 'Escaneo con celular en 2 seg:', t: 25.8 }, { w: 'cero filas en el salón.', t: 27.4 }] },
-                { start: 29.4, end: 33.8, words: [{ w: 'PaseBoda Suite:', t: 29.4 }, { w: 'Prueba 15 días gratis en', t: 30.8 }, { w: 'paseboda.com', t: 32.2 }] }
+                { start: 0.2, end: 4.4, words: [{ w: 'Torre de Control:', t: 0.2 }, { w: 'Métricas de asistencia,', t: 1.0 }, { w: 'confirmados y banquete en vivo.', t: 2.2 }] },
+                { start: 4.5, end: 9.4, words: [{ w: 'Plano 2D Interactivo:', t: 4.5 }, { w: 'Vista completa de tu salón,', t: 5.8 }, { w: 'pista y mesas imperiales.', t: 7.2 }] },
+                { start: 9.5, end: 13.9, words: [{ w: 'Detalle de Mesas:', t: 9.5 }, { w: 'Conteo de sillas, dietas', t: 10.8 }, { w: 'y control de alergias.', t: 12.0 }] },
+                { start: 14.0, end: 18.9, words: [{ w: 'Modo Novios:', t: 14.0 }, { w: 'La vista romántica y limpia', t: 15.2 }, { w: 'que los novios consultan.', t: 16.8 }] },
+                { start: 19.0, end: 23.9, words: [{ w: 'WhatsApp Oficial:', t: 19.0 }, { w: 'Boletos VIP digitales con', t: 20.4 }, { w: 'código QR individual.', t: 22.0 }] },
+                { start: 24.0, end: 28.9, words: [{ w: 'Hostess en Puerta:', t: 24.0 }, { w: 'Escaneo con celular en 2 seg:', t: 25.4 }, { w: 'cero filas en el salón.', t: 27.0 }] },
+                { start: 29.0, end: 33.8, words: [{ w: 'PaseBoda Suite:', t: 29.0 }, { w: 'Prueba 15 días gratis en', t: 30.5 }, { w: 'paseboda.com', t: 32.0 }] }
             ];
 
             function renderCaptions(time) {
@@ -314,17 +303,17 @@ async function runUltraFluidTour() {
                 if (!group) return;
 
                 ctx.save();
-                const boxY = height - 68;
+                const boxY = height - 58;
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
                 ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
-                ctx.roundRect(width / 2 - 360, boxY - 24, 720, 48, 24);
+                ctx.roundRect(width / 2 - 360, boxY - 22, 720, 44, 22);
                 ctx.fill();
                 ctx.stroke();
 
                 const fullText = group.words.map(w => w.w).join(' ');
-                ctx.font = '600 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.font = '600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
                 const totalW = ctx.measureText(fullText).width;
                 let startX = width / 2 - totalW / 2;
 
@@ -332,32 +321,33 @@ async function runUltraFluidTour() {
                 group.words.forEach(item => {
                     const wordW = ctx.measureText(item.w + ' ').width;
                     const isActive = time >= item.t;
-                    ctx.fillStyle = isActive ? '#fbbf24' : 'rgba(255, 255, 255, 0.4)';
-                    ctx.font = isActive ? '800 16px -apple-system, sans-serif' : '600 16px -apple-system, sans-serif';
+                    ctx.fillStyle = isActive ? '#fbbf24' : 'rgba(255, 255, 255, 0.45)';
+                    ctx.font = isActive ? '800 15px -apple-system, sans-serif' : '600 15px -apple-system, sans-serif';
                     ctx.fillText(item.w, startX, boxY + 6);
                     startX += wordW;
                 });
                 ctx.restore();
             }
 
-            function drawBadge(title, subtitle, color = '#f59e0b') {
+            // Píldora minimalista en esquina superior derecha que NUNCA tapa los menús ni el contenido
+            function drawMinimalTag(title, color = '#fbbf24') {
                 ctx.save();
+                ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                const tagW = ctx.measureText(title.toUpperCase()).width + 24;
+                const tagX = width - tagW - 20;
+                const tagY = 16;
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
                 ctx.strokeStyle = color;
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = 1.2;
                 ctx.beginPath();
-                ctx.roundRect(28, 20, 330, 50, 12);
+                ctx.roundRect(tagX, tagY, tagW, 26, 13);
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.fillStyle = color;
-                ctx.font = 'bold 10px -apple-system, sans-serif';
-                ctx.letterSpacing = '1.2px';
-                ctx.fillText(subtitle.toUpperCase(), 44, 38);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 14px -apple-system, sans-serif';
-                ctx.fillText(title, 44, 57);
+                ctx.textAlign = 'left';
+                ctx.letterSpacing = '0.5px';
+                ctx.fillText(title.toUpperCase(), tagX + 12, tagY + 17);
                 ctx.restore();
             }
 
@@ -366,7 +356,7 @@ async function runUltraFluidTour() {
                 ctx.translate(x, y);
                 if (isClick) {
                     ctx.beginPath();
-                    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                    ctx.arc(0, 0, 18, 0, Math.PI * 2);
                     ctx.fillStyle = 'rgba(245, 158, 11, 0.4)';
                     ctx.fill();
                     ctx.strokeStyle = '#fbbf24';
@@ -388,80 +378,109 @@ async function runUltraFluidTour() {
             for (let f = startFrame; f < endFrame; f++) {
                 const time = f / fps;
 
-                // 1. DASHBOARD MODO DEMO (0s - 4.5s)
+                // 1. DASHBOARD MODO DEMO: 100% PANTALLA COMPLETA NATIVA (0s - 4.5s)
                 if (time < 4.5) {
-                    const localT = time;
-                    const zoom = 1.0 + (localT / 4.5) * 0.12;
-                    ctx.save();
-                    ctx.translate(width * 0.5, height * 0.4);
-                    ctx.scale(zoom, zoom);
-                    ctx.translate(-width * 0.5, -height * 0.4);
                     ctx.drawImage(imgDash, 0, 0, width, height);
-                    ctx.restore();
-                    drawBadge('Torre de Control en Vivo', 'Prueba 15 Días • Modo Demo');
-                    drawCursor(480 + localT * 25, 160 + localT * 12, false);
+                    drawMinimalTag('Torre de Control • Modo Demo');
+                    // Cursor viaja desde el centro hacia el menú lateral "Plano 2D"
+                    const p = Math.min(1, Math.max(0, (time - 1.5) / 2.7));
+                    const curX = 640 + (105 - 640) * p;
+                    const curY = 220 + (230 - 220) * p;
+                    drawCursor(curX, curY, time >= 4.15 && time <= 4.35);
                 }
-                // 2. PLANO 2D OVERVIEW (4.5s - 9.5s)
+                // 2. PLANO 2D OVERVIEW: 100% PANTALLA COMPLETA NATIVA (4.5s - 9.5s)
                 else if (time >= 4.5 && time < 9.5) {
                     const localT = time - 4.5;
-                    const zoom = 1.0 + (localT / 5.0) * 0.14;
+                    ctx.drawImage(imgSeating, 0, 0, width, height);
+                    drawMinimalTag('Plano 2D Interactivo • Salón Completo');
+                    // Cursor viaja desde el menú lateral hacia la Mesa 3 en el centro del salón
+                    const p = Math.min(1, Math.max(0, localT / 4.7));
+                    const curX = 105 + (670 - 105) * p;
+                    const curY = 230 + (340 - 230) * p;
+                    drawCursor(curX, curY, time >= 9.15 && time <= 9.35);
+                }
+                // 3. AQUÍ SÍ CLOSE-UP: DETALLE DE MESA 3 & ALERGIAS (9.5s - 14.0s)
+                else if (time >= 9.5 && time < 14.0) {
+                    const localT = time - 9.5;
+                    // Zoom suave que entra al hacer clic en Mesa 3, se mantiene y se aleja suavemente antes del corte
+                    let zoom = 1.0;
+                    if (localT < 1.0) {
+                        zoom = 1.0 + Math.sin((localT / 1.0) * Math.PI / 2) * 0.35;
+                    } else if (localT >= 1.0 && localT < 3.3) {
+                        zoom = 1.35;
+                    } else {
+                        const outT = (localT - 3.3) / 1.2;
+                        zoom = 1.35 - Math.sin(Math.min(1, outT) * Math.PI / 2) * 0.35;
+                    }
                     ctx.save();
-                    ctx.translate(width * 0.55, height * 0.5);
+                    ctx.translate(width * 0.52, height * 0.48);
                     ctx.scale(zoom, zoom);
-                    ctx.translate(-width * 0.55, -height * 0.5);
+                    ctx.translate(-width * 0.52, -height * 0.48);
                     ctx.drawImage(imgSeating, 0, 0, width, height);
                     ctx.restore();
-                    drawBadge('Plano de Mesas 2D Interactivo', 'Acomodo de Salón');
-                    drawCursor(520, 320, localT < 0.4);
-                }
-                // 3. ZOOM A MESAS & DIETAS (9.5s - 14.5s)
-                else if (time >= 9.5 && time < 14.5) {
-                    const localT = time - 9.5;
-                    const panX = localT * 28;
-                    ctx.save();
-                    ctx.translate(-panX, 0);
-                    ctx.drawImage(imgZoom, 0, 0, width, height);
-                    ctx.restore();
-                    drawBadge('Gestión de Sillas & Menús', 'Control de Alergias & Dietas');
-                    drawCursor(620 + Math.sin(localT * 2) * 60, 360, localT > 2 && localT < 2.4);
-                }
-                // 4. MODO NOVIOS VISTA LIMPIA (14.5s - 19.5s)
-                else if (time >= 14.5 && time < 19.5) {
-                    const localT = time - 14.5;
-                    ctx.save();
-                    ctx.drawImage(imgNovios, 0, 0, width, height);
-                    ctx.strokeStyle = 'rgba(226, 168, 145, 0.6)';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.roundRect(280, 110, 700, 240, 14);
-                    ctx.stroke();
-                    ctx.restore();
-                    drawBadge('Vista Simplificada de Pareja', 'Alternancia de Roles', '#e2a891');
-                    drawCursor(380 + localT * 30, 220, localT < 0.4);
-                }
-                // 5. WHATSAPP & BOLETO QR (19.5s - 24.5s)
-                else if (time >= 19.5 && time < 24.5) {
-                    const localT = time - 19.5;
-                    ctx.save();
-                    ctx.drawImage(imgDispatch, 0, 0, width, height);
-                    ctx.restore();
-                    drawBadge('Despacho Oficial por WhatsApp', 'Boletos VIP con Código QR', '#25d366');
-                    drawCursor(540, 260, localT > 1.5 && localT < 1.9);
-                }
-                // 6. HOSTESS EXPRESS EN PUERTA (24.5s - 29.5s)
-                else if (time >= 24.5 && time < 29.5) {
-                    const localT = time - 24.5;
-                    ctx.save();
-                    ctx.drawImage(imgHostess, 0, 0, width, height);
-                    if (time >= 26.6 && time <= 28.0) {
-                        ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
-                        ctx.fillRect(0, 0, width, height);
+
+                    drawMinimalTag('Detalle de Mesa 3 • Alergias & Sillas');
+                    // Cursor inspecciona las sillas de la mesa y luego se desplaza a "Modo Novios"
+                    if (localT < 3.0) {
+                        const curX = 670 + Math.sin(localT * 3) * 35;
+                        const curY = 340 + Math.cos(localT * 3) * 20;
+                        drawCursor(curX, curY, localT >= 2.2 && localT <= 2.4);
+                    } else {
+                        const p = Math.min(1, (localT - 3.0) / 1.4);
+                        const curX = 670 + (880 - 670) * p;
+                        const curY = 340 + (50 - 340) * p;
+                        drawCursor(curX, curY, time >= 13.9 && time <= 14.1);
                     }
-                    ctx.restore();
-                    drawBadge('Hostess Express Móvil', 'Recepción & Cero Colados', '#10b981');
-                    drawCursor(460, 320, localT > 2.1 && localT < 2.5);
                 }
-                // 7. CIERRE COMERCIAL (29.5s - 34.0s)
+                // 4. MODO NOVIOS: 100% PANTALLA COMPLETA NATIVA (14.0s - 19.0s)
+                else if (time >= 14.0 && time < 19.0) {
+                    const localT = time - 14.0;
+                    ctx.drawImage(imgNovios, 0, 0, width, height);
+                    drawMinimalTag('Modo Novios • Vista Romántica', '#f472b6');
+                    // Cursor navega la interfaz limpia de la pareja y luego va a "Despacho WhatsApp"
+                    const p = Math.min(1, Math.max(0, (localT - 2.5) / 2.3));
+                    const curX = 580 + (105 - 580) * p;
+                    const curY = 260 + (275 - 260) * p;
+                    drawCursor(curX, curY, time >= 18.75 && time <= 18.95);
+                }
+                // 5. DESPACHO WHATSAPP & BOLETO QR: 100% PANTALLA COMPLETA NATIVA (19.0s - 24.0s)
+                else if (time >= 19.0 && time < 24.0) {
+                    const localT = time - 19.0;
+                    ctx.drawImage(imgDispatch, 0, 0, width, height);
+                    drawMinimalTag('WhatsApp Cloud • Boletos QR', '#22c55e');
+                    // Cursor revisa lista y hace clic en "Ver Boleto QR", luego baja a Hostess
+                    let curX = 105, curY = 275;
+                    if (localT < 2.8) {
+                        const p = Math.min(1, localT / 2.0);
+                        curX = 105 + (720 - 105) * p;
+                        curY = 275 + (320 - 275) * p;
+                        drawCursor(curX, curY, localT >= 2.7 && localT <= 2.9);
+                    } else {
+                        const p = Math.min(1, (localT - 2.8) / 2.0);
+                        curX = 720 + (105 - 720) * p;
+                        curY = 320 + (325 - 320) * p;
+                        drawCursor(curX, curY, time >= 23.75 && time <= 23.95);
+                    }
+                }
+                // 6. HOSTESS EXPRESS EN PUERTA: 100% PANTALLA COMPLETA NATIVA (24.0s - 29.0s)
+                else if (time >= 24.0 && time < 29.0) {
+                    const localT = time - 24.0;
+                    ctx.drawImage(imgHostess, 0, 0, width, height);
+                    drawMinimalTag('Hostess Express • Recepción', '#10b981');
+                    // Simulación de escaneo QR y confirmación en puerta
+                    drawCursor(480 + Math.sin(localT * 2) * 15, 270, localT >= 2.6 && localT <= 2.9);
+                    if (time >= 26.6 && time <= 28.2) {
+                        // Sutil destello esmeralda en el contorno de la pantalla indicando check-in validado
+                        ctx.save();
+                        ctx.strokeStyle = '#10b981';
+                        ctx.lineWidth = 6;
+                        ctx.strokeRect(3, 3, width - 6, height - 6);
+                        ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.restore();
+                    }
+                }
+                // 7. CIERRE COMERCIAL (29.0s - 34.0s)
                 else {
                     const bgGrad = ctx.createLinearGradient(0, 0, width, height);
                     bgGrad.addColorStop(0, '#090d16');
@@ -560,12 +579,12 @@ async function runUltraFluidTour() {
     form.append('width', '1280');
     form.append('height', '720');
     form.append('supports_streaming', 'true');
-    form.append('caption', '✨ <b>¡Nuevo Tour Ultra Fluido de PaseBoda (34s)!</b> 🚀\n\n' +
-        '• <b>Tecnología:</b> Renderizado Frame-by-Frame a 30 FPS exactos (Cero tirones, cero frames duplicados).\n' +
-        '• <b>Modo Demo Vivo:</b> Boda de Sofía & Alejandro con métricas, mesas y banner superior de 15 Días Gratis.\n' +
-        '• <b>Audio PCM:</b> Canon en Re Mayor acústico + Clics sutiles + Chime de validación.\n' +
-        '• <b>Subtítulos:</b> Sincronizados palabra por palabra con resaltado en oro.\n\n' +
-        '<i>¡Listo para pautas publicitarias y presentaciones comerciales!</i>');
+    form.append('caption', '✨ <b>¡Nuevo Tour PaseBoda Suite (Pantalla Completa 100%)!</b> 🚀\n\n' +
+        '• <b>Vista Nativa:</b> Toda la pantalla visible al 100% sin recortes (sidebar, métricas, mesas y banner de 15 días).\n' +
+        '• <b>Zoom Justificado:</b> Único close-up enfocado en Mesa 3 para ver sillas y alergias; todo lo demás a pantalla completa.\n' +
+        '• <b>Fluidez Total:</b> 30 FPS constantes (1,020 fotogramas sin tirones).\n' +
+        '• <b>Audio Acústico:</b> Canon en Re Mayor + Clics sincronizados + Chime de puerta.\n\n' +
+        '<i>¡Listo para revisar en tu celular!</i>');
     form.append('parse_mode', 'HTML');
 
     const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendVideo`, {
