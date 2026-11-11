@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anuncio Promocional Facebook Ads V2 - PaseBoda Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-navy: #0f172a;
+            --accent-gold: #c5a059;
+            --accent-gold-bright: #fbbf24;
+            --accent-gold-dark: #8a6c28;
+            --success-green: #10b981;
+            --role-couple: #e2a891;
+            --bg-surface: rgba(15, 23, 42, 0.88);
+            --border-glass: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            width: 1200px;
+            height: 1200px;
+            background: #090d16;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 44px 50px 38px;
+        }
+
+        /* 1. FONDO CON EL DASHBOARD REAL DE PASEBODA */
+        .dashboard-backdrop {
+            position: absolute;
+            inset: 0;
+            background-image: url('assets/img/dashboard_real_bg.png');
+            background-size: 1380px auto;
+            background-position: top center;
+            background-repeat: no-repeat;
+            opacity: 0.38;
+            filter: contrast(1.15) brightness(0.85);
+            transform: scale(1.02);
+            z-index: 0;
+        }
+
+        /* Degradado de fusión para contraste editorial y máxima legibilidad */
+        .backdrop-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg, 
+                rgba(9, 13, 22, 0.94) 0%, 
+                rgba(15, 23, 42, 0.72) 30%, 
+                rgba(15, 23, 42, 0.78) 65%, 
+                rgba(9, 13, 22, 0.96) 100%
+            );
+            z-index: 1;
+        }
+
+        .ambient-glow-gold {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 850px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(197, 160, 89, 0.32) 0%, rgba(226, 168, 145, 0.15) 40%, transparent 70%);
+            filter: blur(50px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .ambient-glow-bottom {
+            position: absolute;
+            bottom: -120px;
+            right: -80px;
+            width: 650px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        /* HEADER DEL ANUNCIO */
+        .header {
+            text-align: center;
+        }
+
+        .brand-pills-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .badge-target {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 99px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .badge-target.planners {
+            background: rgba(197, 160, 89, 0.18);
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            color: #fce7b2;
+        }
+
+        .badge-target.brides {
+            background: rgba(226, 168, 145, 0.18);
+            border: 1px solid rgba(226, 168, 145, 0.45);
+            color: #fed7aa;
+        }
+
+        .badge-suite {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .main-headline {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2.85rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+        }
+
+        .main-headline span.gold {
+            background: linear-gradient(135deg, #fffbeb 0%, #fde68a 30%, #c5a059 75%, #8a6c28 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub-headline {
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            max-width: 860px;
+            margin: 0 auto;
+            line-height: 1.45;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .sub-headline strong {
+            color: #fef08a;
+            font-weight: 700;
+        }
+
+        /* 4 TARJETAS FLOTANTES DE ALTO VALOR (DENSA INFORMACION) */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin: 18px 0;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .card.featured {
+            border-color: rgba(197, 160, 89, 0.45);
+            background: linear-gradient(145deg, rgba(30, 27, 75, 0.9) 0%, rgba(15, 23, 42, 0.92) 100%);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            color: #fbbf24;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .card-badge {
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .card-badge.gold {
+            background: rgba(197, 160, 89, 0.22);
+            color: #fde68a;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+        }
+
+        .card-badge.green {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .card-badge.rose {
+            background: rgba(226, 168, 145, 0.2);
+            color: #fbcfe8;
+            border: 1px solid rgba(226, 168, 145, 0.4);
+        }
+
+        .card-badge.blue {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        /* 1. SEATING MINI-PREVIEW */
+        .mock-seating-box {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .salon-scheme {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .salon-table-pill {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(197, 160, 89, 0.12);
+            border: 1.5px solid #c5a059;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(197, 160, 89, 0.25);
+        }
+
+        .salon-table-pill span {
+            font-size: 0.58rem;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .salon-dance {
+            padding: 6px 14px;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px dashed rgba(59, 130, 246, 0.5);
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #93c5fd;
+            text-align: center;
+        }
+
+        .salon-meta-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.74rem;
+            color: #cbd5e1;
+        }
+
+        .salon-meta-list strong {
+            color: #ffffff;
+        }
+
+        /* 2. MINUTA / CRONOGRAMA MINI-PREVIEW */
+        .mock-timeline-box {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.74rem;
+        }
+
+        .timeline-time {
+            font-family: monospace;
+            font-weight: 800;
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.12);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        .timeline-act {
+            font-weight: 600;
+            color: #f1f5f9;
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .timeline-check {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 0.68rem;
+        }
+
+        /* 3. METRICAS DE BANQUETE MINI-PREVIEW */
+        .mock-banquet-box {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .banquet-numbers-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .b-num-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 6px;
+            padding: 6px 2px;
+        }
+
+        .b-val {
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .b-val.gold { color: #fbbf24; }
+        .b-val.green { color: #10b981; }
+        .b-val.orange { color: #f97316; }
+
+        .b-lbl {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .b-alert-chip {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            color: #fde68a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 4. WHATSAPP & QR BOLETO MINI-PREVIEW */
+        .mock-ticket-box {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .ticket-left {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .t-badge {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: #fbbf24;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .t-name {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .t-mesa {
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+
+        .t-status {
+            font-size: 0.68rem;
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        .ticket-qr {
+            width: 58px;
+            height: 58px;
+            background: #ffffff;
+            border-radius: 6px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .ticket-qr svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* BANNER CENTRAL DE DOBLE ROL */
+        .role-highlight-banner {
+            background: rgba(15, 23, 42, 0.94);
+            border: 1.5px solid rgba(197, 160, 89, 0.4);
+            border-radius: 12px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 4px 0 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .role-badge-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .role-badge-item span.icon {
+            font-size: 1.1rem;
+        }
+
+        .role-divider {
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 300;
+        }
+
+        /* FOOTER COMERCIAL & CTA */
+        .footer {
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(197, 160, 89, 0.35);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+        }
+
+        .cta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cta-title {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-sub {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-sub span.dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .cta-buttons-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25d366;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.86rem;
+            padding: 11px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+        }
+
+        .btn-trial {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #c5a059 0%, #d97706 100%);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.92rem;
+            padding: 11px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- FONDO VISUAL CON EL DASHBOARD REAL DE PASEBODA -->
+    <div class="dashboard-backdrop"></div>
+    <div class="backdrop-overlay"></div>
+    <div class="ambient-glow-gold"></div>
+    <div class="ambient-glow-bottom"></div>
+
+    <div class="content-layer">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="brand-pills-row">
+                <span class="badge-target brides">👰 Novias sin Wedding Planner</span>
+                <span class="badge-target planners">👑 Wedding Planners Pro</span>
+                <span class="badge-target badge-suite">✨ PaseBoda Suite</span>
+            </div>
+            <h1 class="main-headline">
+                Tu Boda Perfecta, <span class="gold">Sin Hojas de Excel</span> y Sin Estrés
+            </h1>
+            <p class="sub-headline">
+                ¿Te casas en los próximos <strong>6 meses o en 2026 / 2027</strong>? Organiza el salón, acomoda tus mesas 2D, envía boletos VIP por WhatsApp y coordina los tiempos en una sola pantalla.
+            </p>
+        </div>
+
+        <!-- 4 PILARES VISUALES CON INFORMACION DENSA -->
+        <div class="features-grid">
+            <!-- 1. PLANO DE MESAS 2D -->
+            <div class="card featured">
+                <div class="card-top">
+                    <div class="card-title-wrap">
+                        <div class="card-icon">🪑</div>
+                        <div class="card-title">Plano 2D & Salón de Eventos</div>
+                    </div>
+                    <span class="card-badge gold">Acomodo Fácil</span>
+                </div>
+                <div class="mock-seating-box">
+                    <div class="salon-scheme">
+                        <div class="salon-table-pill">
+                            Mesa 1
+                            <span>6 / 6 pax</span>
+                        </div>
+                        <div class="salon-dance">
+                            PISTA DE<br>BAILE
+                        </div>
+                        <div class="salon-table-pill">
+                            Mesa 2
+                            <span>10 / 10 pax</span>
+                        </div>
+                    </div>
+                    <div class="salon-meta-list">
+                        <div>• <strong>Mesas Imperiales & Redondas</strong></div>
+                        <div>• Drag & Drop de comensales</div>
+                        <div style="color:#10b981; font-weight:700;">✓ Cero sillas descuadradas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. CRONOGRAMA MINUTO A MINUTO -->
+            <div class="card">
+                <div class="card-top">
+                    <div class="card-title-wrap">
+                        <div class="card-icon">⏱️</div>
+                        <div class="card-title">Minuta Minuto a Minuto</div>
+                    </div>
+                    <span class="card-badge blue">Cero Retrasos</span>
+                </div>
+                <div class="mock-timeline-box">
+                    <div class="timeline-item">
+                        <span class="timeline-time">16:30</span>
+                        <span class="timeline-act">Ceremonia Religiosa & Cortejo</span>
+                        <span class="timeline-check">✓ En Tiempo</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">18:00</span>
+                        <span class="timeline-act">Coctel de Bienvenida & Música</span>
+                        <span class="timeline-check">✓ Activo</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-time">20:15</span>
+                        <span class="timeline-act">Gran Entrada de Novios & Vals</span>
+                        <span class="timeline-check">✓ Coordinado</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CONTROL DE ASISTENCIA & BANQUETES -->
+            <div class="card">
+                <div class="card-top">
+                    <div class="card-title-wrap">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Asistencia & Menús en Vivo</div>
+                    </div>
+                    <span class="card-badge green">Ficha para Chef</span>
+                </div>
+                <div class="mock-banquet-box">
+                    <div class="banquet-numbers-row">
+                        <div class="b-num-box">
+                            <div class="b-val gold">180</div>
+                            <div class="b-lbl">Invitados</div>
+                        </div>
+                        <div class="b-num-box">
+                            <div class="b-val green">142</div>
+                            <div class="b-lbl">Confirmados</div>
+                        </div>
+                        <div class="b-num-box">
+                            <div class="b-val orange">28</div>
+                            <div class="b-lbl">Pendientes</div>
+                        </div>
+                    </div>
+                    <div class="b-alert-chip">
+                        <span>⚠️ Alergias & Dietas Especiales:</span>
+                        <strong>3 Celíacos · 2 Veganos · 1 Nuez</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. BOLETOS VIP POR WHATSAPP & QR -->
+            <div class="card featured">
+                <div class="card-top">
+                    <div class="card-title-wrap">
+                        <div class="card-icon">📲</div>
+                        <div class="card-title">Boletos VIP por WhatsApp</div>
+                    </div>
+                    <span class="card-badge rose">Hostess en Puerta</span>
+                </div>
+                <div class="mock-ticket-box">
+                    <div class="ticket-left">
+                        <span class="t-badge">BOLETO DIGITAL VIP</span>
+                        <span class="t-name">Familia Valenzuela (2 Pax)</span>
+                        <span class="t-mesa">Mesa 2 · Menú Res & Salmón</span>
+                        <span class="t-status">✓ Escaneo con celular en 2 seg</span>
+                    </div>
+                    <div class="ticket-qr">
+                        <svg viewBox="0 0 24 24" fill="#0f172a">
+                            <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm8-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm10-2h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-4v-2h2v-2zm-2 2h-2v2h2v-2zm4-6h2v2h-2v-2zm0 4h2v2h-2v-2zM5 5h2v2H5V5zm10 0h2v2h-2V5zM5 17h2v2H5v-2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANNER DUAL NOVIAS VS PLANNER -->
+        <div class="role-highlight-banner">
+            <div class="role-badge-item">
+                <span class="icon">👰</span>
+                <span><strong>Modo Novios:</strong> Vista romántica, limpia y sin estrés para la pareja</span>
+            </div>
+            <div class="role-divider">✦</div>
+            <div class="role-badge-item">
+                <span class="icon">👑</span>
+                <span><strong>Modo Wedding Planner:</strong> Torre de control total, contratos y CRM</span>
+            </div>
+        </div>
+
+        <!-- FOOTER COMERCIAL & CTA -->
+        <div class="footer">
+            <div class="cta-info">
+                <div class="cta-title">Comienza a organizar tu evento hoy sin costo</div>
+                <div class="cta-sub">
+                    <span>15 días de prueba gratis</span>
+                    <span class="dot"></span>
+                    <span>Sin tarjeta de crédito</span>
+                    <span class="dot"></span>
+                    <span>Soporte directo por WhatsApp</span>
+                </div>
+            </div>
+            <div class="cta-buttons-wrap">
+                <a href="https://wa.me/528122199352?text=Hola,%20vi%20su%20anuncio%20de%20PaseBoda%20y%20quiero%20informaci%C3%B3n" class="btn-whatsapp">
+                    <span>💬 WhatsApp: 81 2219 9352</span>
+                </a>
+                <a href="https://paseboda.com" class="btn-trial">
+                    <span>Probar Gratis en paseboda.com ➔</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
