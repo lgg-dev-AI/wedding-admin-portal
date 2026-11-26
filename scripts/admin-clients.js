@@ -341,12 +341,18 @@ function renderClientsDashboard() {
         
         let planBadge = (c.planTier === 'elite') 
             ? '<span class="badge-plan-tier elite">👑 Atelier · 1-15</span>'
-            : '<span class="badge-plan-tier intermediate">🥈 Signature · 1-10</span>';
+            : (c.planTier === 'trial_30_days' || c.paymentStatus === 'trial_30_days' || c.paymentStatus === 'trial_15_days' || c.paymentStatus === 'demo_trial')
+                ? '<span class="badge-plan-tier" style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; font-weight:800;">⏳ Prueba 1 Mes</span>'
+                : '<span class="badge-plan-tier intermediate">🥈 Signature · 1-10</span>';
 
-        // Payment status badge with 3-stage cadence & Grace Period
+        // Payment status badge with 3-stage cadence & Grace Period & Trial
         let billingBadge = '';
         if (c.isSuspended) {
             billingBadge = `<span class="badge-billing-status suspended" title="${c.suspensionNotice || 'Bloqueado por falta de pago'}"><i class="status-dot red"></i> 🔒 Bloqueo Automático (${c.nextDueDate})</span>`;
+        } else if (c.paymentStatus === 'trial_30_days' || c.paymentStatus === 'trial_15_days' || c.paymentStatus === 'demo_trial') {
+            const endMs = c.trialEndMs || (c.nextDueDate ? new Date(c.nextDueDate).getTime() : 0);
+            const daysLeft = endMs ? Math.max(0, Math.ceil((endMs - Date.now()) / (24 * 60 * 60 * 1000))) : 30;
+            billingBadge = `<span class="badge-billing-status" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:800;" title="Periodo de prueba de 1 mes (sin descargas PDF ni envíos masivos)"><i class="status-dot" style="background:#0284c7;"></i> ⏳ Prueba 1 Mes (${daysLeft}d restan)</span>`;
         } else if (c.paymentStatus === 'paid') {
             billingBadge = `<span class="badge-billing-status paid"><i class="status-dot green"></i> Al Corriente (${c.nextDueDate})</span>`;
         } else if (c.paymentStatus === 'grace_period') {
@@ -398,6 +404,11 @@ function renderClientsDashboard() {
             </td>
             <td>
                 <div class="dev-actions-btn-group">
+                    ${(c.paymentStatus === 'trial_30_days' || c.paymentStatus === 'trial_15_days' || c.planTier === 'trial_30_days') ? `
+                    <button class="btn-dev-action-mini" style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; font-weight:800;" onclick="extendClientTrial30Days('${c.id}')" title="Extender +30 días de prueba gratuita">
+                        <span>⏳ +30d</span>
+                    </button>
+                    ` : ''}
                     <button class="btn-dev-action-mini authorize" onclick="openAuthorizePaymentModal('${c.id}')" title="Autorizar pago de mensualidad y renovar 30 días">
                         <span>✅ Autorizar</span>
                     </button>
@@ -826,6 +837,7 @@ function updateFeeByPlan(planTier) {
     const feeInput = document.getElementById('devClientFee');
     if (!feeInput) return;
     if (planTier === 'elite') feeInput.value = '3290';
+    else if (planTier === 'trial_30_days') feeInput.value = '0';
     else feeInput.value = '1990';
 }
 
@@ -865,6 +877,9 @@ function saveNewClientPlanner(e) {
     let maxWeddings = 3;
     if (planTier === 'intermediate') maxWeddings = 10;
     if (planTier === 'elite') maxWeddings = 15;
+    if (planTier === 'trial_30_days') maxWeddings = 2;
+
+    const isTrial = planTier === 'trial_30_days';
 
     // Set next due date to +30 days
     const nextDate = new Date();
@@ -879,11 +894,11 @@ function saveNewClientPlanner(e) {
         phone,
         planTier,
         maxWeddings,
-        monthlyFee,
+        monthlyFee: isTrial ? 0 : monthlyFee,
         billingCycleDay: new Date().getDate(),
         lastPaymentDate: new Date().toISOString().split('T')[0],
         nextDueDate: nextDueDateStr,
-        paymentStatus: 'paid',
+        paymentStatus: isTrial ? 'trial_30_days' : 'paid',
         isSuspended: false,
         suspensionNotice: '',
         tempPassword: initialPassword,
@@ -891,11 +906,20 @@ function saveNewClientPlanner(e) {
         hasPermanentPassword: true,
         permanentPassword: initialPassword,
         createdAt: new Date().toISOString().split('T')[0],
-        status: 'active'
+        status: isTrial ? 'trial_30_days' : 'active',
+        trialStartDate: isTrial ? new Date().toISOString().split('T')[0] : '',
+        trialEndMs: isTrial ? nextDate.getTime() : 0,
+        trialEndDate: isTrial ? nextDueDateStr : '',
+        canSendWhatsApp: !isTrial,
+        canDownloadReports: !isTrial,
+        canViewReports: true
     };
 
     clients.unshift(newClient);
     saveClientsDatabase(clients);
+    if (isTrial) {
+        localStorage.setItem('paseboda_client_trial_end_' + email, nextDate.getTime().toString());
+    }
     closeNewClientModal();
 
     if (typeof sendTelegramNewAgencyAlert === 'function') {
@@ -1207,4 +1231,175 @@ function renderDevAnalyticsDashboard() {
         });
     }
 }
+
+// ==========================================================================
+// APROVISIONAMIENTO RÁPIDO DE 1 MES DE PRUEBA (30 DÍAS) - MASTER DEVELOPER
+// ==========================================================================
+
+function handleQuickTrialProvision() {
+    const emailInput = document.getElementById('devQuickTrialEmail');
+    const agencyInput = document.getElementById('devQuickTrialAgency');
+    const passInput = document.getElementById('devQuickTrialPass');
+    const resultBox = document.getElementById('devQuickTrialResult');
+
+    if (!emailInput || !emailInput.value.trim()) {
+        alert('Por favor ingresa al menos un correo electrónico para otorgar el mes de prueba.');
+        return;
+    }
+
+    const rawEmails = emailInput.value.split(/[\n,;]+/);
+    const agencyName = (agencyInput && agencyInput.value.trim()) || '';
+    const password = (passInput && passInput.value.trim()) || 'PASE-30DIAS';
+
+    const clients = getClientsDatabase();
+    const provisionedList = [];
+    const now = Date.now();
+    const trialDurationMs = 30 * 24 * 60 * 60 * 1000; // 30 días
+    const trialEndMs = now + trialDurationMs;
+    const nextDueDate = new Date(trialEndMs).toISOString().split('T')[0];
+
+    rawEmails.forEach(raw => {
+        const email = raw.trim().toLowerCase();
+        if (!email || !email.includes('@')) return;
+
+        let existing = clients.find(c => c.email.toLowerCase() === email);
+        if (existing) {
+            existing.paymentStatus = 'trial_30_days';
+            existing.planTier = 'trial_30_days';
+            existing.isSuspended = false;
+            existing.suspensionNotice = '';
+            existing.trialStartDate = new Date().toISOString().split('T')[0];
+            existing.trialEndMs = trialEndMs;
+            existing.trialEndDate = nextDueDate;
+            existing.nextDueDate = nextDueDate;
+            existing.monthlyFee = 0;
+            existing.tempPassword = password;
+            existing.permanentPassword = password;
+            existing.hasPermanentPassword = true;
+            existing.canSendWhatsApp = false;
+            existing.canDownloadReports = false;
+            existing.canViewReports = true;
+            existing.status = 'trial_30_days';
+            provisionedList.push(existing);
+        } else {
+            const defaultAgency = agencyName || (email.split('@')[0].toUpperCase() + ' Weddings');
+            const newClient = {
+                id: 'client_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                agencyName: defaultAgency,
+                plannerName: agencyName || email.split('@')[0],
+                email: email,
+                phone: '',
+                planTier: 'trial_30_days',
+                maxWeddings: 2,
+                monthlyFee: 0,
+                billingCycleDay: new Date().getDate(),
+                lastPaymentDate: new Date().toISOString().split('T')[0],
+                nextDueDate: nextDueDate,
+                paymentStatus: 'trial_30_days',
+                isSuspended: false,
+                suspensionNotice: '',
+                tempPassword: password,
+                tempPassUsesLeft: 999,
+                hasPermanentPassword: true,
+                permanentPassword: password,
+                createdAt: new Date().toISOString().split('T')[0],
+                status: 'trial_30_days',
+                trialStartDate: new Date().toISOString().split('T')[0],
+                trialEndMs: trialEndMs,
+                trialEndDate: nextDueDate,
+                canSendWhatsApp: false,
+                canDownloadReports: false,
+                canViewReports: true
+            };
+            clients.unshift(newClient);
+            provisionedList.push(newClient);
+        }
+        localStorage.setItem('paseboda_client_trial_end_' + email, trialEndMs.toString());
+    });
+
+    saveClientsDatabase(clients);
+    renderClientsDashboard();
+
+    if (resultBox && provisionedList.length > 0) {
+        resultBox.style.display = 'block';
+        const first = provisionedList[0];
+        resultBox.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <strong style="color:#10b981; font-size:0.95rem;">🎉 ¡${provisionedList.length} cuenta(s) habilitada(s) con 1 Mes de Prueba (30 Días)!</strong>
+                    <div style="font-size:0.82rem; color:#cbd5e1; margin-top:4px;">
+                        <strong>Correo(s):</strong> ${provisionedList.map(p => p.email).join(', ')} · <strong>Clave:</strong> <code style="color:#38bdf8; background:#0f172a; padding:2px 6px; border-radius:4px; font-weight:800;">${password}</code> · <strong>Vence:</strong> ${nextDueDate}
+                    </div>
+                    <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">
+                        ✓ Reportes disponibles para visualización en pantalla (sin descarga PDF) · WhatsApp en modo simulación
+                    </div>
+                </div>
+                <button type="button" onclick="copyTrialWelcomeMessage('${first.email}', '${password}', '${nextDueDate}')" style="background:#25d366; color:#ffffff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+                    <span>📲 Copiar Mensaje para WhatsApp / Email</span>
+                </button>
+            </div>
+        `;
+    }
+
+    if (typeof showToast === 'function') {
+        showToast(`✨ ${provisionedList.length} cuenta(s) aprovisionadas con 1 mes de prueba (30 días).`);
+    }
+
+    if (emailInput) emailInput.value = '';
+}
+
+function extendClientTrial30Days(clientId) {
+    const clients = getClientsDatabase();
+    const client = clients.find(c => c.id === clientId);
+    if (!client) return;
+
+    const baseMs = (client.trialEndMs && client.trialEndMs > Date.now()) ? client.trialEndMs : Date.now();
+    const newEndMs = baseMs + (30 * 24 * 60 * 60 * 1000);
+    const newDueDate = new Date(newEndMs).toISOString().split('T')[0];
+
+    client.trialEndMs = newEndMs;
+    client.trialEndDate = newDueDate;
+    client.nextDueDate = newDueDate;
+    client.paymentStatus = 'trial_30_days';
+    client.isSuspended = false;
+
+    saveClientsDatabase(clients);
+    localStorage.setItem('paseboda_client_trial_end_' + client.email.toLowerCase(), newEndMs.toString());
+    renderClientsDashboard();
+
+    if (typeof showToast === 'function') {
+        showToast(`⏳ Prueba de 30 días extendida con éxito para ${client.agencyName} (Vence: ${newDueDate}).`);
+    }
+}
+
+function copyTrialWelcomeMessage(email, password, dueDate) {
+    const text = `🎉 *¡Bienvenida a tu Acceso de Prueba de 1 Mes en PaseBoda.com!*
+
+Hemos activado tu cuenta para que puedas explorar la plataforma completa:
+🌐 *Acceso:* https://paseboda.com
+👤 *Usuario:* ${email}
+🔑 *Contraseña:* ${password}
+⏳ *Vigencia:* 30 días completos (Vence: ${dueDate})
+
+*Lo que puedes hacer desde hoy:*
+• Acomodo de mesas y croquis 2D interactivo con asignación de sillas y comensales.
+• Lista de invitados y pases individuales / familiares con alergias médicas.
+• Cronograma y minuto a minuto del Gran Día.
+• Bitácora de accesos y auditoría en puerta.
+• Muestra de reportes ejecutivos para el Chef de banquetes, Capitán de meseros y Seating Chart.
+
+_Nota: Durante el periodo de prueba de 1 mes los reportes son de previsualización en pantalla y los envíos de WhatsApp son en modo simulación. Para descargas oficiales en PDF y despachos masivos en vivo, activa tu plan en PaseBoda._`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (typeof showToast === 'function') showToast('📋 Mensaje de bienvenida para WhatsApp copiado al portapapeles.');
+        });
+    } else {
+        alert(text);
+    }
+}
+
+window.handleQuickTrialProvision = handleQuickTrialProvision;
+window.extendClientTrial30Days = extendClientTrial30Days;
+window.copyTrialWelcomeMessage = copyTrialWelcomeMessage;
 

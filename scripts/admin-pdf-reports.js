@@ -4,15 +4,31 @@
 // ==========================================================================
 
 function openLuxuryReportModal(modalTitleText, documentHtml) {
-    // 🔒 Candado de Periodo de Prueba de 15 Días: Bloqueo de Reportes y Dossier
-    if (typeof isAccountInTrial === 'function' && isAccountInTrial()) {
-        if (typeof showTrialFeatureLockedModal === 'function') {
-            showTrialFeatureLockedModal('reports', 'Para visualizar y descargar el Dossier Técnico Oficial para el Recinto, Ficha de Cocina para el Chef y Reporte de Mesas en PDF, activa tu plan.');
-        }
-        return;
-    }
-
     const modal = document.getElementById('modalPDFPreview');
+    const paper = document.getElementById('pdfDocumentPaper');
+    if (!modal || !paper) return;
+
+    // Visual feedback for Trial / Demo: Allow viewing on screen, show sample watermark
+    const isTrial = typeof isAccountInTrial === 'function' && isAccountInTrial();
+    if (isTrial) {
+        documentHtml = `
+            <div style="background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:1.5px dashed #d97706; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:0.83rem; color:#92400e;">
+                <div>
+                    <strong>👀 Muestra de Demostración (Prueba 1 Mes):</strong>
+                    <span>Estás viendo este reporte en pantalla. Para descargar en PDF de alta resolución o imprimir oficialmente sin marcas de agua, activa tu plan.</span>
+                </div>
+                <button type="button" onclick="closeModal('modalPDFPreview'); showTab('settings');" style="background:#0f172a; color:#ffffff; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
+                    💳 Activar Plan
+                </button>
+            </div>
+            <div style="position:relative;">
+                <div style="position:absolute; top:35%; left:50%; transform:translate(-50%, -50%) rotate(-25deg); font-size:2.2rem; font-weight:900; color:rgba(15,23,42,0.06); pointer-events:none; text-align:center; width:100%; text-transform:uppercase; letter-spacing:0.15em; z-index:10;">
+                    VISTA PREVIA DE MUESTRA • PASEBODA PRO
+                </div>
+                ${documentHtml}
+            </div>
+        `;
+    }
     const paper = document.getElementById('pdfDocumentPaper');
     if (!modal || !paper) return;
 

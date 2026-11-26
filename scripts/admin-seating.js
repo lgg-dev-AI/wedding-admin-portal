@@ -1025,7 +1025,21 @@ function openCaptainPrintModal() {
         `;
     });
 
+    const isTrial = typeof isAccountInTrial === 'function' && isAccountInTrial();
+    const trialBannerHtml = isTrial ? `
+        <div style="background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:1.5px dashed #d97706; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:0.83rem; color:#92400e;">
+            <div>
+                <strong>👀 Muestra de Demostración (Prueba 1 Mes):</strong>
+                <span>Estás previsualizando la Hoja de Servicio para Capitán de Meseros en pantalla. La descarga e impresión oficial en PDF están reservadas para planes oficiales.</span>
+            </div>
+            <button type="button" onclick="closeModal('modalCaptainPrint'); showTab('settings');" style="background:#0f172a; color:#ffffff; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
+                💳 Activar Plan
+            </button>
+        </div>
+    ` : '';
+
     paper.innerHTML = `
+        ${trialBannerHtml}
         <div style="border-bottom: 2px solid #0f172a; padding-bottom:12px; margin-bottom:16px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>

@@ -231,7 +231,7 @@ function applyRoleVisibility() {
         roleSwitch.style.display = (role === 'couple') ? 'none' : 'block';
     }
 
-    // 🔒 Interceptor de Periodo de Prueba de 15 Días
+    // 🔒 Interceptor de Periodo de Prueba de 1 Mes (30 Días)
     if (!isDev && typeof isAccountTrialExpired === 'function' && isAccountTrialExpired()) {
         if (typeof showTrialExpiredFreezeModal === 'function') {
             showTrialExpiredFreezeModal();
@@ -241,10 +241,10 @@ function applyRoleVisibility() {
         const demoBanner = document.getElementById('demoFloatingBanner');
         if (demoBanner) {
             demoBanner.style.display = 'flex';
-            const daysLeft = typeof getTrialDaysRemaining === 'function' ? getTrialDaysRemaining() : 15;
+            const daysLeft = typeof getTrialDaysRemaining === 'function' ? getTrialDaysRemaining() : 30;
             const demoText = document.getElementById('demoBannerText');
             if (demoText) {
-                demoText.innerHTML = `<strong>⏳ PRUEBA DE 15 DÍAS:</strong> Te restan <strong>${daysLeft} días</strong> de prueba. Mesas 2D y CRM habilitados. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">💳 Activar Plan para Desbloquear WhatsApp, Invitaciones Web y Dossier PDF</a>`;
+                demoText.innerHTML = `<strong>⏳ PRUEBA DE 1 MES (30 DÍAS):</strong> Te restan <strong>${daysLeft} días</strong> de prueba. Explora mesas 2D, bitácoras y muestra de reportes. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">💳 Activar Plan para Desbloquear WhatsApp Oficial y Descarga de Reportes en PDF</a>`;
             }
         }
     }
@@ -434,19 +434,27 @@ function submitFullLogin(e) {
         sessionStorage.setItem('antigravity_planner_name', client.plannerName || client.agencyName);
         sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
 
-        if (client.paymentStatus === 'demo_trial' || !client.planTier) {
-            sessionStorage.setItem('antigravity_demo_mode', 'true');
+        const isTrialStatus = client.paymentStatus === 'trial_30_days' || client.paymentStatus === 'trial_15_days' || client.paymentStatus === 'demo_trial' || client.planTier === 'trial_30_days' || !client.planTier;
+        if (isTrialStatus) {
+            sessionStorage.setItem('antigravity_demo_mode', 'false');
             sessionStorage.setItem('antigravity_is_demo_trial', 'true');
-            localStorage.removeItem('wedding_subscription_tier');
+            sessionStorage.setItem('antigravity_is_trial', 'true');
+            sessionStorage.setItem('antigravity_trial_type', 'trial_30_days');
+            const endMs = client.trialEndMs || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+            sessionStorage.setItem('antigravity_trial_end_ms', endMs.toString());
+            localStorage.setItem('wedding_subscription_tier', 'trial_30_days');
+            localStorage.setItem('paseboda_client_trial_end_' + client.email.toLowerCase(), endMs.toString());
             const demoBanner = document.getElementById('demoFloatingBanner');
             if (demoBanner) demoBanner.style.display = 'flex';
             const demoText = document.getElementById('demoBannerText');
             if (demoText) {
-                demoText.innerHTML = `<strong>CUENTA DEMO DE ${client.agencyName.toUpperCase()}:</strong> Explora la plataforma como Wedding Planner. Activa tu plan en <em>Configuración de Planes</em>.`;
+                const daysLeft = typeof getTrialDaysRemaining === 'function' ? getTrialDaysRemaining() : 30;
+                demoText.innerHTML = `<strong>⏳ PRUEBA DE 1 MES DE ${client.agencyName.toUpperCase()}:</strong> Te restan <strong>${daysLeft} días</strong> de prueba. Mesas 2D, bitácoras y muestra de reportes. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">💳 Activar Plan para Desbloquear WhatsApp Oficial y Descarga de Reportes en PDF</a>`;
             }
         } else {
             sessionStorage.removeItem('antigravity_demo_mode');
             sessionStorage.removeItem('antigravity_is_demo_trial');
+            sessionStorage.removeItem('antigravity_is_trial');
             localStorage.setItem('wedding_subscription_tier', client.planTier);
             const demoBanner = document.getElementById('demoFloatingBanner');
             if (demoBanner) demoBanner.style.display = 'none';
@@ -484,15 +492,27 @@ function submitFullLogin(e) {
         sessionStorage.setItem('antigravity_planner_name', client.plannerName || client.agencyName);
         sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
 
-        if (client.paymentStatus === 'demo_trial' || !client.planTier) {
-            sessionStorage.setItem('antigravity_demo_mode', 'true');
+        const isTrialStatusB = client.paymentStatus === 'trial_30_days' || client.paymentStatus === 'trial_15_days' || client.paymentStatus === 'demo_trial' || client.planTier === 'trial_30_days' || !client.planTier;
+        if (isTrialStatusB) {
+            sessionStorage.setItem('antigravity_demo_mode', 'false');
             sessionStorage.setItem('antigravity_is_demo_trial', 'true');
-            localStorage.removeItem('wedding_subscription_tier');
+            sessionStorage.setItem('antigravity_is_trial', 'true');
+            sessionStorage.setItem('antigravity_trial_type', 'trial_30_days');
+            const endMs = client.trialEndMs || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+            sessionStorage.setItem('antigravity_trial_end_ms', endMs.toString());
+            localStorage.setItem('wedding_subscription_tier', 'trial_30_days');
+            localStorage.setItem('paseboda_client_trial_end_' + client.email.toLowerCase(), endMs.toString());
             const demoBanner = document.getElementById('demoFloatingBanner');
             if (demoBanner) demoBanner.style.display = 'flex';
+            const demoText = document.getElementById('demoBannerText');
+            if (demoText) {
+                const daysLeft = typeof getTrialDaysRemaining === 'function' ? getTrialDaysRemaining() : 30;
+                demoText.innerHTML = `<strong>⏳ PRUEBA DE 1 MES DE ${client.agencyName.toUpperCase()}:</strong> Te restan <strong>${daysLeft} días</strong> de prueba. Mesas 2D, bitácoras y muestra de reportes. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">💳 Activar Plan para Desbloquear WhatsApp Oficial y Descarga de Reportes en PDF</a>`;
+            }
         } else {
             sessionStorage.removeItem('antigravity_demo_mode');
             sessionStorage.removeItem('antigravity_is_demo_trial');
+            sessionStorage.removeItem('antigravity_is_trial');
             localStorage.setItem('wedding_subscription_tier', client.planTier);
             const demoBanner = document.getElementById('demoFloatingBanner');
             if (demoBanner) demoBanner.style.display = 'none';
@@ -820,9 +840,9 @@ function submitPlannerRegistration(e) {
         return;
     }
 
-    // 4. Inicializar Periodo de Prueba de 15 Días Exactos
+    // 4. Inicializar Periodo de Prueba de 1 Mes (30 Días Exactos)
     const nowMs = Date.now();
-    const trialDurationMs = 15 * 24 * 60 * 60 * 1000; // 15 días en milisegundos
+    const trialDurationMs = 30 * 24 * 60 * 60 * 1000; // 30 días en milisegundos
     const trialEndMs = nowMs + trialDurationMs;
     const trialEndDateStr = new Date(trialEndMs).toISOString();
 
@@ -832,13 +852,13 @@ function submitPlannerRegistration(e) {
         plannerName: planner,
         email: email,
         phone: fullPhone,
-        planTier: null, // Sin plan de pago contratado aún
-        maxWeddings: 1, // En prueba: 1 boda de exploración
+        planTier: 'trial_30_days', // En prueba de 1 mes
+        maxWeddings: 2, // En prueba: bodas de exploración
         monthlyFee: 0,
         billingCycleDay: new Date().getDate(),
         lastPaymentDate: '',
-        nextDueDate: '',
-        paymentStatus: 'trial_15_days',
+        nextDueDate: new Date(trialEndMs).toISOString().split('T')[0],
+        paymentStatus: 'trial_30_days',
         trialStartDate: new Date(nowMs).toISOString(),
         trialEndDate: trialEndDateStr,
         trialEndMs: trialEndMs,
@@ -849,7 +869,10 @@ function submitPlannerRegistration(e) {
         hasPermanentPassword: true,
         permanentPassword: password,
         createdAt: new Date().toISOString().split('T')[0],
-        status: 'trial_15_days'
+        status: 'trial_30_days',
+        canSendWhatsApp: false,
+        canDownloadReports: false,
+        canViewReports: true
     };
 
     clients.unshift(newClient);
@@ -857,7 +880,7 @@ function submitPlannerRegistration(e) {
         saveClientsDatabase(clients);
     }
 
-    // Iniciar sesión en modo prueba de 15 días
+    // Iniciar sesión en modo prueba de 1 mes (30 días)
     sessionStorage.setItem(AUTH_CONFIG.SESSION_KEY, 'authenticated');
     sessionStorage.setItem(AUTH_CONFIG.USER_KEY, email);
     sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'planner');
@@ -865,16 +888,17 @@ function submitPlannerRegistration(e) {
     sessionStorage.setItem('antigravity_agency_name', agency);
     sessionStorage.setItem('antigravity_planner_name', planner);
     sessionStorage.setItem('antigravity_user_phone', fullPhone);
-    sessionStorage.setItem('antigravity_demo_mode', 'true');
+    sessionStorage.setItem('antigravity_demo_mode', 'false');
     sessionStorage.setItem('antigravity_is_demo_trial', 'true');
     sessionStorage.setItem('antigravity_is_trial', 'true');
+    sessionStorage.setItem('antigravity_trial_type', 'trial_30_days');
     sessionStorage.setItem('antigravity_trial_end_ms', trialEndMs.toString());
     sessionStorage.setItem('antigravity_trial_end_date', trialEndDateStr);
     sessionStorage.removeItem('antigravity_is_trial_expired');
     sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
 
     localStorage.setItem('paseboda_client_trial_end_' + email, trialEndMs.toString());
-    localStorage.removeItem('wedding_subscription_tier');
+    localStorage.setItem('wedding_subscription_tier', 'trial_30_days');
 
     hideAuthOverlays();
     applyRoleVisibility();
@@ -884,16 +908,16 @@ function submitPlannerRegistration(e) {
     if (typeof setRole === 'function') setRole('planner');
     resetInactivityTimer();
 
-    // Actualizar banner de prueba con cuenta regresiva de 15 días
+    // Actualizar banner de prueba con cuenta regresiva de 30 días
     const demoBanner = document.getElementById('demoFloatingBanner');
     if (demoBanner) demoBanner.style.display = 'flex';
     const demoText = document.getElementById('demoBannerText');
     if (demoText) {
-        demoText.innerHTML = `<strong>⏳ PRUEBA DE 15 DÍAS DE ${agency.toUpperCase()}:</strong> Te restan <strong>15 días</strong>. Mesas 2D y CRM activos. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">Activa tu Plan para Desbloquear WhatsApp, Invitaciones Web y Dossier PDF</a>`;
+        demoText.innerHTML = `<strong>⏳ PRUEBA DE 1 MES DE ${agency.toUpperCase()}:</strong> Te restan <strong>30 días</strong> de prueba. Mesas 2D, bitácoras y muestra de reportes activos. <a href="javascript:void(0)" onclick="showTab('settings')" style="color:#fbbf24; text-decoration:underline; font-weight:800; margin-left:6px;">Activa tu Plan para Desbloquear WhatsApp Oficial y Descarga de Reportes en PDF</a>`;
     }
 
     if (typeof showToast === 'function') {
-        showToast(`✨ ¡Bienvenida ${planner}! Tu prueba de 15 días para ${agency} está activa.`);
+        showToast(`✨ ¡Bienvenida ${planner}! Tu prueba de 1 mes (30 días) para ${agency} está activa.`);
     }
 
     if (typeof renderSettingsTab === 'function') {
@@ -1027,7 +1051,7 @@ function switchLegalTab(tab) {
 }
 
 // ==========================================================================
-// CONTROL DE ACCESO, PERIODO DE PRUEBA DE 15 DÍAS & PAYWALL INTERCEPTOR
+// CONTROL DE ACCESO, PERIODO DE PRUEBA DE 1 MES (30 DÍAS) & PAYWALL INTERCEPTOR
 // ==========================================================================
 
 function isAccountInTrial() {
@@ -1037,12 +1061,12 @@ function isAccountInTrial() {
         return false;
     }
     const tier = localStorage.getItem('wedding_subscription_tier');
-    if (tier && tier !== 'demo_trial' && tier !== 'trial_15_days' && tier !== 'null') {
+    if (tier && tier !== 'demo_trial' && tier !== 'trial_15_days' && tier !== 'trial_30_days' && tier !== 'null') {
         return false;
     }
     const clients = typeof getClientsDatabase === 'function' ? getClientsDatabase() : [];
     const client = clients.find(c => c.email.toLowerCase() === email);
-    if (client && client.paymentStatus === 'paid' && client.planTier) {
+    if (client && client.paymentStatus === 'paid' && client.planTier && client.planTier !== 'trial_30_days') {
         return false;
     }
     return true;
@@ -1061,7 +1085,7 @@ function isAccountTrialExpired() {
             endMs = new Date(client.trialEndDate).getTime();
         }
         if (!endMs && client.createdAt) {
-            endMs = new Date(client.createdAt).getTime() + (15 * 24 * 60 * 60 * 1000);
+            endMs = new Date(client.createdAt).getTime() + (30 * 24 * 60 * 60 * 1000);
         }
         if (endMs && now > endMs) return true;
         if (client.paymentStatus === 'trial_expired') return true;
@@ -1089,7 +1113,7 @@ function getTrialDaysRemaining() {
     if (!endMs) {
         endMs = Number(localStorage.getItem('paseboda_client_trial_end_' + email) || 0);
     }
-    if (!endMs) return 15;
+    if (!endMs) return 30;
     const diff = endMs - now;
     return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
 }
@@ -1102,11 +1126,11 @@ function showTrialFeatureLockedModal(featureType = 'generic', customMessage = ''
     if (featureType === 'whatsapp') {
         icon = '📲';
         title = 'Envíos Masivos WhatsApp Protegidos';
-        desc = customMessage || 'Los despachos oficiales por WhatsApp con confirmación RSVP automática están bloqueados durante la prueba de 15 días para proteger la cuota y reputación de la línea oficial. Activa tu plan para enviar invitaciones masivas ilimitadas.';
+        desc = customMessage || 'Los despachos oficiales masivos por WhatsApp con confirmación automática RSVP están desactivados durante la prueba de 1 mes para proteger la cuota de la línea oficial. Puedes diseñar y previsualizar plantillas. Activa tu plan para enviar invitaciones masivas reales.';
     } else if (featureType === 'reports' || featureType === 'captain_print') {
         icon = '📑';
-        title = 'Dossier Técnico y Reportes Oficiales en PDF';
-        desc = customMessage || 'Para descargar o imprimir el Dossier Técnico Oficial para el Recinto, Ficha de Cocina para el Chef y Plano de Mesas para Capitanes, activa tu plan.';
+        title = 'Descarga e Impresión Oficial en PDF';
+        desc = customMessage || 'Puedes explorar la vista previa interactiva en pantalla de este reporte durante tu prueba de 1 mes. Para descargar el PDF en alta resolución o imprimir el Dossier Oficial sin marcas de agua, activa tu plan.';
     } else if (featureType === 'day_d' || featureType === 'hostess') {
         icon = '⚡';
         title = 'Modo Día D y Check-in QR Hostess en Puerta';
@@ -1131,7 +1155,7 @@ function showTrialFeatureLockedModal(featureType = 'generic', customMessage = ''
                 ${icon}
             </div>
             <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; font-weight:800; color:#d97706; display:block; margin-bottom:6px;">
-                Modo Prueba de 15 Días
+                Modo Prueba de 1 Mes (30 Días)
             </span>
             <h3 style="font-family:'Playfair Display', serif; font-size:1.55rem; color:#0f172a; margin:0 0 12px; font-weight:700;">
                 ${title}

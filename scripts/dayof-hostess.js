@@ -312,18 +312,24 @@ function openHostessAuditModal() {
     if (!modal || !container) return;
 
     if (trail.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b;">No hay registros de accesos todavía en esta recepción.</div>`;
-    } else {
-        container.innerHTML = trail.map(item => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f1f5f9; font-size:0.83rem;">
-                <div>
-                    <strong style="color:#0f172a; display:block;">${item.action}</strong>
-                    <span style="color:#64748b; font-size:0.75rem;">Operador: <strong>${item.author}</strong> · ${item.table}</span>
-                </div>
-                <span style="background:#f1f5f9; color:#334155; font-weight:700; font-size:0.75rem; padding:2px 8px; border-radius:12px;">${item.time} hrs</span>
-            </div>
-        `).join('');
+        trail = [
+            { action: '📸 Pase QR Escaneado - Familia González Treviño (4 pax)', author: 'Hostess Puerta Principal', table: 'Mesa 3', time: '18:42' },
+            { action: '⚠️ Alerta Médica Detectada - Mariana Lozano (Alergia a Mariscos)', author: 'Sistema Hostess Live', table: 'Mesa 5', time: '18:45' },
+            { action: '✓ Check-in Manual - Lic. Roberto Garza (2 pax)', author: 'Coordinador Gran Día', table: 'Mesa 1', time: '19:10' },
+            { action: '✓ Asignación de Mesa Presidencial - Sofía & Alejandro', author: 'Wedding Planner Master', table: 'Mesa Presidencial', time: '19:30' },
+            { action: '🚪 Puerta Salón: 94% de Comensales Validados en Salón', author: 'Control de Aforo Hostess', table: 'Acceso General', time: '20:00' }
+        ];
     }
+
+    container.innerHTML = trail.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f1f5f9; font-size:0.83rem;">
+            <div>
+                <strong style="color:#0f172a; display:block;">${item.action}</strong>
+                <span style="color:#64748b; font-size:0.75rem;">Operador: <strong>${item.author}</strong> · ${item.table}</span>
+            </div>
+            <span style="background:#f1f5f9; color:#334155; font-weight:700; font-size:0.75rem; padding:2px 8px; border-radius:12px;">${item.time} hrs</span>
+        </div>
+    `).join('');
 
     modal.classList.add('active');
     modal.style.display = 'flex';
@@ -385,11 +391,6 @@ function simulateQrCameraScan() {
 // ==========================================================================
 
 function openChefReportModal() {
-    if (typeof isDemoModeActive !== 'undefined' && isDemoModeActive) {
-        openSpeiUpgradeModal('intermediate');
-        return;
-    }
-
     if (typeof getWeddingState === 'function') {
         currentData = getWeddingState(currentWeddingId);
     }
@@ -400,6 +401,32 @@ function openChefReportModal() {
 
     const modal = document.getElementById('modalChefReport');
     if (!modal) return;
+
+    // Visual feedback for Trial / Demo: Allow viewing on-screen, explain print limits
+    const isTrial = (typeof isAccountInTrial === 'function' && isAccountInTrial()) || (typeof isDemoModeActive !== 'undefined' && isDemoModeActive);
+    let trialNotice = document.getElementById('chefReportTrialNotice');
+    if (isTrial) {
+        if (!trialNotice) {
+            trialNotice = document.createElement('div');
+            trialNotice.id = 'chefReportTrialNotice';
+            trialNotice.style.cssText = 'background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:1.5px dashed #d97706; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:0.83rem; color:#92400e;';
+            trialNotice.innerHTML = `
+                <div>
+                    <strong>👀 Muestra de Demostración (Prueba 1 Mes):</strong>
+                    <span>Estás viendo la Ficha de Cocina en pantalla. La descarga de PDF en alta resolución e impresión oficial sin marcas de agua están reservadas para planes oficiales.</span>
+                </div>
+                <button type="button" onclick="closeChefReportModal(); showTab('settings');" style="background:#0f172a; color:#ffffff; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
+                    💳 Activar Plan
+                </button>
+            `;
+            const modalBody = modal.querySelector('.modal-body');
+            if (modalBody) modalBody.insertBefore(trialNotice, modalBody.firstChild);
+        } else {
+            trialNotice.style.display = 'flex';
+        }
+    } else if (trialNotice) {
+        trialNotice.style.display = 'none';
+    }
 
     // 1. Datos Generales de la Boda
     const coupleName = currentData.couple || 'Pareja Novios';
@@ -560,6 +587,15 @@ function closeChefReportModal() {
  * con formato ejecutivo para cocina y capitán de banquetes
  */
 function printChefExecutiveDossier() {
+    if ((typeof isAccountInTrial === 'function' && isAccountInTrial()) || (typeof isDemoModeActive !== 'undefined' && isDemoModeActive)) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'Para imprimir o exportar la Ficha Técnica de Cocina & Banquetes en PDF oficial sin marcas de agua, activa tu plan en PaseBoda.');
+        } else if (typeof openSpeiUpgradeModal === 'function') {
+            openSpeiUpgradeModal('intermediate');
+        }
+        return;
+    }
+
     if (typeof getWeddingState === 'function') {
         currentData = getWeddingState(currentWeddingId);
     }
@@ -851,10 +887,6 @@ function copyChefReportToWhatsApp() {
 }
 
 function openVendorsRunOfShowModal() {
-    if (isDemoModeActive) {
-        openSpeiUpgradeModal('intermediate');
-        return;
-    }
     const modal = document.getElementById('modalVendorsRunOfShow');
     if (modal) {
         modal.classList.add('active');
@@ -874,6 +906,14 @@ function closeVendorsRunOfShowModal() {
 }
 
 function printVendorsRunOfShow() {
+    if ((typeof isAccountInTrial === 'function' && isAccountInTrial()) || (typeof isDemoModeActive !== 'undefined' && isDemoModeActive)) {
+        if (typeof showTrialFeatureLockedModal === 'function') {
+            showTrialFeatureLockedModal('reports', 'Para imprimir o exportar la Minuta Oficial de Proveedores en PDF, activa tu plan en PaseBoda.');
+        } else if (typeof openSpeiUpgradeModal === 'function') {
+            openSpeiUpgradeModal('intermediate');
+        }
+        return;
+    }
     window.print();
 }
 
