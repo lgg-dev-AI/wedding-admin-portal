@@ -155,6 +155,27 @@ function saveClientsDatabase(clients) {
 }
 
 /**
+ * AUTO-PURGE & SYNC ENGINE PARA MÁSTER DEV
+ * Limpia localStorage de antigravity_clients_db y recarga la versión fresca del código
+ */
+function refreshAndPurgeClientsCache(silent = false) {
+    try {
+        localStorage.removeItem(CLIENTS_STORAGE_KEY);
+        const fresh = getClientsDatabase();
+        if (typeof renderClientsDashboard === 'function') renderClientsDashboard();
+        if (typeof renderDevAnalyticsDashboard === 'function') renderDevAnalyticsDashboard();
+        if (!silent && typeof showToast === 'function') {
+            showToast(`🔄 Caché purgada: ${fresh.length} agencias sincronizadas al 100%.`);
+        }
+        return fresh;
+    } catch (err) {
+        console.error('Error al purgar caché de clientes:', err);
+    }
+}
+window.refreshAndPurgeClientsCache = refreshAndPurgeClientsCache;
+
+
+/**
  * CALCULATES CALENDAR DAYS REMAINING UNTIL NEXT DUE DATE
  * returns > 0 if in the future, 0 if due today, -1 if in grace period day (+24h), < -1 if grace period expired.
  */

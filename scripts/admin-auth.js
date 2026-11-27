@@ -267,6 +267,12 @@ function switchOrUnlockDeveloper() {
         sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'developer');
         sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
 
+        // AUTO-PURGE CACHE AL ENTRAR A MÁSTER DEV
+        try {
+            localStorage.removeItem('antigravity_clients_db');
+            if (typeof getClientsDatabase === 'function') getClientsDatabase();
+        } catch(e) { console.warn('Cache purge error:', e); }
+
         applyRoleVisibility();
         if (typeof showTab === 'function') showTab('dev-clients');
         if (typeof renderClientsDashboard === 'function') renderClientsDashboard();
@@ -293,7 +299,13 @@ function submitFullLogin(e) {
             sessionStorage.setItem(AUTH_CONFIG.USER_KEY, AUTH_CONFIG.DEVELOPER_EMAIL);
             sessionStorage.setItem(AUTH_CONFIG.ROLE_KEY, 'developer');
             sessionStorage.setItem(AUTH_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
-            
+
+            // AUTO-PURGE CACHE AL ENTRAR A MÁSTER DEV
+            try {
+                localStorage.removeItem('antigravity_clients_db');
+                if (typeof getClientsDatabase === 'function') getClientsDatabase();
+            } catch(e) { console.warn('Cache purge error:', e); }
+
             hideAuthOverlays();
             applyRoleVisibility();
             if (typeof populateWeddingSelectorForUser === 'function') {
@@ -972,6 +984,10 @@ function submitUnlockSession(e) {
 
 function logoutManual() {
     if (confirm('¿Deseas cerrar tu sesión actual de PaseBoda?')) {
+        // Auto-purgar caché de clientes al cerrar sesión
+        try {
+            localStorage.removeItem('antigravity_clients_db');
+        } catch(e) { console.warn('Cache purge error on logout:', e); }
         sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEY);
         sessionStorage.removeItem(AUTH_CONFIG.USER_KEY);
         sessionStorage.removeItem(AUTH_CONFIG.ROLE_KEY);

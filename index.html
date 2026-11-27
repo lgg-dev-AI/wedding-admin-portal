@@ -1707,6 +1707,9 @@
                         <p class="tab-subtitle">Monitorea las mensualidades de tus Wedding Planners, envía recordatorios automáticos de cobro (3 semanas), emite alertas de corte (24h antes) y bloquea o autoriza accesos en 1 clic.</p>
                     </div>
                     <div class="tab-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-action secondary" onclick="refreshAndPurgeClientsCache()" style="border:1px solid #10b981; color:#065f46; font-weight:700; background:#f0fdf4;" title="Limpiar caché de clientes y recargar datos frescos del servidor">
+                            <span>🔄 Sincronizar / Purgar Caché</span>
+                        </button>
                         <button class="btn-action secondary" onclick="printMasterDeveloperSaaSReport()">
                             <span>🖨️ Corte Contable SaaS (PDF)</span>
                         </button>
@@ -6734,11 +6737,11 @@
     </a>
 
     <!-- CLIENTS, AUTH, DAY-OF, TELEGRAM & STRIPE BILLING SCRIPTS -->
-    <script src="scripts/admin-clients.js?v=20261127_kt_v4"></script>
-    <script src="scripts/admin-auth.js?v=20261127_kt_v4"></script>
-    <script src="scripts/dayof-hostess.js?v=20261127_kt_v4"></script>
-    <script src="scripts/telegram-notify.js?v=20261127_kt_v4"></script>
-    <script src="scripts/stripe-billing.js?v=20261127_kt_v4"></script>
+    <script src="scripts/admin-clients.js?v=20261127_kt_v6"></script>
+    <script src="scripts/admin-auth.js?v=20261127_kt_v6"></script>
+    <script src="scripts/dayof-hostess.js?v=20261127_kt_v6"></script>
+    <script src="scripts/telegram-notify.js?v=20261127_kt_v6"></script>
+    <script src="scripts/stripe-billing.js?v=20261127_kt_v6"></script>
     <script src="scripts/planner-copilot.js?v=20261025_telegram_v1"></script>
     <script src="scripts/admin-rsvp-sync.js?v=20261025_telegram_v1"></script>
 
