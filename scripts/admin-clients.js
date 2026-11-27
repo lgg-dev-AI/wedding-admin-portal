@@ -96,17 +96,55 @@ const INITIAL_CLIENTS_DATA = [
         permanentPassword: 'Mariana2027*',
         createdAt: '2026-10-20',
         status: 'active'
+    },
+    {
+        id: 'client_kt_events',
+        agencyName: 'KT Events Planner',
+        plannerName: 'KT Events Planner',
+        email: 'kt.eventsplanner@gmail.com',
+        phone: '+52 81 2219 9352',
+        planTier: 'elite', // Atelier Elite (FULL VIP 100% Desbloqueado)
+        maxWeddings: 15,
+        monthlyFee: 0, // Cortesía Master Oficial
+        billingCycleDay: 27,
+        lastPaymentDate: '2026-11-27',
+        nextDueDate: '2027-11-27',
+        paymentStatus: 'paid',
+        isSuspended: false,
+        suspensionNotice: '',
+        tempPassword: 'KTPLANNER',
+        tempPassUsesLeft: 999,
+        hasPermanentPassword: true,
+        permanentPassword: 'KTPLANNER',
+        createdAt: '2026-11-27',
+        status: 'active',
+        canSendWhatsApp: true,
+        canDownloadReports: true,
+        canViewReports: true
     }
 ];
 
 function getClientsDatabase() {
     try {
         const raw = localStorage.getItem(CLIENTS_STORAGE_KEY);
-        if (!raw) {
-            localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(INITIAL_CLIENTS_DATA));
-            return INITIAL_CLIENTS_DATA;
-        }
-        return JSON.parse(raw);
+        let list = raw ? JSON.parse(raw) : [...INITIAL_CLIENTS_DATA];
+        // Ensure initial predefined clients exist in localStorage
+        INITIAL_CLIENTS_DATA.forEach(ic => {
+            const idx = list.findIndex(c => c.email.toLowerCase() === ic.email.toLowerCase());
+            if (idx === -1) {
+                list.unshift(ic);
+            } else if (ic.email.toLowerCase() === 'kt.eventsplanner@gmail.com') {
+                // Ensure KT Events stays updated with current password & full active status
+                list[idx].permanentPassword = ic.permanentPassword;
+                list[idx].hasPermanentPassword = true;
+                list[idx].tempPassword = ic.tempPassword;
+                list[idx].paymentStatus = 'paid';
+                list[idx].planTier = 'elite';
+                list[idx].isSuspended = false;
+            }
+        });
+        localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(list));
+        return list;
     } catch (e) {
         console.error('Error reading clients database', e);
         return INITIAL_CLIENTS_DATA;
